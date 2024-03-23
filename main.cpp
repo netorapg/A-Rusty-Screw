@@ -4,6 +4,8 @@ const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 const int SQUARE_SIZE = 40;
 const int GRAVITY = 1;
+const int ATTACK_WIDTH = 70;
+const int ATTACK_HEIGHT = 20;
 
 class Square
 {
@@ -29,8 +31,15 @@ public:
                     mFalling = true;
                 }
                 break;
+            case SDLK_z:
+                if (!mFalling & !mAttacking)
+                {
+                    mAttacking = true;
+                    mAttackPosX = mPosX + SQUARE_SIZE;
+                    mAttackPosY = mPosY + SQUARE_SIZE / 2 - ATTACK_HEIGHT / 2;
+                }
+                break;
             }
-            
         }
         else if (e.type == SDL_KEYUP && e.key.repeat == 0)
         {
@@ -41,6 +50,10 @@ public:
                 break;
             case SDLK_LEFT:
                 mVelX = 0;
+                break;
+            
+            case SDLK_z:
+                mAttacking = false;
                 break;
             }
         }
@@ -61,6 +74,15 @@ public:
             mPosY = SCREEN_HEIGHT - SQUARE_SIZE;
             mFalling = false;
         }
+
+        if (mAttacking)
+        {
+            mAttackPosX += mVelX;
+            if (mAttackPosX > SCREEN_WIDTH)
+            {
+                mAttacking = false;
+            }
+        }
     }
 
     void render(SDL_Renderer *renderer)
@@ -68,12 +90,21 @@ public:
         SDL_Rect fillRect = {mPosX, mPosY, SQUARE_SIZE, SQUARE_SIZE};
         SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
         SDL_RenderFillRect(renderer, &fillRect);
+
+        if (mAttacking)
+        {
+            SDL_Rect attackRect = {mAttackPosX, mAttackPosY, ATTACK_WIDTH, ATTACK_HEIGHT};
+            SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
+            SDL_RenderFillRect(renderer, &attackRect);
+        }
     }
 
 private:
     int mPosX, mPosY;
     int mVelX, mVelY;
     bool mFalling;
+    bool mAttacking;
+    int mAttackPosX, mAttackPosY;
 };
 
 class Game
@@ -138,7 +169,8 @@ public:
         SDL_RenderPresent(mRenderer);
     }
 
-    bool isQuit() const {return mQuit;}
+    bool isQuit() const { return mQuit; }
+
 private:
     SDL_Window *mWindow;
     SDL_Renderer *mRenderer;
@@ -146,14 +178,17 @@ private:
     bool mQuit;
 };
 
-int main (int argc, char* args[]) {
+int main(int argc, char *args[])
+{
     Game game;
-    if (!game.init()) {
+    if (!game.init())
+    {
         printf("Failed to initialize!\n");
         return -1;
     }
 
-    while (!game.isQuit()) {
+    while (!game.isQuit())
+    {
         game.handleEvents();
         game.update();
         game.render();
