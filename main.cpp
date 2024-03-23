@@ -7,10 +7,10 @@ const int GRAVITY = 1;
 const int ATTACK_WIDTH = 70;
 const int ATTACK_HEIGHT = 20;
 
-class Square
+class Player
 {
 public:
-    Square(int x, int y) : mPosX(x), mPosY(y), mVelX(0), mVelY(0), mFalling(true) {}
+    Player(int x, int y) : mPosX(x), mPosY(y), mVelX(0), mVelY(0), mFalling(true) {}
 
     void handleEvent(SDL_Event &e)
     {
@@ -51,7 +51,7 @@ public:
             case SDLK_LEFT:
                 mVelX = 0;
                 break;
-            
+
             case SDLK_z:
                 mAttacking = false;
                 break;
@@ -110,7 +110,7 @@ private:
 class Game
 {
 public:
-    Game() : mWindow(nullptr), mRenderer(nullptr), mQuit(false), mSquare(0, 0) {}
+    Game() : mWindow(nullptr), mRenderer(nullptr), mQuit(false), mPlayer(0, 0) {}
 
     bool init()
     {
@@ -150,13 +150,13 @@ public:
             {
                 mQuit = true;
             }
-            mSquare.handleEvent(e);
+            mPlayer.handleEvent(e);
         }
     }
 
     void update()
     {
-        mSquare.move();
+        mPlayer.move();
     }
 
     void render()
@@ -164,7 +164,7 @@ public:
         SDL_SetRenderDrawColor(mRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(mRenderer);
 
-        mSquare.render(mRenderer);
+        mPlayer.render(mRenderer);
 
         SDL_RenderPresent(mRenderer);
     }
@@ -174,7 +174,7 @@ public:
 private:
     SDL_Window *mWindow;
     SDL_Renderer *mRenderer;
-    Square mSquare;
+    Player mPlayer;
     bool mQuit;
 };
 
