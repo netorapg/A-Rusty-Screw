@@ -1,5 +1,7 @@
 #include <SDL2/SDL.h>
-#include "player.h"
+#include "player.h" 
+
+
 
 class Game
 {
@@ -70,4 +72,5 @@ private:
     SDL_Renderer *mRenderer;
     Player mPlayer;
     bool mQuit;
+  
 };
