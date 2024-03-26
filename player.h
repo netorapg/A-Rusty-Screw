@@ -21,10 +21,10 @@ public:
         {
             switch (e.key.keysym.sym)
             {
-            case SDLK_RIGHT:
+            case SDLK_d:
                 mVelX = 5;
                 break;
-            case SDLK_LEFT:
+            case SDLK_a:
                 mVelX = -5;
                 break;
             case SDLK_SPACE:
@@ -34,7 +34,7 @@ public:
                     mFalling = true;
                 }
                 break;
-            case SDLK_z:
+            case SDLK_j:
                 if (!mAttacking)
                 {
                     mAttacking = true;
@@ -42,20 +42,24 @@ public:
                     mAttackPosY = mPosY + PLAYER_SIZE / 2 - ATTACK_HEIGHT / 2;
                 }
                 break;
+            
+            case SDLK_ESCAPE:
+                exit(0);
+                break;
             }
         }
         else if (e.type == SDL_KEYUP && e.key.repeat == 0)
         {
             switch (e.key.keysym.sym)
             {
-            case SDLK_RIGHT:
+            case SDLK_d:
                 mVelX = 0;
                 break;
-            case SDLK_LEFT:
+            case SDLK_a:
                 mVelX = 0;
                 break;
 
-            case SDLK_z:
+            case SDLK_j:
                 mAttacking = false;
                 break;
             }
