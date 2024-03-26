@@ -1,5 +1,7 @@
 #include <SDL2/SDL.h>
 #include "config.h"
+#include "platform.h"
+#include <vector>
 const int PLAYER_SIZE = 40;
 const int GRAVITY = 1;
 const int ATTACK_WIDTH = 70;
@@ -8,6 +10,7 @@ const int ATTACK_HEIGHT = 20;
 class Player
 {
 public:
+    int mVelX, mVelY;
     int mPosX, mPosY;
     Player(int x, int y) : mPosX(x), mPosY(y), mVelX(0), mVelY(0), mFalling(true) {}
 
@@ -38,7 +41,7 @@ public:
                     mAttackPosY = mPosY + PLAYER_SIZE / 2 - ATTACK_HEIGHT / 2;
                 }
                 break;
-            
+
             case SDLK_ESCAPE:
                 exit(0);
                 break;
@@ -102,9 +105,31 @@ public:
         }
     }
 
+    bool checkCollision(const std::vector<Platform> &platforms)
+    {
+        SDL_Rect playerRect = {mPosX, mPosY, PLAYER_SIZE, PLAYER_SIZE};
+
+        for (const auto &platform : platforms)
+        {
+            SDL_Rect platformRect = {platform.mPosX, platform.mPosY, platform.mWidth, platform.mHeight};
+            if (checkCollision(playerRect, platformRect))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 private:
-    int mVelX, mVelY;
     bool mFalling;
     bool mAttacking;
     int mAttackPosX, mAttackPosY;
+    bool checkCollision(const SDL_Rect &a, const SDL_Rect &b)
+    {
+        return (a.x < b.x + b.w &&
+                a.x + a.w > b.x &&
+                a.y < b.y + b.h &&
+                a.y + a.h > b.y);
+    }
 };
