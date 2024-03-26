@@ -1,13 +1,9 @@
 #include <SDL2/SDL.h>
-
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+#include "config.h"
 const int PLAYER_SIZE = 40;
 const int GRAVITY = 1;
 const int ATTACK_WIDTH = 70;
 const int ATTACK_HEIGHT = 20;
-const int CAMERA_OFFSET_X = SCREEN_WIDTH / 2 - PLAYER_SIZE / 2;
-const int CAMERA_OFFSET_Y = SCREEN_HEIGHT / 2 - PLAYER_SIZE / 2;
 
 class Player
 {
