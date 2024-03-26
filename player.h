@@ -12,6 +12,7 @@ class Player
 public:
     int mVelX, mVelY;
     int mPosX, mPosY;
+    bool mFalling;
     Player(int x, int y) : mPosX(x), mPosY(y), mVelX(0), mVelY(0), mFalling(true) {}
 
     void handleEvent(SDL_Event &e)
@@ -122,7 +123,7 @@ public:
     }
 
 private:
-    bool mFalling;
+    
     bool mAttacking;
     int mAttackPosX, mAttackPosY;
     bool checkCollision(const SDL_Rect &a, const SDL_Rect &b)

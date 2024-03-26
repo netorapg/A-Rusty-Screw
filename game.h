@@ -1,9 +1,7 @@
 #include <SDL2/SDL.h>
-#include "player.h" 
+#include "player.h"
 #include "platform.h"
 #include <vector>
-
-
 
 class Game
 {
@@ -30,7 +28,7 @@ public:
         }
 
         mPlatforms.push_back(Platform(100, SCREEN_HEIGHT - 50, 200, 20));
-        mPlatforms.push_back(Platform(300, SCREEN_HEIGHT - 150, 200, 20));
+        // mPlatforms.push_back(Platform(300, SCREEN_HEIGHT - 150, 200, 20));
         return true;
     }
 
@@ -58,10 +56,16 @@ public:
     {
         int prevX = mPlayer.mPosX;
         int prevY = mPlayer.mPosY;
+
         mPlayer.move();
-        if (mPlayer.checkCollision(mPlatforms)) {
-            mPlayer.mPosX = prevX;
+
+        if (mPlayer.checkCollision(mPlatforms))
+        {
+            mPlayer.mVelY = 0;
             mPlayer.mPosY = prevY;
+            mPlayer.mPosX = prevX;
+            
+            
         }
     }
 
@@ -70,7 +74,8 @@ public:
         SDL_SetRenderDrawColor(mRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(mRenderer);
 
-        for (auto& platform: mPlatforms) {
+        for (auto &platform : mPlatforms)
+        {
             platform.render(mRenderer);
         }
 
@@ -87,5 +92,4 @@ private:
     Player mPlayer;
     bool mQuit;
     std::vector<Platform> mPlatforms;
-  
 };
