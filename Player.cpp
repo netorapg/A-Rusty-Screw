@@ -15,10 +15,14 @@ void Player::handleEvent(SDL_Event &e)
         switch (e.key.keysym.sym)
         {
         case SDLK_d:
+            if(!mFalling){
             mVelX = 5;
+            }
             break;
         case SDLK_a:
+            if(!mFalling){
             mVelX = -5;
+            }
             break;
         case SDLK_SPACE:
             if (!mFalling)
@@ -46,10 +50,14 @@ void Player::handleEvent(SDL_Event &e)
         switch (e.key.keysym.sym)
         {
         case SDLK_d:
+            if(!mFalling){
             mVelX = 0;
+            }
             break;
         case SDLK_a:
+            if(!mFalling){
             mVelX = 0;
+            }
             break;
 
         case SDLK_j:
@@ -79,7 +87,7 @@ void Player::move()
 
     if (checkCollision(mPlatforms))
     {
-        mPosY -= 1;
+        mPosY -= 0;
         mVelY = 0;
         mFalling = false;
     }
