@@ -8,7 +8,7 @@
 class Player
 {
 public:
-    Player(int x, int y);
+    Player(int x, int y, std::vector<Platform>& platforms);
 
     void handleEvent(SDL_Event &e);
     void move();
@@ -21,6 +21,7 @@ private:
     bool mFalling;
     bool mAttacking;
     int mAttackPosX, mAttackPosY;
+    std::vector<Platform>& mPlatforms;
 
     bool checkCollision(const SDL_Rect &a, const SDL_Rect &b);
 };

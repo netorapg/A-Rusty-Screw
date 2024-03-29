@@ -6,7 +6,7 @@ const int GRAVITY = 1;
 const int ATTACK_WIDTH = 70;
 const int ATTACK_HEIGHT = 20;
 
-Player::Player(int x, int y) : mPosX(x), mPosY(y), mVelX(0), mVelY(0), mFalling(true), mAttacking(false) {}
+Player::Player(int x, int y, std::vector<Platform> &platforms) : mPosX(x), mPosY(y), mVelX(0), mVelY(0), mFalling(true), mAttacking(false), mPlatforms(platforms) {}
 
 void Player::handleEvent(SDL_Event &e)
 {
@@ -26,6 +26,12 @@ void Player::handleEvent(SDL_Event &e)
                 mVelY = -15;
                 mFalling = true;
             }
+            if (checkCollision(mPlatforms))
+            {
+                mVelY = -15;
+                mFalling = true;
+            }
+
             break;
         case SDLK_j:
             if (!mAttacking)
@@ -73,6 +79,13 @@ void Player::move()
     {
         mPosY = SCREEN_HEIGHT - PLAYER_SIZE;
         mFalling = false;
+    }
+
+    if (checkCollision(mPlatforms))
+    {
+        mFalling = true;
+        mVelY = 0;
+
     }
 
     if (mAttacking)

@@ -1,7 +1,7 @@
 #include "Game.h"
 #include "config.h"
 
-Game::Game() : mWindow(nullptr), mRenderer(nullptr), mQuit(false), mPlayer(0, 0) {}
+Game::Game() : mWindow(nullptr), mRenderer(nullptr), mQuit(false), mPlayer(0, 0, mPlatforms) {}
 
 bool Game::init()
 {
@@ -10,7 +10,7 @@ bool Game::init()
         return false;
     }
 
-    mWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    mWindow = SDL_CreateWindow("Platform 2d", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (mWindow == nullptr)
     {
         return false;
@@ -50,10 +50,7 @@ void Game::handleEvents()
 
 void Game::update()
 {
-    // calcule o delta ao invés de salvar a posição anterior
-    // limpe os .h e crie os .cpp
-    // Aplicar a biblioteca de vetores do professor
-    // tile map pesquisa
+   
     mPlayer.move();
 }
 
