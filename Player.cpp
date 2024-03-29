@@ -26,12 +26,6 @@ void Player::handleEvent(SDL_Event &e)
                 mVelY = -15;
                 mFalling = true;
             }
-            if (checkCollision(mPlatforms))
-            {
-                mVelY = -15;
-                mFalling = true;
-            }
-
             break;
         case SDLK_j:
             if (!mAttacking)
@@ -77,16 +71,21 @@ void Player::move()
 
     if (mPosY + PLAYER_SIZE >= SCREEN_HEIGHT)
     {
+
         mPosY = SCREEN_HEIGHT - PLAYER_SIZE;
         mFalling = false;
     }
+   
 
     if (checkCollision(mPlatforms))
     {
-        mFalling = true;
+        mPosY -= 1;
         mVelY = 0;
-        
-
+        mFalling = false;
+    }
+    else if (!checkCollision(mPlatforms) && mPosY + PLAYER_SIZE < SCREEN_HEIGHT)
+    {
+        mFalling = true;
     }
 
     if (mAttacking)
@@ -111,20 +110,6 @@ void Player::render(SDL_Renderer *renderer)
         SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
         SDL_RenderFillRect(renderer, &attackRect);
     }
-
-    if (mFalling)
-    {
-        SDL_Rect fillRect = {mPosX, mPosY, PLAYER_SIZE, PLAYER_SIZE};
-        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0x00, 0xFF);
-        SDL_RenderFillRect(renderer, &fillRect);
-    }
-
-    if (checkCollision(mPlatforms))
-    {
-        SDL_Rect fillRect = {mPosX, mPosY, PLAYER_SIZE, PLAYER_SIZE};
-        SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0xFF, 0xFF);
-        SDL_RenderFillRect(renderer, &fillRect);
-    }
 }
 
 bool Player::checkCollision(std::vector<Platform> &platforms)
@@ -136,11 +121,11 @@ bool Player::checkCollision(std::vector<Platform> &platforms)
         SDL_Rect platformRect = {platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()};
         if (checkCollision(playerRect, platformRect))
         {
-            
+
             return true;
         }
     }
-    
+
     return false;
 }
 
