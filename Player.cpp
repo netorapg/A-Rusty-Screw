@@ -85,6 +85,7 @@ void Player::move()
     {
         mFalling = true;
         mVelY = 0;
+        
 
     }
 
@@ -110,6 +111,20 @@ void Player::render(SDL_Renderer *renderer)
         SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
         SDL_RenderFillRect(renderer, &attackRect);
     }
+
+    if (mFalling)
+    {
+        SDL_Rect fillRect = {mPosX, mPosY, PLAYER_SIZE, PLAYER_SIZE};
+        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0x00, 0xFF);
+        SDL_RenderFillRect(renderer, &fillRect);
+    }
+
+    if (checkCollision(mPlatforms))
+    {
+        SDL_Rect fillRect = {mPosX, mPosY, PLAYER_SIZE, PLAYER_SIZE};
+        SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0xFF, 0xFF);
+        SDL_RenderFillRect(renderer, &fillRect);
+    }
 }
 
 bool Player::checkCollision(std::vector<Platform> &platforms)
@@ -121,10 +136,11 @@ bool Player::checkCollision(std::vector<Platform> &platforms)
         SDL_Rect platformRect = {platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()};
         if (checkCollision(playerRect, platformRect))
         {
+            
             return true;
         }
     }
-
+    
     return false;
 }
 
