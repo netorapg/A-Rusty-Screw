@@ -44,5 +44,7 @@
         "streambuf": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp"
-    }
+    },
+    "editor.formatOnSave": false,
+    "editor.formatOnSaveMode": "modificationsIfAvailable"
 }

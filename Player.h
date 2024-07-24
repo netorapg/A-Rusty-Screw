@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include "Platform.h"
 #include <vector>
+#include "my-lib-master/include/my-lib/math-vector.h"
 
 class Player
 {
@@ -16,11 +17,11 @@ public:
     bool checkCollision(std::vector<Platform> &platforms);
 
 private:
-    int mVelX, mVelY;
-    int mPosX, mPosY;
+    Mylib::Math::Vector2f mVel;
+    Mylib::Math::Vector2f mPos;
     bool mFalling;
     bool mAttacking;
-    int mAttackPosX, mAttackPosY;
+    Mylib::Math::Vector2f mAttackPos;
     std::vector<Platform>& mPlatforms;
 
     bool checkCollision(const SDL_Rect &a, const SDL_Rect &b);

@@ -1,12 +1,13 @@
 #include "Player.h"
 #include "config.h"
 
+
 const int PLAYER_SIZE = 40;
 const int GRAVITY = 1;
 const int ATTACK_WIDTH = 70;
 const int ATTACK_HEIGHT = 20;
 
-Player::Player(int x, int y, std::vector<Platform> &platforms) : mPosX(x), mPosY(y), mVelX(0), mVelY(0), mFalling(true), mAttacking(false), mPlatforms(platforms) {}
+Player::Player(int x, int y, std::vector<Platform> &platforms) : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPlatforms(platforms) {}
 
 void Player::handleEvent(SDL_Event &e)
 {
@@ -16,18 +17,18 @@ void Player::handleEvent(SDL_Event &e)
         {
         case SDLK_d:
             if(!mFalling){
-            mVelX = 5;
+            mVel.x = 5;
             }
             break;
         case SDLK_a:
             if(!mFalling){
-            mVelX = -5;
+            mVel.x = -5;
             }
             break;
         case SDLK_SPACE:
             if (!mFalling)
             {
-                mVelY = -15;
+                mVel.y = -15;
                 mFalling = true;
             }
             break;
@@ -35,11 +36,9 @@ void Player::handleEvent(SDL_Event &e)
             if (!mAttacking)
             {
                 mAttacking = true;
-                mAttackPosX = mPosX + PLAYER_SIZE;
-                mAttackPosY = mPosY + PLAYER_SIZE / 2 - ATTACK_HEIGHT / 2;
+                mAttackPos.set(mPos.x + PLAYER_SIZE, mPos.y + PLAYER_SIZE / 2 - ATTACK_HEIGHT / 2);
             }
             break;
-
         case SDLK_ESCAPE:
             exit(0);
             break;
@@ -50,16 +49,15 @@ void Player::handleEvent(SDL_Event &e)
         switch (e.key.keysym.sym)
         {
         case SDLK_d:
-            if(!mFalling){
-            mVelX = 0;
+            if(mVel.x > 0){
+            mVel.x = 0;
             }
             break;
         case SDLK_a:
-            if(!mFalling){
-            mVelX = 0;
+            if(mVel.x < 0){
+            mVel.x = 0;
             }
             break;
-
         case SDLK_j:
             mAttacking = false;
             break;
@@ -69,37 +67,38 @@ void Player::handleEvent(SDL_Event &e)
 
 void Player::move()
 {
-    mPosX += mVelX;
+    mPos += mVel;
 
     if (mFalling)
     {
-        mPosY += mVelY;
-        mVelY += GRAVITY;
+        mPos.y += mVel.y;
+        mVel.y += GRAVITY;
     }
 
-    if (mPosY + PLAYER_SIZE >= SCREEN_HEIGHT)
+    if (mPos.y + PLAYER_SIZE >= SCREEN_HEIGHT)
     {
 
-        mPosY = SCREEN_HEIGHT - PLAYER_SIZE;
+        mPos.y = SCREEN_HEIGHT - PLAYER_SIZE;
         mFalling = false;
+        mVel.y = 0;
     }
    
 
     if (checkCollision(mPlatforms))
     {
-        mPosY -= 0;
-        mVelY = 0;
+        mPos.y -= 0;
+        mVel.y = 0;
         mFalling = false;
     }
-    else if (!checkCollision(mPlatforms) && mPosY + PLAYER_SIZE < SCREEN_HEIGHT)
+    else if (!checkCollision(mPlatforms) && mPos.y + PLAYER_SIZE < SCREEN_HEIGHT)
     {
         mFalling = true;
     }
 
     if (mAttacking)
     {
-        mAttackPosX += mVelX;
-        if (mAttackPosX > SCREEN_WIDTH)
+        mAttackPos.x += mVel.x;
+        if (mAttackPos.x > SCREEN_WIDTH)
         {
             mAttacking = false;
         }
@@ -108,13 +107,13 @@ void Player::move()
 
 void Player::render(SDL_Renderer *renderer)
 {
-    SDL_Rect fillRect = {mPosX, mPosY, PLAYER_SIZE, PLAYER_SIZE};
+    SDL_Rect fillRect = {mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE};
     SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
     SDL_RenderFillRect(renderer, &fillRect);
 
     if (mAttacking)
     {
-        SDL_Rect attackRect = {mAttackPosX, mAttackPosY, ATTACK_WIDTH, ATTACK_HEIGHT};
+        SDL_Rect attackRect = {mAttackPos.x, mAttackPos.y, ATTACK_WIDTH, ATTACK_HEIGHT};
         SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
         SDL_RenderFillRect(renderer, &attackRect);
     }
@@ -122,7 +121,7 @@ void Player::render(SDL_Renderer *renderer)
 
 bool Player::checkCollision(std::vector<Platform> &platforms)
 {
-    SDL_Rect playerRect = {mPosX, mPosY, PLAYER_SIZE, PLAYER_SIZE};
+    SDL_Rect playerRect = {mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE};
 
     for (const auto &platform : platforms)
     {
