@@ -6,7 +6,7 @@ const float GRAVITY = 0.5;
 const float ATTACK_WIDTH = 70;
 const float ATTACK_HEIGHT = 20;
 
-Player::Player(float x, float y, std::vector<Platform> &platforms) : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPlatforms(platforms) {}
+Player::Player(float x, float y, std::vector<Platform> &platforms) : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms) {}
 
 void Player::handleEvent(SDL_Event &e)
 {
@@ -25,6 +25,12 @@ void Player::handleEvent(SDL_Event &e)
             {
                 mVel.y = -10;
                 mFalling = true;
+            }
+            break;
+        case SDLK_s: // Botão de descer
+            if (!mFalling)
+            {
+                mPassingThroughPlatform = true;
             }
             break;
         case SDLK_j:
@@ -55,6 +61,9 @@ void Player::handleEvent(SDL_Event &e)
                 mVel.x = 0;
             }
             break;
+        case SDLK_s:
+            mPassingThroughPlatform = false;
+            break;
         case SDLK_j:
             mAttacking = false;
             break;
@@ -83,7 +92,8 @@ void Player::move()
 
     for (const auto &platform : mPlatforms)
     {
-        if (checkCollision(mPos.x, mPos.y + PLAYER_SIZE, PLAYER_SIZE, 1, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
+        if (!mPassingThroughPlatform &&
+            checkCollision(mPos.x, mPos.y + PLAYER_SIZE, PLAYER_SIZE, 1, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
         {
             mPos.y = platform.getY() - PLAYER_SIZE;
             mFalling = false;
@@ -102,8 +112,8 @@ void Player::move()
     {
         if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
         {
-            // Evitar passar pela plataforma por baixo
-            if (mVel.y > 0)
+            // Evitar passar pela plataforma por baixo, a menos que o jogador esteja atravessando a plataforma
+            if (mVel.y > 0 && !mPassingThroughPlatform)
             {
                 mPos.y = platform.getY() - PLAYER_SIZE;
                 mFalling = false;

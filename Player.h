@@ -21,6 +21,7 @@ private:
     Mylib::Math::Vector2f mPos;
     bool mFalling;
     bool mAttacking;
+    bool mPassingThroughPlatform;
     Mylib::Math::Vector2f mAttackPos;
     std::vector<Platform>& mPlatforms;
 
