@@ -2,12 +2,12 @@
 #include "config.h"
 
 
-const int PLAYER_SIZE = 40;
-const int GRAVITY = 1;
-const int ATTACK_WIDTH = 70;
-const int ATTACK_HEIGHT = 20;
+const float PLAYER_SIZE = 40;
+const float GRAVITY = 0.5;
+const float ATTACK_WIDTH = 70;
+const float ATTACK_HEIGHT = 20;
 
-Player::Player(int x, int y, std::vector<Platform> &platforms) : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPlatforms(platforms) {}
+Player::Player(float x, float y, std::vector<Platform> &platforms) : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPlatforms(platforms) {}
 
 void Player::handleEvent(SDL_Event &e)
 {
@@ -16,19 +16,15 @@ void Player::handleEvent(SDL_Event &e)
         switch (e.key.keysym.sym)
         {
         case SDLK_d:
-            if(!mFalling){
             mVel.x = 5;
-            }
             break;
         case SDLK_a:
-            if(!mFalling){
             mVel.x = -5;
-            }
             break;
         case SDLK_SPACE:
             if (!mFalling)
             {
-                mVel.y = -15;
+                mVel.y = -10;
                 mFalling = true;
             }
             break;
@@ -88,7 +84,7 @@ void Player::move()
     {
         mPos.y -= 0;
         mVel.y = 0;
-        mFalling = false;
+        //mFalling = false;
     }
     else if (!checkCollision(mPlatforms) && mPos.y + PLAYER_SIZE < SCREEN_HEIGHT)
     {

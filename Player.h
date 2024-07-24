@@ -9,7 +9,7 @@
 class Player
 {
 public:
-    Player(int x, int y, std::vector<Platform>& platforms);
+    Player(float x, float y, std::vector<Platform>& platforms);
 
     void handleEvent(SDL_Event &e);
     void move();
