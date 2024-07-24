@@ -14,7 +14,7 @@ public:
     void handleEvent(SDL_Event &e);
     void move();
     void render(SDL_Renderer *renderer);
-    bool checkCollision(std::vector<Platform> &platforms);
+    bool checkCollision(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2);
 
 private:
     Mylib::Math::Vector2f mVel;

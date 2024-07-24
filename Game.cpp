@@ -22,9 +22,9 @@ bool Game::init()
         return false;
     }
 
-    //mPlatforms.push_back(Platform(100, SCREEN_HEIGHT - 50, 200, 20));
-    //mPlatforms.push_back(Platform(200, SCREEN_HEIGHT - 150, 200, 20));
-    //mPlatforms.push_back(Platform(300, SCREEN_HEIGHT - 250, 200, 20));
+   mPlatforms.push_back(Platform(100, SCREEN_HEIGHT - 50, 200, 20));
+   mPlatforms.push_back(Platform(200, SCREEN_HEIGHT - 150, 200, 20));
+   mPlatforms.push_back(Platform(300, SCREEN_HEIGHT - 250, 200, 20));
 
 
     return true;

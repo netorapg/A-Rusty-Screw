@@ -1,7 +1,6 @@
 #include "Player.h"
 #include "config.h"
 
-
 const float PLAYER_SIZE = 40;
 const float GRAVITY = 0.5;
 const float ATTACK_WIDTH = 70;
@@ -45,13 +44,15 @@ void Player::handleEvent(SDL_Event &e)
         switch (e.key.keysym.sym)
         {
         case SDLK_d:
-            if(mVel.x > 0){
-            mVel.x = 0;
+            if (mVel.x > 0)
+            {
+                mVel.x = 0;
             }
             break;
         case SDLK_a:
-            if(mVel.x < 0){
-            mVel.x = 0;
+            if (mVel.x < 0)
+            {
+                mVel.x = 0;
             }
             break;
         case SDLK_j:
@@ -73,22 +74,42 @@ void Player::move()
 
     if (mPos.y + PLAYER_SIZE >= SCREEN_HEIGHT)
     {
-
         mPos.y = SCREEN_HEIGHT - PLAYER_SIZE;
         mFalling = false;
         mVel.y = 0;
     }
-   
 
-    if (checkCollision(mPlatforms))
+    bool onPlatform = false;
+
+    for (const auto &platform : mPlatforms)
     {
-        mPos.y -= 0;
-        mVel.y = 0;
-        //mFalling = false;
+        if (checkCollision(mPos.x, mPos.y + PLAYER_SIZE, PLAYER_SIZE, 1, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
+        {
+            mPos.y = platform.getY() - PLAYER_SIZE;
+            mFalling = false;
+            mVel.y = 0;
+            onPlatform = true;
+            break;
+        }
     }
-    else if (!checkCollision(mPlatforms) && mPos.y + PLAYER_SIZE < SCREEN_HEIGHT)
+
+    if (!onPlatform && mPos.y + PLAYER_SIZE < SCREEN_HEIGHT)
     {
         mFalling = true;
+    }
+
+    for (const auto &platform : mPlatforms)
+    {
+        if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
+        {
+            // Evitar passar pela plataforma por baixo
+            if (mVel.y > 0)
+            {
+                mPos.y = platform.getY() - PLAYER_SIZE;
+                mFalling = false;
+                mVel.y = 0;
+            }
+        }
     }
 
     if (mAttacking)
@@ -115,27 +136,10 @@ void Player::render(SDL_Renderer *renderer)
     }
 }
 
-bool Player::checkCollision(std::vector<Platform> &platforms)
+bool Player::checkCollision(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2)
 {
-    SDL_Rect playerRect = {mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE};
-
-    for (const auto &platform : platforms)
-    {
-        SDL_Rect platformRect = {platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()};
-        if (checkCollision(playerRect, platformRect))
-        {
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool Player::checkCollision(const SDL_Rect &a, const SDL_Rect &b)
-{
-    return (a.x < b.x + b.w &&
-            a.x + a.w > b.x &&
-            a.y < b.y + b.h &&
-            a.y + a.h > b.y);
+    return (x1 < x2 + w2 &&
+            x1 + w1 > x2 &&
+            y1 < y2 + h2 &&
+            y1 + h1 > y2);
 }
