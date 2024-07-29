@@ -2,9 +2,9 @@
 #define PLAYER_H
 
 #include <SDL2/SDL.h>
-#include "Platform.h"
+#include "../platforms/Platform.h"
 #include <vector>
-#include "my-lib-master/include/my-lib/math-vector.h"
+#include "../my-lib-master/include/my-lib/math-vector.h"
 
 class Player
 {

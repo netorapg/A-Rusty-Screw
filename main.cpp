@@ -1,5 +1,5 @@
 #include <SDL2/SDL.h>
-#include "Game.h"
+#include "game/Game.h"
 
 int main(int argc, char *args[])
 {

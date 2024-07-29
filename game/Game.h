@@ -2,8 +2,8 @@
 #define GAME_H
 
 #include <SDL2/SDL.h>
-#include "Player.h"
-#include "Platform.h"
+#include "../player/Player.h"
+#include "../platforms/Platform.h"
 #include <vector>
 
 class Game
@@ -24,6 +24,7 @@ private:
     Player mPlayer;
     bool mQuit;
     std::vector<Platform> mPlatforms;
+    
 };
 
 #endif // GAME_H

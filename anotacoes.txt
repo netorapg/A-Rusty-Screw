@@ -1,0 +1,2 @@
+Ajustar a colisao da plataforma, faça com que quando o player passe por baixo da plataforma, nao haja a colisao, 
+ela apenas deve ocorrer quando o jogador estiver caindo em cima da plataforma

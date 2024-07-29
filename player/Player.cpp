@@ -1,5 +1,5 @@
 #include "Player.h"
-#include "config.h"
+#include "../config.h"
 
 const float PLAYER_SIZE = 40;
 const float GRAVITY = 0.5;
@@ -27,7 +27,7 @@ void Player::handleEvent(SDL_Event &e)
                 mFalling = true;
             }
             break;
-        case SDLK_s: // Botão de descer
+        case SDLK_s:
             if (!mFalling)
             {
                 mPassingThroughPlatform = true;
@@ -93,12 +93,12 @@ void Player::move()
     for (const auto &platform : mPlatforms)
     {
         if (!mPassingThroughPlatform &&
-            checkCollision(mPos.x, mPos.y + PLAYER_SIZE, PLAYER_SIZE, 1, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
+            checkCollision(mPos.x, mPos.y + PLAYER_SIZE, PLAYER_SIZE, 1, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()) && mVel.y >= 0)
         {
             mPos.y = platform.getY() - PLAYER_SIZE;
             mFalling = false;
             mVel.y = 0;
-            onPlatform = true;
+            onPlatform =true;
             break;
         }
     }
@@ -112,13 +112,14 @@ void Player::move()
     {
         if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
         {
-            // Evitar passar pela plataforma por baixo, a menos que o jogador esteja atravessando a plataforma
+            
             if (mVel.y > 0 && !mPassingThroughPlatform)
             {
                 mPos.y = platform.getY() - PLAYER_SIZE;
                 mFalling = false;
                 mVel.y = 0;
             }
+            
         }
     }
 
