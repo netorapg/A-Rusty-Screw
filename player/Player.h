@@ -3,8 +3,10 @@
 
 #include <SDL2/SDL.h>
 #include "../platforms/Platform.h"
+#include "../platforms/SolidPlatform.h"
 #include <vector>
 #include "../my-lib-master/include/my-lib/math-vector.h"
+#include "../Object.h"
 
 class Player
 {

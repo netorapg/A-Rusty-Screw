@@ -2,22 +2,14 @@
 #define PLATFORM_H
 
 #include <SDL2/SDL.h>
+#include "../Object.h"
 
-class Platform
+class Platform : public Object
 {
 public:
-    Platform(int x, int y, int width, int height);
+    Platform(float x, float y, float width, float height);
 
     void render(SDL_Renderer *renderer);
-
-    int getX() const;
-    int getY() const;
-    int getWidth() const;
-    int getHeight() const;
-
-private:
-    int mPosX, mPosY;
-    int mWidth, mHeight;
 };
 
 #endif // PLATFORM_H

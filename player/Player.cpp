@@ -6,7 +6,8 @@ const float GRAVITY = 0.5;
 const float ATTACK_WIDTH = 70;
 const float ATTACK_HEIGHT = 20;
 
-Player::Player(float x, float y, std::vector<Platform> &platforms) : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms) {}
+Player::Player(float x, float y, std::vector<Platform> &platforms) : mPos(x, y), 
+mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms)  {}
 
 void Player::handleEvent(SDL_Event &e)
 {
@@ -122,6 +123,7 @@ void Player::move()
             
         }
     }
+
 
     if (mAttacking)
     {

@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include "../player/Player.h"
 #include "../platforms/Platform.h"
+#include "../platforms/SolidPlatform.h"
 #include <vector>
 
 class Game
@@ -24,6 +25,7 @@ private:
     Player mPlayer;
     bool mQuit;
     std::vector<Platform> mPlatforms;
+    std::vector<SolidPlatform> mSolidPlatforms;
     
 };
 
