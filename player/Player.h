@@ -4,14 +4,14 @@
 #include <SDL2/SDL.h>
 #include "../platforms/Platform.h"
 #include "../platforms/SolidPlatform.h"
-#include <vector>
+#include <list>
 #include "../my-lib-master/include/my-lib/math-vector.h"
 #include "../Object.h"
 
 class Player
 {
 public:
-    Player(float x, float y, std::vector<Platform>& platforms/*, std::vector<SolidPlatform>& solidPlatforms*/);
+    Player(float x, float y, std::list<Platform>& platforms/*, std::vector<SolidPlatform>& solidPlatforms*/);
 
     void handleEvent(SDL_Event &e);
     void move();
@@ -25,7 +25,7 @@ private:
     bool mAttacking;
     bool mPassingThroughPlatform;
     Mylib::Math::Vector2f mAttackPos;
-    std::vector<Platform>& mPlatforms;
+    std::list<Platform>& mPlatforms;
     /*std::vector<SolidPlatform> mSolidPlatforms;*/
 
     bool checkCollision(const SDL_Rect &a, const SDL_Rect &b);
