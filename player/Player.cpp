@@ -149,7 +149,7 @@ void Player::render(SDL_Renderer *renderer)
     }
 }
 
-bool Player::checkCollision(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2)
+bool Player::checkCollision(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2)
 {
     return (x1 < x2 + w2 &&
             x1 + w1 > x2 &&

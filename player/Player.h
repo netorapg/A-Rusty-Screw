@@ -11,12 +11,12 @@
 class Player
 {
 public:
-    Player(float x, float y, std::vector<Platform>& platforms);
+    Player(float x, float y, std::vector<Platform>& platforms/*, std::vector<SolidPlatform>& solidPlatforms*/);
 
     void handleEvent(SDL_Event &e);
     void move();
     void render(SDL_Renderer *renderer);
-    bool checkCollision(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2);
+    bool checkCollision(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2);
 
 private:
     Mylib::Math::Vector2f mVel;
@@ -26,6 +26,7 @@ private:
     bool mPassingThroughPlatform;
     Mylib::Math::Vector2f mAttackPos;
     std::vector<Platform>& mPlatforms;
+    /*std::vector<SolidPlatform> mSolidPlatforms;*/
 
     bool checkCollision(const SDL_Rect &a, const SDL_Rect &b);
 };

@@ -2,22 +2,14 @@
 #define SOLIDPLATFORM_H
 
 #include <SDL2/SDL.h>
+#include "../Object.h"
 
-class SolidPlatform
+class SolidPlatform : public Object
 {
 public:
-    SolidPlatform(int x, int y, int width, int height);
+    SolidPlatform(float x, float y, float width, float height);
 
     void render(SDL_Renderer *renderer);
-
-    int getX() const;
-    int getY() const;
-    int getWidth() const;
-    int getHeight() const;
-
-private:
-    int mPosX, mPosY;
-    int mWidth, mHeight;
 };
 
 #endif // SOLIDPLATFORM_H
