@@ -11,7 +11,7 @@
 class Player
 {
 public:
-    Player(float x, float y, std::list<Platform>& platforms/*, std::vector<SolidPlatform>& solidPlatforms*/);
+    Player(float x, float y, std::list<Platform>& platforms /*std::list<SolidPlatform>& solidPlatforms*/);
 
     void handleEvent(SDL_Event &e);
     void move();
@@ -26,7 +26,7 @@ private:
     bool mPassingThroughPlatform;
     Mylib::Math::Vector2f mAttackPos;
     std::list<Platform>& mPlatforms;
-    /*std::vector<SolidPlatform> mSolidPlatforms;*/
+   /* std::list<SolidPlatform> mSolidPlatforms;*/
 
     bool checkCollision(const SDL_Rect &a, const SDL_Rect &b);
 };

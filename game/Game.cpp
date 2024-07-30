@@ -1,7 +1,7 @@
 #include "Game.h"
 #include "../config.h"
 
-Game::Game() : mWindow(nullptr), mRenderer(nullptr), mQuit(false), mPlayer(0, 0, mPlatforms) {}
+Game::Game() : mWindow(nullptr), mRenderer(nullptr), mQuit(false), mPlayer(0, 0, mPlatforms /*mSolidPlatforms*/) {}
 
 bool Game::init()
 {

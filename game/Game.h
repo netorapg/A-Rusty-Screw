@@ -25,7 +25,7 @@ private:
     Player mPlayer;
     bool mQuit;
     std::list<Platform> mPlatforms;
-    std::list<SolidPlatform> mSolidPlatforms;
+    /*std::list<SolidPlatform> mSolidPlatforms;*/
     
 };
 

@@ -6,8 +6,8 @@ const float GRAVITY = 0.5;
 const float ATTACK_WIDTH = 70;
 const float ATTACK_HEIGHT = 20;
 
-Player::Player(float x, float y, std::list<Platform> &platforms) : mPos(x, y), 
-mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms)  {}
+Player::Player(float x, float y, std::list<Platform> &platforms /*std::list<SolidPlatform> &SolidPlatforms*/) : mPos(x, y), 
+mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms) /*mSolidPlatforms(SolidPlatforms)*/  {}
 
 void Player::handleEvent(SDL_Event &e)
 {
@@ -109,6 +109,30 @@ void Player::move()
         mFalling = true;
     }
 
+   /* for (const auto &SolidPlatform : mSolidPlatforms)
+    {
+        if (!mPassingThroughPlatform &&
+            checkCollision(mPos.x, mPos.y + PLAYER_SIZE, PLAYER_SIZE, 1, SolidPlatform.getX(), SolidPlatform.getY(), SolidPlatform.getWidth(), SolidPlatform.getHeight()))
+        {
+            mPos.y = SolidPlatform.getY() - PLAYER_SIZE;
+            mFalling = false;
+            mVel.y = 0;
+            onPlatform =true;
+            break;
+        }
+        else if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, SolidPlatform.getX(), SolidPlatform.getY(), SolidPlatform.getWidth(), SolidPlatform.getHeight()))
+        {
+            mPos.y = SolidPlatform.getY() + SolidPlatform.getHeight();
+            mFalling = false;
+            mVel.y = 0;
+        }
+    }
+
+    if (!onPlatform && mPos.y + PLAYER_SIZE < SCREEN_HEIGHT)
+    {
+        mFalling = true;
+    }
+*/
     for (const auto &platform : mPlatforms)
     {
         if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
