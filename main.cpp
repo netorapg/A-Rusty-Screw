@@ -1,17 +1,15 @@
-#include <SDL2/SDL.h>
 #include "game/Game.h"
+#include <iostream>
 
-int main(int argc, char *args[])
-{
+int main(int argc, char* args[]) {
     Game game;
-    if (!game.init())
-    {
-        printf("Failed to initialize!\n");
+
+    if (!game.init()) {
+        std::cerr << "Failed to initialize!" << std::endl;
         return -1;
     }
 
-    while (!game.isQuit())
-    {
+    while (!game.isQuit()) {
         game.handleEvents();
         game.update();
         game.render();

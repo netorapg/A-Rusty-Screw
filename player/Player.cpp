@@ -1,13 +1,16 @@
 #include "Player.h"
 #include "../config.h"
+#include <iostream>
 
 const float PLAYER_SIZE = 40;
 const float GRAVITY = 0.5;
 const float ATTACK_WIDTH = 70;
 const float ATTACK_HEIGHT = 20;
 
-Player::Player(float x, float y, std::list<Platform> &platforms /*std::list<SolidPlatform> &SolidPlatforms*/) : mPos(x, y), 
-mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms) /*mSolidPlatforms(SolidPlatforms)*/  {}
+Player::Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls)
+    : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms), mSolidPlatforms(solidPlatforms), mWalls(walls) {
+    std::cout << "Player constructor called" << std::endl;
+}
 
 void Player::handleEvent(SDL_Event &e)
 {
@@ -91,6 +94,7 @@ void Player::move()
 
     bool onPlatform = false;
 
+    // Check collision with normal platforms
     for (const auto &platform : mPlatforms)
     {
         if (!mPassingThroughPlatform &&
@@ -99,7 +103,20 @@ void Player::move()
             mPos.y = platform.getY() - PLAYER_SIZE;
             mFalling = false;
             mVel.y = 0;
-            onPlatform =true;
+            onPlatform = true;
+            break;
+        }
+    }
+
+    // Check collision with solid platforms
+    for (const auto &solidPlatform : mSolidPlatforms)
+    {
+        if (checkCollision(mPos.x, mPos.y + PLAYER_SIZE, PLAYER_SIZE, 1, solidPlatform.getX(), solidPlatform.getY(), solidPlatform.getWidth(), solidPlatform.getHeight()) && mVel.y >= 0)
+        {
+            mPos.y = solidPlatform.getY() - PLAYER_SIZE;
+            mFalling = false;
+            mVel.y = 0;
+            onPlatform = true;
             break;
         }
     }
@@ -109,45 +126,53 @@ void Player::move()
         mFalling = true;
     }
 
-   /* for (const auto &SolidPlatform : mSolidPlatforms)
-    {
-        if (!mPassingThroughPlatform &&
-            checkCollision(mPos.x, mPos.y + PLAYER_SIZE, PLAYER_SIZE, 1, SolidPlatform.getX(), SolidPlatform.getY(), SolidPlatform.getWidth(), SolidPlatform.getHeight()))
-        {
-            mPos.y = SolidPlatform.getY() - PLAYER_SIZE;
-            mFalling = false;
-            mVel.y = 0;
-            onPlatform =true;
-            break;
-        }
-        else if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, SolidPlatform.getX(), SolidPlatform.getY(), SolidPlatform.getWidth(), SolidPlatform.getHeight()))
-        {
-            mPos.y = SolidPlatform.getY() + SolidPlatform.getHeight();
-            mFalling = false;
-            mVel.y = 0;
-        }
-    }
-
-    if (!onPlatform && mPos.y + PLAYER_SIZE < SCREEN_HEIGHT)
-    {
-        mFalling = true;
-    }
-*/
+    // Check for collisions that would move the player vertically
     for (const auto &platform : mPlatforms)
     {
         if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
         {
-            
             if (mVel.y > 0 && !mPassingThroughPlatform)
             {
                 mPos.y = platform.getY() - PLAYER_SIZE;
                 mFalling = false;
                 mVel.y = 0;
             }
-            
         }
     }
 
+    for (const auto &solidPlatform : mSolidPlatforms)
+    {
+        if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, solidPlatform.getX(), solidPlatform.getY(), solidPlatform.getWidth(), solidPlatform.getHeight()))
+        {
+            if (mVel.y > 0)
+            {
+                mPos.y = solidPlatform.getY() - PLAYER_SIZE;
+                mFalling = false;
+                mVel.y = 0;
+            }
+            else if (mVel.y < 0)
+            {
+                mPos.y = solidPlatform.getY() + solidPlatform.getHeight();
+                mVel.y = 0;
+            }
+        }
+    }
+    for (const auto &wall : mWalls)
+        {
+            if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight()))
+            {
+                if (mVel.x > 0) // Moving right
+                {
+                    mPos.x = wall.getX() - PLAYER_SIZE;
+                    mVel.x = 0;
+                }
+                else if (mVel.x < 0) // Moving left
+                {
+                    mPos.x = wall.getX() + wall.getWidth();
+                    mVel.x = 0;
+                }
+            }
+        }   
 
     if (mAttacking)
     {
@@ -161,13 +186,13 @@ void Player::move()
 
 void Player::render(SDL_Renderer *renderer)
 {
-    SDL_Rect fillRect = {mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE};
+    SDL_Rect fillRect = {static_cast<int>(mPos.x), static_cast<int>(mPos.y), static_cast<int>(PLAYER_SIZE), static_cast<int>(PLAYER_SIZE)};
     SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
     SDL_RenderFillRect(renderer, &fillRect);
 
     if (mAttacking)
     {
-        SDL_Rect attackRect = {mAttackPos.x, mAttackPos.y, ATTACK_WIDTH, ATTACK_HEIGHT};
+        SDL_Rect attackRect = {static_cast<int>(mAttackPos.x), static_cast<int>(mAttackPos.y), static_cast<int>(ATTACK_WIDTH), static_cast<int>(ATTACK_HEIGHT)};
         SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
         SDL_RenderFillRect(renderer, &attackRect);
     }

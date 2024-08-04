@@ -1,24 +1,22 @@
 #ifndef OBJECT_H
 #define OBJECT_H
+
 #include <SDL2/SDL.h>
+
 class Object
 {
 public:
     Object(float x, float y, float width, float height);
 
-    void render(SDL_Renderer *renderer);
+    virtual void render(SDL_Renderer *renderer) = 0; // Função virtual pura
 
-    float getX() const;
-    float getY() const;
-    float getWidth() const;
-    float getHeight() const;
-    void setX(float x);
-    void setY(float y);
-    void setWidth(float width);
-    void setHeight(float height);
-    float mPosX, mPosY;
-    float mWidth, mHeight;
-  
+    float getX() const { return mPosX; }
+    float getY() const { return mPosY; }
+    float getWidth() const { return mWidth; }
+    float getHeight() const { return mHeight; }
+
+protected:
+    float mPosX, mPosY, mWidth, mHeight;
 };
 
 #endif // OBJECT_H

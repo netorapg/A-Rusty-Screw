@@ -3,7 +3,7 @@
 SolidPlatform::SolidPlatform(float x, float y, float width, float height) : Object(x, y, width, height) {}
 
 void SolidPlatform::render(SDL_Renderer *renderer) {
-    SDL_Rect fillRect = {mPosX, mPosY, mWidth, mHeight};
+    SDL_Rect fillRect = {static_cast<int>(mPosX), static_cast<int>(mPosY), static_cast<int>(mWidth), static_cast<int>(mHeight)};
     SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
     SDL_RenderFillRect(renderer, &fillRect);
 }

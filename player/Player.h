@@ -2,21 +2,21 @@
 #define PLAYER_H
 
 #include <SDL2/SDL.h>
+#include <list>
 #include "../platforms/Platform.h"
 #include "../platforms/SolidPlatform.h"
-#include <list>
 #include "../my-lib-master/include/my-lib/math-vector.h"
-#include "../Object.h"
+#include "../wall/Wall.h"
+
 
 class Player
 {
 public:
-    Player(float x, float y, std::list<Platform>& platforms /*std::list<SolidPlatform>& solidPlatforms*/);
+    Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls);
 
-    void handleEvent(SDL_Event &e);
+    void handleEvent(SDL_Event& e);
     void move();
-    void render(SDL_Renderer *renderer);
-    bool checkCollision(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2);
+    void render(SDL_Renderer* renderer);
 
 private:
     Mylib::Math::Vector2f mVel;
@@ -24,11 +24,14 @@ private:
     bool mFalling;
     bool mAttacking;
     bool mPassingThroughPlatform;
-    Mylib::Math::Vector2f mAttackPos;
-    std::list<Platform>& mPlatforms;
-   /* std::list<SolidPlatform> mSolidPlatforms;*/
 
-    bool checkCollision(const SDL_Rect &a, const SDL_Rect &b);
+    std::list<Platform>& mPlatforms;
+    std::list<SolidPlatform>& mSolidPlatforms;
+    std::list<Wall>& mWalls;
+
+    Mylib::Math::Vector2f mAttackPos;
+
+    bool checkCollision(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2);
 };
 
 #endif // PLAYER_H
