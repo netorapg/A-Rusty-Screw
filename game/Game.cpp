@@ -2,7 +2,7 @@
 #include "../config.h"
 #include <iostream>
 
-Game::Game() : mWindow(nullptr), mRenderer(nullptr), mQuit(false), mPlayer(0, 0, mPlatforms, mSolidPlatforms, mWalls) {
+Game::Game() : mWindow(nullptr), mRenderer(nullptr), mQuit(false), mPlayer(25, 5, mPlatforms, mSolidPlatforms, mWalls) {
     std::cout << "Game constructor called" << std::endl;
 }
 
@@ -28,11 +28,13 @@ bool Game::init() {
     }
 
     std::cout << "Adding platforms" << std::endl;
-    mPlatforms.push_back(Platform(200, SCREEN_HEIGHT - 150, 200, 20));
-    mPlatforms.push_back(Platform(300, SCREEN_HEIGHT - 250, 200, 20));
-    mSolidPlatforms.push_back(SolidPlatform(400, SCREEN_HEIGHT - 350, 200, 20));
-
-    mWalls.push_back(Wall(50, 100, 20, 400));
+    mPlatforms.push_back(Platform(10, SCREEN_HEIGHT - 150, 200, 20));
+    mSolidPlatforms.push_back(SolidPlatform(100, SCREEN_HEIGHT - 150, 570, 20));
+    mWalls.push_back(Wall(200, SCREEN_HEIGHT - 250, 20,100));
+    mSolidPlatforms.push_back(SolidPlatform(200,SCREEN_HEIGHT - 260, 20, 10));
+    
+    mWalls.push_back(Wall(0, 0, 20, 800));
+    mWalls.push_back(Wall(620, 0, 20, 800));
 
     std::cout << "Initialization complete" << std::endl;
     return true;
