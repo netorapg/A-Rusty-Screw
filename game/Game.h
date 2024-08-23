@@ -22,7 +22,7 @@ public:
 private:
     SDL_Window* mWindow;
     SDL_Renderer* mRenderer;
-    bool mQuit;
+    bool mQuit = true;
     std::list<Platform> mPlatforms;
     std::list<SolidPlatform> mSolidPlatforms;
     std::list<Wall> mWalls;
