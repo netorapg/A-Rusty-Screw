@@ -11,18 +11,16 @@
 class Game
 {
 public:
-    Game();
-    bool init();
-    void close();
+    Game(SDL_Window* window, SDL_Renderer* renderer);
     void handleEvents();
     void update();
     void render();
-    bool isQuit() const;
+    bool isQuit() const; // Mantém o método para verificar se o jogo deve ser encerrado
 
 private:
     SDL_Window* mWindow;
     SDL_Renderer* mRenderer;
-    bool mQuit = true;
+    bool mQuit; // Variável para controlar o estado de execução
     std::list<Platform> mPlatforms;
     std::list<SolidPlatform> mSolidPlatforms;
     std::list<Wall> mWalls;

@@ -8,7 +8,6 @@
 #include "../my-lib-master/include/my-lib/math-vector.h"
 #include "../wall/Wall.h"
 
-
 class Player
 {
 public:
@@ -17,6 +16,7 @@ public:
     void handleEvent(SDL_Event& e);
     void move();
     void render(SDL_Renderer* renderer);
+    bool getQuit() const { return mQuit; } // Método para obter o estado de término
 
 private:
     Mylib::Math::Vector2f mVel;
@@ -24,6 +24,7 @@ private:
     bool mFalling;
     bool mAttacking;
     bool mPassingThroughPlatform;
+    bool mQuit; // Adicionado membro para controle de término
 
     std::list<Platform>& mPlatforms;
     std::list<SolidPlatform>& mSolidPlatforms;

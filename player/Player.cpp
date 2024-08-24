@@ -45,7 +45,7 @@ void Player::handleEvent(SDL_Event &e)
             }
             break;
         case SDLK_ESCAPE:
-            exit(0);
+            mQuit = true; // Alterado para não chamar exit(0)
             break;
         }
     }
@@ -157,22 +157,23 @@ void Player::move()
             }
         }
     }
+
     for (const auto &wall : mWalls)
+    {
+        if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight()))
         {
-            if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight()))
+            if (mVel.x > 0) // Moving right
             {
-                if (mVel.x > 0) // Moving right
-                {
-                    mPos.x = wall.getX() - PLAYER_SIZE;
-                    mVel.x = 0;
-                }
-                else if (mVel.x < 0) // Moving left
-                {
-                    mPos.x = wall.getX() + wall.getWidth();
-                    mVel.x = 0;
-                }
+                mPos.x = wall.getX() - PLAYER_SIZE;
+                mVel.x = 0;
             }
-        }   
+            else if (mVel.x < 0) // Moving left
+            {
+                mPos.x = wall.getX() + wall.getWidth();
+                mVel.x = 0;
+            }
+        }
+    }
 
     if (mAttacking)
     {
