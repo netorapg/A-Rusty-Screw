@@ -1,7 +1,7 @@
 # Compilador e flags
 CXX = g++
 CXXFLAGS = -std=c++20 -I/usr/include/SDL2
-LDFLAGS = `pkg-config --cflags --libs sdl2`
+LDFLAGS = `pkg-config --cflags --libs sdl2 SDL2_ttf`
 
 # Diretórios de fontes e objetos
 SRC_DIR = .
