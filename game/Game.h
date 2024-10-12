@@ -7,6 +7,7 @@
 #include "../platforms/Platform.h"
 #include "../platforms/SolidPlatform.h"
 #include "../wall/Wall.h"
+//#include <SDL_mixer.h>
 
 class Game
 {
@@ -25,6 +26,8 @@ private:
     std::list<SolidPlatform> mSolidPlatforms;
     std::list<Wall> mWalls;
     Player mPlayer;
+
+   // Mix_Music* mMusic;
 };
 
 #endif // GAME_H

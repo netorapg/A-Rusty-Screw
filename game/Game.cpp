@@ -9,6 +9,23 @@ Game::Game( SDL_Window *window, SDL_Renderer *renderer )
       mPlayer( 25, 5, mPlatforms, mSolidPlatforms, mWalls )
 {
   std::cout << "Game constructor called" << std::endl;
+
+/* if(Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0)
+  {
+    std::cout << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
+  }
+}
+
+void Game::loadMusic(const char* path) {
+  mMusic = Mix_LoadMUS( path );
+  if (mMusic == nullptr) {
+    std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
+  }
+}
+
+void Game::playMusic() {
+  Mix_PlayMusic( mMusic, -1 );
+}*/
 }
 
 void Game::handleEvents()
@@ -25,15 +42,21 @@ void Game::handleEvents()
     }
     mPlayer.handleEvent( e );
     std::cout << "Adding platforms" << std::endl;
-    mPlatforms.push_back( Platform( 10, SCREEN_HEIGHT - 150, 200, 20 ) );
-    mSolidPlatforms.push_back(
-      SolidPlatform( 100, SCREEN_HEIGHT - 150, 570, 20 ) );
-    mWalls.push_back( Wall( 200, SCREEN_HEIGHT - 250, 20, 100 ) );
-    mSolidPlatforms.push_back(
-      SolidPlatform( 200, SCREEN_HEIGHT - 260, 20, 10 ) );
+    //mPlatforms.push_back( Platform( 10, SCREEN_HEIGHT - 150, 200, 20 ) );
+    mSolidPlatforms.push_back(SolidPlatform( 10, SCREEN_HEIGHT - 150, 570, 20 ) );
+    mSolidPlatforms.push_back(SolidPlatform( 800, SCREEN_HEIGHT - 150, 570, 20 ) );
+    //mPlatforms.push_back( Platform( 395, SCREEN_HEIGHT - 270, 50, 20 ) );
+    mPlatforms.push_back( Platform( 500, SCREEN_HEIGHT - 340, 50, 20 ) );
+    mPlatforms.push_back( Platform( 500, SCREEN_HEIGHT - 540, 50, 20 ) );
+    mSolidPlatforms.push_back(SolidPlatform( 570, SCREEN_HEIGHT - 540, 220, 20 ) );
+    mSolidPlatforms.push_back(SolidPlatform( 1200, SCREEN_HEIGHT - 540, 220, 20 ) );
+   // mPlatforms.push_back( Platform( 395, SCREEN_HEIGHT - 240, 50, 20 ) );
+   // mPlatforms.push_back( Platform( 395, SCREEN_HEIGHT - 270, 50, 20 ) );
+   // mWalls.push_back( Wall( 200, SCREEN_HEIGHT - 250, 20, 100 ) );
+    //mSolidPlatforms.push_back(SolidPlatform( 200, SCREEN_HEIGHT - 260, 20, 10 ) );
 
     mWalls.push_back( Wall( 0, 0, 20, 800 ) );
-    mWalls.push_back( Wall( 620, 0, 20, 800 ) );
+    mWalls.push_back( Wall( 1260, 0, 20, 800 ) );
   }
 }
 
