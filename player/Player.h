@@ -7,11 +7,12 @@
 #include "../platforms/SolidPlatform.h"
 #include "../my-lib-master/include/my-lib/math-vector.h"
 #include "../wall/Wall.h"
+#include "../crate/Crate.h"
 
 class Player
 {
 public:
-    Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls);
+    Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls, std::list<Crate>& crates);
 
     void handleEvent(SDL_Event& e);
     void move();
@@ -29,6 +30,7 @@ private:
     std::list<Platform>& mPlatforms;
     std::list<SolidPlatform>& mSolidPlatforms;
     std::list<Wall>& mWalls;
+    std::list<Crate>& mCrates;
 
     Mylib::Math::Vector2f mAttackPos;
 

@@ -4,7 +4,7 @@
 
 Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     : mWindow(window), mRenderer(renderer), mQuit(false),
-      mPlayer(25, 5, mPlatforms, mSolidPlatforms, mWalls)
+      mPlayer(25, 5, mPlatforms, mSolidPlatforms, mWalls, mCrates)
 {
     std::cout << "Game constructor called" << std::endl;
 
@@ -48,6 +48,7 @@ void Game::handleEvents()
         }
         mPlayer.handleEvent(e);
 
+
         // Exemplo de adição de plataformas e paredes
         mSolidPlatforms.push_back(SolidPlatform(10, SCREEN_HEIGHT - 150, 570, 20));
         mSolidPlatforms.push_back(SolidPlatform(800, SCREEN_HEIGHT - 150, 570, 20));
@@ -57,6 +58,7 @@ void Game::handleEvents()
         mSolidPlatforms.push_back(SolidPlatform(1200, SCREEN_HEIGHT - 540, 220, 20));
         mWalls.push_back(Wall(0, 0, 20, 800));
         mWalls.push_back(Wall(1260, 0, 20, 800));
+        mCrates.push_back(Crate(700, SCREEN_HEIGHT - 590, 50, 50));
     }
 }
 
@@ -79,6 +81,9 @@ void Game::render()
 
     for (auto &wall : mWalls)
         wall.render(mRenderer);
+    
+    for (auto &crate : mCrates)
+        crate.render(mRenderer);
 
     mPlayer.render(mRenderer);
 

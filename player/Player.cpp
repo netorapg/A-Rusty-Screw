@@ -7,8 +7,8 @@ const float GRAVITY = 0.5;
 const float ATTACK_WIDTH = 70;
 const float ATTACK_HEIGHT = 20;
 
-Player::Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls)
-    : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms), mSolidPlatforms(solidPlatforms), mWalls(walls) {
+Player::Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls, std::list<Crate>& crates)
+    : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms), mSolidPlatforms(solidPlatforms), mWalls(walls), mCrates(crates) {
     std::cout << "Player constructor called" << std::endl;
 }
 

@@ -9,7 +9,7 @@ OBJ_DIR = obj
 BIN_DIR = bin
 
 # Subdiretórios
-SUBDIRS = player platforms wall game
+SUBDIRS = player platforms wall game crate
 OBJ_SUBDIRS = $(patsubst %, $(OBJ_DIR)/%, $(SUBDIRS))
 
 # Arquivos de origem e objetos

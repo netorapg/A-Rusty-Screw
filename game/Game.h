@@ -8,6 +8,7 @@
 #include "../platforms/Platform.h"
 #include "../platforms/SolidPlatform.h"
 #include "../wall/Wall.h"
+#include "../crate/Crate.h"
 
 class Game
 {
@@ -26,6 +27,7 @@ private:
     std::list<Platform> mPlatforms;
     std::list<SolidPlatform> mSolidPlatforms;
     std::list<Wall> mWalls;
+    std::list<Crate> mCrates;
     Player mPlayer;
 
     TTF_Font* mFont;       // Fonte grande
