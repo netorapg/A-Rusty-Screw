@@ -175,6 +175,33 @@ void Player::move()
         }
     }
 
+    for (auto &crate : mCrates)  // Precisa ser "auto &" para permitir alterar a posição
+{
+    if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, crate.getX(), crate.getY(), crate.getWidth(), crate.getHeight()))
+    {
+        if (mVel.y > 0)  // Jogador caindo em cima do crate
+        {
+            mPos.y = crate.getY() - PLAYER_SIZE;
+            mFalling = false;
+            mVel.y = 0;
+        }
+        else if (mVel.y < 0)  // Jogador batendo no crate por baixo
+        {
+            mPos.y = crate.getY() + crate.getHeight();
+            mVel.y = 0;
+        }
+        else if (mVel.x > 0)  // Jogador movendo o crate para a direita
+        {
+            crate.setX(crate.getX() + 5);  // Move o crate para a direita
+        }
+        else if (mVel.x < 0)  // Jogador movendo o crate para a esquerda
+        {
+            crate.setX(crate.getX() - 5);  // Move o crate para a esquerda
+        }
+    }
+}
+
+
     if (mAttacking)
     {
         mAttackPos.x += mVel.x;

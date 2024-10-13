@@ -15,6 +15,9 @@ public:
     float getWidth() const { return mWidth; }
     float getHeight() const { return mHeight; }
 
+    void setX(float x) { mPosX = x; }
+    void setY(float y) { mPosY = y; }
+
 protected:
     float mPosX, mPosY, mWidth, mHeight;
 };

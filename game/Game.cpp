@@ -27,6 +27,17 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     {
         std::cerr << "Failed to load small font! SDL_ttf Error: " << TTF_GetError() << std::endl;
     }
+
+     // Exemplo de adição de plataformas e paredes
+        mSolidPlatforms.push_back(SolidPlatform(10, SCREEN_HEIGHT - 150, 570, 20));
+        mSolidPlatforms.push_back(SolidPlatform(800, SCREEN_HEIGHT - 150, 570, 20));
+        mPlatforms.push_back(Platform(500, SCREEN_HEIGHT - 340, 50, 20));
+        mPlatforms.push_back(Platform(500, SCREEN_HEIGHT - 540, 50, 20));
+        mSolidPlatforms.push_back(SolidPlatform(570, SCREEN_HEIGHT - 540, 220, 20));
+        mSolidPlatforms.push_back(SolidPlatform(1200, SCREEN_HEIGHT - 540, 220, 20));
+        mWalls.push_back(Wall(0, 0, 20, 800));
+        mWalls.push_back(Wall(1260, 0, 20, 800));
+        mCrates.push_back(Crate(700, SCREEN_HEIGHT - 590, 50, 50));
 }
 
 Game::~Game()
@@ -47,19 +58,8 @@ void Game::handleEvents()
             mQuit = true;
         }
         mPlayer.handleEvent(e);
-
-
-        // Exemplo de adição de plataformas e paredes
-        mSolidPlatforms.push_back(SolidPlatform(10, SCREEN_HEIGHT - 150, 570, 20));
-        mSolidPlatforms.push_back(SolidPlatform(800, SCREEN_HEIGHT - 150, 570, 20));
-        mPlatforms.push_back(Platform(500, SCREEN_HEIGHT - 340, 50, 20));
-        mPlatforms.push_back(Platform(500, SCREEN_HEIGHT - 540, 50, 20));
-        mSolidPlatforms.push_back(SolidPlatform(570, SCREEN_HEIGHT - 540, 220, 20));
-        mSolidPlatforms.push_back(SolidPlatform(1200, SCREEN_HEIGHT - 540, 220, 20));
-        mWalls.push_back(Wall(0, 0, 20, 800));
-        mWalls.push_back(Wall(1260, 0, 20, 800));
-        mCrates.push_back(Crate(700, SCREEN_HEIGHT - 590, 50, 50));
     }
+
 }
 
 void Game::update()
