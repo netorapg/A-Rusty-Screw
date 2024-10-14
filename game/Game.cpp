@@ -8,27 +8,35 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
 {
     std::cout << "Game constructor called" << std::endl;
 
-    // Inicializa o SDL_ttf
     if (TTF_Init() == -1)
     {
         std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
     }
 
-    // Carrega a fonte grande
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
+    }
+
+    mJumpSound = Mix_LoadWAV("../../platfom2d/assets/mixkit-player-jumping-in-a-video-game-2043.wav");
+    if (mJumpSound == nullptr) {
+        std::cerr << "Failed to load jump sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
+    }
+
+    
     mFont = TTF_OpenFont("../../platfom2d/assets/All Star Resort.ttf", 100); // Certifique-se que o caminho e a fonte estão corretos
     if (mFont == nullptr)
     {
         std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;
     }
 
-    // Carregar a fonte menor
+
     mSmallFont = TTF_OpenFont("../../platfom2d/assets/Type Machine.ttf", 24); // Tamanho 24 para o texto menor
     if (mSmallFont == nullptr)
     {
         std::cerr << "Failed to load small font! SDL_ttf Error: " << TTF_GetError() << std::endl;
     }
 
-    // Exemplo de adição de plataformas e paredes
+    
     mSolidPlatforms.push_back(SolidPlatform(10, SCREEN_HEIGHT - 150, 570, 20));
     mSolidPlatforms.push_back(SolidPlatform(800, SCREEN_HEIGHT - 150, 570, 20));
     mPlatforms.push_back(Platform(500, SCREEN_HEIGHT - 340, 50, 20));
@@ -42,6 +50,8 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
 
 Game::~Game()
 {
+
+    Mix_FreeChunk(mJumpSound);
     // Libera as fontes e finaliza o TTF
     TTF_CloseFont(mFont);
     TTF_CloseFont(mSmallFont);
@@ -58,6 +68,10 @@ void Game::handleEvents()
             mQuit = true;
         }
         mPlayer.handleEvent(e);
+
+        if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE) {
+            Mix_PlayChannel(-1, mJumpSound, 0);
+        }
     }
 }
 
