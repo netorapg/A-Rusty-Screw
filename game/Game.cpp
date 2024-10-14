@@ -17,10 +17,17 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
         std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 
+    mMusic = Mix_LoadMUS("../../platfom2d/assets/8-bit-game-158815.mp3");
+    if (mMusic == nullptr) {
+        std::cerr << "Failed to load music! SDL_mixer Error: " << Mix_GetError() << std::endl;
+    }
+
     mJumpSound = Mix_LoadWAV("../../platfom2d/assets/mixkit-player-jumping-in-a-video-game-2043.wav");
     if (mJumpSound == nullptr) {
         std::cerr << "Failed to load jump sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
+
+    Mix_PlayMusic(mMusic, -1);
 
     
     mFont = TTF_OpenFont("../../platfom2d/assets/All Star Resort.ttf", 100); // Certifique-se que o caminho e a fonte estão corretos
@@ -51,8 +58,9 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
 Game::~Game()
 {
 
+    Mix_FreeMusic(mMusic);
     Mix_FreeChunk(mJumpSound);
-    // Libera as fontes e finaliza o TTF
+    
     TTF_CloseFont(mFont);
     TTF_CloseFont(mSmallFont);
     TTF_Quit();
