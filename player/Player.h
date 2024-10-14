@@ -38,6 +38,12 @@ private:
 
     SDL_Texture* mTexture;  // Adiciona a textura do jogador
 
+    SDL_Rect mSpriteClip;
+    int mCurrentFrame;
+    int mFrameCount;
+    float mAnimationTimer;
+    float mAnimationSpeed;
+
     bool checkCollision(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2);
 };
 

@@ -2,24 +2,26 @@
 #include "../config.h"
 #include <iostream>
 
-const float PLAYER_SIZE = 40;
+const int PLAYER_SIZE = 25;
 const float GRAVITY = 0.5;
 const float ATTACK_WIDTH = 70;
 const float ATTACK_HEIGHT = 20;
 
 Player::Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls, std::list<Crate>& crates, SDL_Renderer* renderer)
-    : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms), mSolidPlatforms(solidPlatforms), mWalls(walls), mCrates(crates) 
+    : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms), mSolidPlatforms(solidPlatforms), mWalls(walls), mCrates(crates),
+    mCurrentFrame(0), mFrameCount(3), mAnimationTimer(0), mAnimationSpeed(0.01), mQuit(false)
 {
     std::cout << "Player constructor called" << std::endl;
 
     // Carregar a textura do jogador
-    SDL_Surface* tempSurface = IMG_Load("/home/netorapg/projects/platfom2d/assets/sprite.png");
+    SDL_Surface* tempSurface = IMG_Load("/home/netorapg/projects/platfom2d/assets/bezourinha_correndo.png");
     if (tempSurface == nullptr) {
         std::cout << "Error loading player sprite: " << IMG_GetError() << std::endl;
     } else {
         mTexture = SDL_CreateTextureFromSurface(renderer, tempSurface);
         SDL_FreeSurface(tempSurface);  // Libera a superfície após criar a textura
     }
+    mSpriteClip = { 0 , 0, PLAYER_SIZE, PLAYER_SIZE };
 }
 
 Player::~Player()
@@ -94,6 +96,19 @@ void Player::handleEvent(SDL_Event& e)
 void Player::move()
 {
     mPos += mVel;
+
+    if(mVel.x != 0) {
+        mAnimationTimer += 0.1;
+        if(mAnimationTimer >= mAnimationSpeed) {
+            mCurrentFrame = (mCurrentFrame + 1) % mFrameCount;
+            mSpriteClip.x = mCurrentFrame * PLAYER_SIZE;
+            mAnimationTimer = 0;
+
+        }
+    } else {
+        mCurrentFrame = 0;
+        mSpriteClip.x = 0;
+    }
 
     if (mFalling)
     {
@@ -199,7 +214,7 @@ void Player::move()
 void Player::render(SDL_Renderer* renderer)
 {
     SDL_Rect renderQuad = {static_cast<int>(mPos.x), static_cast<int>(mPos.y), static_cast<int>(PLAYER_SIZE), static_cast<int>(PLAYER_SIZE)};
-    SDL_RenderCopy(renderer, mTexture, nullptr, &renderQuad);  // Renderiza o sprite do jogador
+    SDL_RenderCopy(renderer, mTexture, &mSpriteClip, &renderQuad);  // Renderiza o sprite do jogador
 
     if (mAttacking)
     {
