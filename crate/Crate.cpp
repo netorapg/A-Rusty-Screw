@@ -1,9 +1,37 @@
 #include "Crate.h"
+#include "../platforms/SolidPlatform.h"
+
+float GRAVITY = 0.1f; // Força da gravidade
+const float CRATE_SIZE = 50;
+bool falling = false;
 
 Crate::Crate(float x, float y, float width, float height) : Object(x, y, width, height) {}
 
-void Crate::render(SDL_Renderer *renderer) {
+void Crate::render(SDL_Renderer* renderer) {
     SDL_Rect fillRect = {static_cast<int>(mPosX), static_cast<int>(mPosY), static_cast<int>(mWidth), static_cast<int>(mHeight)};
-    SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255);
+    SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255); // Cor do caixote
     SDL_RenderFillRect(renderer, &fillRect);
+}
+
+void Crate::update(const std::list<SolidPlatform>& SolidPlatforms) {
+    // Se não está colidindo com plataformas, aplica gravidade
+    if (!isCollidingWithPlatforms(SolidPlatforms)) {
+            for (int i = 0; i < 4; i++) {
+                GRAVITY += 0.1;
+            }
+            mPosY += GRAVITY;
+    }
+    else {
+        GRAVITY = 0.5f;
+    }
+}
+
+bool Crate::isCollidingWithPlatforms(const std::list<SolidPlatform>& SolidPlatforms) {
+    for (const auto& SolidPlatform : SolidPlatforms) {
+        if (checkCollision(mPosX, mPosY + CRATE_SIZE, CRATE_SIZE, 1, SolidPlatform.getX(), SolidPlatform.getY(), SolidPlatform.getWidth(), SolidPlatform.getHeight())) {
+            mPosY = SolidPlatform.getY() - CRATE_SIZE; // Ajusta a posição do caixote para ficar em cima da plataforma
+            return true; // Está colidindo
+        }
+    }
+    return false; // Não está colidindo com nenhuma plataforma
 }

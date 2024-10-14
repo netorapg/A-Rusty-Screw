@@ -7,12 +7,28 @@ const float GRAVITY = 0.5;
 const float ATTACK_WIDTH = 70;
 const float ATTACK_HEIGHT = 20;
 
-Player::Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls, std::list<Crate>& crates)
-    : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms), mSolidPlatforms(solidPlatforms), mWalls(walls), mCrates(crates) {
+Player::Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls, std::list<Crate>& crates, SDL_Renderer* renderer)
+    : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms), mSolidPlatforms(solidPlatforms), mWalls(walls), mCrates(crates) 
+{
     std::cout << "Player constructor called" << std::endl;
+
+    // Carregar a textura do jogador
+    SDL_Surface* tempSurface = IMG_Load("/home/netorapg/projects/platfom2d/assets/sprite.png");
+    if (tempSurface == nullptr) {
+        std::cout << "Error loading player sprite: " << IMG_GetError() << std::endl;
+    } else {
+        mTexture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+        SDL_FreeSurface(tempSurface);  // Libera a superfície após criar a textura
+    }
 }
 
-void Player::handleEvent(SDL_Event &e)
+Player::~Player()
+{
+    // Liberar a textura do jogador
+    SDL_DestroyTexture(mTexture);
+}
+
+void Player::handleEvent(SDL_Event& e)
 {
     if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
     {
@@ -45,7 +61,7 @@ void Player::handleEvent(SDL_Event &e)
             }
             break;
         case SDLK_ESCAPE:
-            mQuit = true; // Alterado para não chamar exit(0)
+            mQuit = true;  // Alterado para não chamar exit(0)
             break;
         }
     }
@@ -126,48 +142,17 @@ void Player::move()
         mFalling = true;
     }
 
-    // Check for collisions that would move the player vertically
-    for (const auto &platform : mPlatforms)
-    {
-        if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
-        {
-            if (mVel.y > 0 && !mPassingThroughPlatform)
-            {
-                mPos.y = platform.getY() - PLAYER_SIZE;
-                mFalling = false;
-                mVel.y = 0;
-            }
-        }
-    }
-
-    for (const auto &solidPlatform : mSolidPlatforms)
-    {
-        if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, solidPlatform.getX(), solidPlatform.getY(), solidPlatform.getWidth(), solidPlatform.getHeight()))
-        {
-            if (mVel.y > 0)
-            {
-                mPos.y = solidPlatform.getY() - PLAYER_SIZE;
-                mFalling = false;
-                mVel.y = 0;
-            }
-            else if (mVel.y < 0)
-            {
-                mPos.y = solidPlatform.getY() + solidPlatform.getHeight();
-                mVel.y = 0;
-            }
-        }
-    }
-
+    // Colisão com paredes e caixas
     for (const auto &wall : mWalls)
     {
         if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight()))
         {
-            if (mVel.x > 0) // Moving right
+            if (mVel.x > 0)
             {
                 mPos.x = wall.getX() - PLAYER_SIZE;
                 mVel.x = 0;
             }
-            else if (mVel.x < 0) // Moving left
+            else if (mVel.x < 0)
             {
                 mPos.x = wall.getX() + wall.getWidth();
                 mVel.x = 0;
@@ -175,32 +160,31 @@ void Player::move()
         }
     }
 
-    for (auto &crate : mCrates)  // Precisa ser "auto &" para permitir alterar a posição
-{
-    if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, crate.getX(), crate.getY(), crate.getWidth(), crate.getHeight()))
+    for (auto &crate : mCrates)
     {
-        if (mVel.y > 0)  // Jogador caindo em cima do crate
+        if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, crate.getX(), crate.getY(), crate.getWidth(), crate.getHeight()))
         {
-            mPos.y = crate.getY() - PLAYER_SIZE;
-            mFalling = false;
-            mVel.y = 0;
-        }
-        else if (mVel.y < 0)  // Jogador batendo no crate por baixo
-        {
-            mPos.y = crate.getY() + crate.getHeight();
-            mVel.y = 0;
-        }
-        else if (mVel.x > 0)  // Jogador movendo o crate para a direita
-        {
-            crate.setX(crate.getX() + 5);  // Move o crate para a direita
-        }
-        else if (mVel.x < 0)  // Jogador movendo o crate para a esquerda
-        {
-            crate.setX(crate.getX() - 5);  // Move o crate para a esquerda
+            if (mVel.y > 0)
+            {
+                mPos.y = crate.getY() - PLAYER_SIZE;
+                mFalling = false;
+                mVel.y = 0;
+            }
+            else if (mVel.y < 0)
+            {
+                mPos.y = crate.getY() + crate.getHeight();
+                mVel.y = 0;
+            }
+            else if (mVel.x > 0)
+            {
+                crate.setX(crate.getX() + 5);
+            }
+            else if (mVel.x < 0)
+            {
+                crate.setX(crate.getX() - 5);
+            }
         }
     }
-}
-
 
     if (mAttacking)
     {
@@ -212,11 +196,10 @@ void Player::move()
     }
 }
 
-void Player::render(SDL_Renderer *renderer)
+void Player::render(SDL_Renderer* renderer)
 {
-    SDL_Rect fillRect = {static_cast<int>(mPos.x), static_cast<int>(mPos.y), static_cast<int>(PLAYER_SIZE), static_cast<int>(PLAYER_SIZE)};
-    SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
-    SDL_RenderFillRect(renderer, &fillRect);
+    SDL_Rect renderQuad = {static_cast<int>(mPos.x), static_cast<int>(mPos.y), static_cast<int>(PLAYER_SIZE), static_cast<int>(PLAYER_SIZE)};
+    SDL_RenderCopy(renderer, mTexture, nullptr, &renderQuad);  // Renderiza o sprite do jogador
 
     if (mAttacking)
     {

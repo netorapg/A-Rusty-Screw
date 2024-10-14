@@ -1,7 +1,7 @@
 # Compilador e flags
 CXX = g++
 CXXFLAGS = -std=c++20 -I/usr/include/SDL2
-LDFLAGS = `pkg-config --cflags --libs sdl2 SDL2_ttf`
+LDFLAGS = `pkg-config --cflags --libs sdl2 SDL2_ttf SDL2_image SDL_Mixer`
 
 # Diretórios de fontes e objetos
 SRC_DIR = .
@@ -9,7 +9,7 @@ OBJ_DIR = obj
 BIN_DIR = bin
 
 # Subdiretórios
-SUBDIRS = player platforms wall game crate
+SUBDIRS = platforms wall crate player game
 OBJ_SUBDIRS = $(patsubst %, $(OBJ_DIR)/%, $(SUBDIRS))
 
 # Arquivos de origem e objetos

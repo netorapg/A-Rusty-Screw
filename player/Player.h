@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <list>
 #include "../platforms/Platform.h"
 #include "../platforms/SolidPlatform.h"
@@ -12,7 +13,8 @@
 class Player
 {
 public:
-    Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls, std::list<Crate>& crates);
+    Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls, std::list<Crate>& crates, SDL_Renderer* renderer);
+    ~Player();  // Adiciona o destrutor para liberar a textura
 
     void handleEvent(SDL_Event& e);
     void move();
@@ -33,6 +35,8 @@ private:
     std::list<Crate>& mCrates;
 
     Mylib::Math::Vector2f mAttackPos;
+
+    SDL_Texture* mTexture;  // Adiciona a textura do jogador
 
     bool checkCollision(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2);
 };

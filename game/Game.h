@@ -9,6 +9,7 @@
 #include "../platforms/SolidPlatform.h"
 #include "../wall/Wall.h"
 #include "../crate/Crate.h"
+#include <SDL2/SDL_mixer.h>
 
 class Game
 {
@@ -30,8 +31,11 @@ private:
     std::list<Crate> mCrates;
     Player mPlayer;
 
-    TTF_Font* mFont;       // Fonte grande
-    TTF_Font* mSmallFont;  // Fonte menor para o texto "utilize W A S D para mover"
+    TTF_Font* mFont;
+    TTF_Font* mSmallFont;
+
+    Mix_Music* mMusic;
+    Mix_Chunk* mJumpSound;
     void renderText(const char* text, int x, int y, TTF_Font* font); // Método para renderizar o texto
 };
 
