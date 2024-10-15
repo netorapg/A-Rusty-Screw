@@ -13,6 +13,7 @@ public:
     Crate(float x, float y, float width, float height);
     void render(SDL_Renderer* renderer, float cameraX, float cameraY); // Adicione os parâmetros da câmera
     void update(const std::list<SolidPlatform>& SolidPlatforms); // Atualiza a posição da crate
+    bool isVisible(float cameraX, float cameraY, int screenWidth, int screenHeight); // Adicionando o método isVisible
 
 private:
     bool isCollidingWithPlatforms(const std::list<SolidPlatform>& SolidPlatforms);
@@ -20,6 +21,7 @@ private:
                         float x2, float y2, float w2, float h2) {
         return (x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2);
     }
+    
 };
 
 #endif // CRATE_H

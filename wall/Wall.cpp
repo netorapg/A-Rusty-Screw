@@ -14,3 +14,9 @@ void Wall::render(SDL_Renderer *renderer, float cameraX, float cameraY) {
     SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF); // Black color for walls
     SDL_RenderFillRect(renderer, &fillRect);
 }
+
+bool Wall::isVisible(float cameraX, float cameraY, int screenWidth, int screenHeight) {
+    // Verifica se a plataforma está visível na tela
+    return (mPosX + mWidth > cameraX && mPosX < cameraX + screenWidth &&
+            mPosY + mHeight > cameraY && mPosY < cameraY + screenHeight);
+}

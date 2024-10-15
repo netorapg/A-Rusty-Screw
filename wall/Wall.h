@@ -11,6 +11,7 @@ public:
     Wall(float x, float y, float width, float height);
 
     void render(SDL_Renderer *renderer, float cameraX, float cameraY) override; // Adicione os parâmetros da câmera
+    bool isVisible(float cameraX, float cameraY, int screenWidth, int screenHeight); // Adicionando o método isVisible
 };
 
 #endif // WALL_H

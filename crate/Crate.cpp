@@ -39,3 +39,9 @@ bool Crate::isCollidingWithPlatforms(const std::list<SolidPlatform>& SolidPlatfo
     }
     return false; // Não está colidindo com nenhuma plataforma
 }
+
+bool Crate::isVisible(float cameraX, float cameraY, int screenWidth, int screenHeight) {
+    // Verifica se a plataforma está visível na tela
+    return (mPosX + mWidth > cameraX && mPosX < cameraX + screenWidth &&
+            mPosY + mHeight > cameraY && mPosY < cameraY + screenHeight);
+}

@@ -11,13 +11,13 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     // Inicializar a câmera
     mCamera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 
-   SDL_Surface* loadedBackground = IMG_Load("/home/netorapg/projects/platfom2d/assets/background.png");
-if (loadedBackground == nullptr)
-{
-    std::cerr << "Failed to load background image: " << IMG_GetError() << std::endl;
-}
-mBackgroundTexture = SDL_CreateTextureFromSurface(renderer, loadedBackground);
-SDL_FreeSurface(loadedBackground);
+    SDL_Surface* loadedBackground = IMG_Load("/home/netorapg/projects/platfom2d/assets/background.png");
+    if (loadedBackground == nullptr)
+    {
+        std::cerr << "Failed to load background image: " << IMG_GetError() << std::endl;
+    }
+    mBackgroundTexture = SDL_CreateTextureFromSurface(renderer, loadedBackground);
+    SDL_FreeSurface(loadedBackground);
 
     if (TTF_Init() == -1)
     {
@@ -55,28 +55,53 @@ SDL_FreeSurface(loadedBackground);
         std::cerr << "Failed to load small font! SDL_ttf Error: " << TTF_GetError() << std::endl;
     }
 
-// Adicionando elementos em diferentes "quartos"
+   // Define a matriz do nível
+int level[15][30] = {
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 1, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 3, 0, 1, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+};
 
-// Sala 1
-mSolidPlatforms.push_back(SolidPlatform(0, SCREEN_HEIGHT - 50, 1280, 20)); // Plataforma de chão
-mPlatforms.push_back(Platform(300, SCREEN_HEIGHT - 200, 100, 20)); // Plataforma superior à direita
-mWalls.push_back(Wall(0, 0, 20, SCREEN_HEIGHT)); // Parede esquerda
+    // Mapear os números da matriz para os objetos do jogo
+    const int tileSize = 30;  // Tamanho de cada tile no jogo
+    for (int i = 0; i < 15; ++i)
+    {
+        for (int j = 0; j < 30; ++j)
+        {
+            int tileType = level[i][j];
+            int x = j * tileSize;
+            int y = i * tileSize;
 
-// Sala 2 (à direita da Sala 1)
-mSolidPlatforms.push_back(SolidPlatform(1280, SCREEN_HEIGHT - 50, 1280, 20)); // Plataforma de chão da segunda sala
-mPlatforms.push_back(Platform(1500, SCREEN_HEIGHT - 200, 150, 20)); // Plataforma no meio da sala 2
-//mWalls.push_back(Wall(1260, -120, 20, SCREEN_HEIGHT)); // Parede entre Sala 1 e Sala 2
-
-// Sala 3 (acima da Sala 1)
-mSolidPlatforms.push_back(SolidPlatform(0, SCREEN_HEIGHT - 770, 1280, 20)); // Plataforma de chão da sala superior
-mPlatforms.push_back(Platform(300, SCREEN_HEIGHT - 900, 100, 20)); // Plataforma superior à esquerda
-//mWalls.push_back(Wall(0, SCREEN_HEIGHT - 120, 20, SCREEN_HEIGHT)); // Parede esquerda da Sala 3
-
-// Sala 4 (direita da Sala 2)
-mSolidPlatforms.push_back(SolidPlatform(2560, SCREEN_HEIGHT - 50, 1280, 20)); // Plataforma de chão da sala 4
-mPlatforms.push_back(Platform(2800, SCREEN_HEIGHT - 250, 150, 20)); // Plataforma à direita
-//mWalls.push_back(Wall(2540, 0, 20, SCREEN_HEIGHT)); // Parede direita da Sala 4
-
+            switch (tileType)
+            {
+            case 0: // Espaço vazio
+                break;
+            case 1: // SolidPlatform
+                mSolidPlatforms.push_back(SolidPlatform(x, y, tileSize, tileSize));
+                break;
+            case 2: // Platform
+                mPlatforms.push_back(Platform(x, y, tileSize, tileSize));
+                break;
+            case 3: // Parede
+                mWalls.push_back(Wall(x, y, tileSize, tileSize));
+                break;
+            case 4: // Caixote (Crate)
+                mCrates.push_back(Crate(x, y, tileSize, tileSize));
+                break;
+            }
+        }
+    }
 }
 
 Game::~Game()
@@ -158,51 +183,21 @@ void Game::render()
         if (solidPlatform.isVisible(mCamera.x, mCamera.y, SCREEN_WIDTH, SCREEN_HEIGHT))
             solidPlatform.render(mRenderer, mCamera.x, mCamera.y);
 
-    // Renderizar as paredes e caixas como necessário
     for (auto &wall : mWalls)
-        wall.render(mRenderer, mCamera.x, mCamera.y);
+        if (wall.isVisible(mCamera.x, mCamera.y, SCREEN_WIDTH, SCREEN_HEIGHT))
+            wall.render(mRenderer, mCamera.x, mCamera.y);
 
     for (auto &crate : mCrates)
-        crate.render(mRenderer, mCamera.x, mCamera.y);
+        if (crate.isVisible(mCamera.x, mCamera.y, SCREEN_WIDTH, SCREEN_HEIGHT))
+            crate.render(mRenderer, mCamera.x, mCamera.y);
 
-    mPlayer.render(mRenderer, mCamera.x, mCamera.y); // Passar a posição da câmera para o jogador
-
-    // Renderizar o texto "2D Lab"
-    renderText("2D Lab", 50, 50, mFont); // Texto grande
-
-    // Renderizar o texto "utilize W A S D para mover" com fonte menor
-    renderText("utilize W A S D para mover", 50, 150, mSmallFont);
-    renderText("utilize ESPACO para pular", 50, 200, mSmallFont);
+    // Renderizar o jogador
+    mPlayer.render(mRenderer, mCamera.x, mCamera.y);
 
     SDL_RenderPresent(mRenderer);
 }
 
-bool Game::isQuit() const
+bool Game::isRunning()
 {
-    return mQuit;
-}
-
-void Game::renderText(const char *text, int x, int y, TTF_Font *font)
-{
-    SDL_Color textColor = {0, 0, 0}; // Cor preta para o texto
-    SDL_Surface *textSurface = TTF_RenderText_Solid(font, text, textColor);
-    if (textSurface == nullptr)
-    {
-        std::cerr << "Unable to render text surface! SDL_ttf Error: " << TTF_GetError() << std::endl;
-        return;
-    }
-
-    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(mRenderer, textSurface);
-    if (textTexture == nullptr)
-    {
-        std::cerr << "Unable to create texture from rendered text! SDL Error: " << SDL_GetError() << std::endl;
-        SDL_FreeSurface(textSurface);
-        return;
-    }
-
-    SDL_Rect renderQuad = {x, y, textSurface->w, textSurface->h}; // Definir posição e tamanho do texto
-    SDL_RenderCopy(mRenderer, textTexture, nullptr, &renderQuad); // Renderiza o texto
-
-    SDL_FreeSurface(textSurface);
-    SDL_DestroyTexture(textTexture);
+    return !mQuit;
 }

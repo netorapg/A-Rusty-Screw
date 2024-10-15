@@ -31,7 +31,7 @@ int main(int argc, char* args[]) {
     Game game(window, renderer);
 
     // Loop principal do jogo
-    while (!game.isQuit()) {
+    while (game.isRunning()) {
         game.handleEvents();
         game.update();
         game.render();

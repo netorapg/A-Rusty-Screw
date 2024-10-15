@@ -19,9 +19,10 @@ public:
     void handleEvents();
     void update();
     void render();
-    bool isQuit() const;
+    bool isRunning();
+   // bool isQuit() const;
 
-private:
+  private:
     SDL_Window* mWindow;
     SDL_Renderer* mRenderer;
     bool mQuit;
