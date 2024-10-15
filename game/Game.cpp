@@ -55,37 +55,27 @@ SDL_FreeSurface(loadedBackground);
         std::cerr << "Failed to load small font! SDL_ttf Error: " << TTF_GetError() << std::endl;
     }
 
- // Adicionando plataformas e outros elementos
+// Adicionando elementos em diferentes "quartos"
 
-// Plataforma base
+// Sala 1
 mSolidPlatforms.push_back(SolidPlatform(0, SCREEN_HEIGHT - 50, 1280, 20)); // Plataforma de chão
-
-// Crate
-mCrates.push_back(Crate(200, SCREEN_HEIGHT - 100, 50, 50)); // Crate posicionado à esquerda
-
-// Plataformas flutuantes
 mPlatforms.push_back(Platform(300, SCREEN_HEIGHT - 200, 100, 20)); // Plataforma superior à direita
-mPlatforms.push_back(Platform(500, SCREEN_HEIGHT - 300, 150, 20)); // Plataforma do meio
-mPlatforms.push_back(Platform(800, SCREEN_HEIGHT - 250, 100, 20)); // Plataforma direita
-mPlatforms.push_back(Platform(600, SCREEN_HEIGHT - 450, 150, 20)); // Plataforma alta no centro
-mPlatforms.push_back(Platform(1000, SCREEN_HEIGHT - 350, 100, 20)); // Plataforma alta à direita
-mPlatforms.push_back(Platform(1100, SCREEN_HEIGHT - 550, 150, 20)); // Plataforma superior à direita
-
-// Paredes laterais
 mWalls.push_back(Wall(0, 0, 20, SCREEN_HEIGHT)); // Parede esquerda
-mWalls.push_back(Wall(1260, 0, 20, SCREEN_HEIGHT)); // Parede direita
 
-// Obstáculos adicionais
-mSolidPlatforms.push_back(SolidPlatform(300, SCREEN_HEIGHT - 400, 250, 20)); // Plataforma flutuante alta
-mSolidPlatforms.push_back(SolidPlatform(700, SCREEN_HEIGHT - 350, 20, 150)); // Parede alta à direita
-mSolidPlatforms.push_back(SolidPlatform(1000, SCREEN_HEIGHT - 600, 300, 20)); // Plataforma alta central
-mSolidPlatforms.push_back(SolidPlatform(1200, SCREEN_HEIGHT - 250, 20, 300)); // Parede direita central
+// Sala 2 (à direita da Sala 1)
+mSolidPlatforms.push_back(SolidPlatform(1280, SCREEN_HEIGHT - 50, 1280, 20)); // Plataforma de chão da segunda sala
+mPlatforms.push_back(Platform(1500, SCREEN_HEIGHT - 200, 150, 20)); // Plataforma no meio da sala 2
+//mWalls.push_back(Wall(1260, -120, 20, SCREEN_HEIGHT)); // Parede entre Sala 1 e Sala 2
 
-// Área de exploração
-mSolidPlatforms.push_back(SolidPlatform(500, SCREEN_HEIGHT - 650, 300, 20)); // Plataforma elevada
-mPlatforms.push_back(Platform(200, SCREEN_HEIGHT - 500, 50, 20)); // Plataforma flutuante à esquerda
-mPlatforms.push_back(Platform(800, SCREEN_HEIGHT - 550, 50, 20)); // Plataforma flutuante à direita
-mPlatforms.push_back(Platform(400, SCREEN_HEIGHT - 300, 100, 20)); // Plataforma flutuante no meio
+// Sala 3 (acima da Sala 1)
+mSolidPlatforms.push_back(SolidPlatform(0, SCREEN_HEIGHT - 770, 1280, 20)); // Plataforma de chão da sala superior
+mPlatforms.push_back(Platform(300, SCREEN_HEIGHT - 900, 100, 20)); // Plataforma superior à esquerda
+//mWalls.push_back(Wall(0, SCREEN_HEIGHT - 120, 20, SCREEN_HEIGHT)); // Parede esquerda da Sala 3
+
+// Sala 4 (direita da Sala 2)
+mSolidPlatforms.push_back(SolidPlatform(2560, SCREEN_HEIGHT - 50, 1280, 20)); // Plataforma de chão da sala 4
+mPlatforms.push_back(Platform(2800, SCREEN_HEIGHT - 250, 150, 20)); // Plataforma à direita
+//mWalls.push_back(Wall(2540, 0, 20, SCREEN_HEIGHT)); // Parede direita da Sala 4
 
 }
 
