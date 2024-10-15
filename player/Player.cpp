@@ -2,17 +2,16 @@
 #include "../config.h"
 #include <iostream>
 
-const int PLAYER_SIZE = 25;
+const int PLAYER_SIZE = 26;
 const float GRAVITY = 0.5;
 const float ATTACK_WIDTH = 70;
 const float ATTACK_HEIGHT = 20;
 
 Player::Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls, std::list<Crate>& crates, SDL_Renderer* renderer)
     : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms), mSolidPlatforms(solidPlatforms), mWalls(walls), mCrates(crates),
-    mCurrentFrame(0), mFrameCount(4), mAnimationTimer(0), mAnimationSpeed(0.5), mQuit(false)
+    mCurrentFrame(0), mFrameCount(4), mAnimationTimer(0), mAnimationSpeed(0.5), mQuit(false), mFacingRight(true) // Inicializa mFacingRight como true
 {
     std::cout << "Player constructor called" << std::endl;
-
     // Carregar a textura do jogador
     SDL_Surface* tempSurface = IMG_Load("/home/netorapg/projects/platfom2d/assets/bezourinha_animacao.png");
     if (tempSurface == nullptr) {
@@ -38,9 +37,11 @@ void Player::handleEvent(SDL_Event& e)
         {
         case SDLK_d:
             mVel.x = 5;
+            mFacingRight = true;  // Atualiza a direção para a direita
             break;
         case SDLK_a:
             mVel.x = -5;
+            mFacingRight = false;  // Atualiza a direção para a esquerda
             break;
         case SDLK_SPACE:
             if (!mFalling)
@@ -106,7 +107,7 @@ void Player::move()
         }
     } else {
         mCurrentFrame = 0;
-        mSpriteClip.x = 0;
+        
     }
 
     if (mFalling)
@@ -214,8 +215,8 @@ void Player::render(SDL_Renderer* renderer)
 {
     SDL_Rect renderQuad = {static_cast<int>(mPos.x), static_cast<int>(mPos.y), static_cast<int>(PLAYER_SIZE), static_cast<int>(PLAYER_SIZE)};
     
-    // Definindo a direção do espelhamento
-    SDL_RendererFlip flip = (mVel.x < 0) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+    // Definindo a direção do espelhamento com base em mFacingRight
+    SDL_RendererFlip flip = mFacingRight ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
 
     SDL_RenderCopyEx(renderer, mTexture, &mSpriteClip, &renderQuad, 0, nullptr, flip);  // Renderiza o sprite do jogador
 

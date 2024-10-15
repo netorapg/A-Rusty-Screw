@@ -28,6 +28,7 @@ private:
     bool mAttacking;
     bool mPassingThroughPlatform;
     bool mQuit; // Adicionado membro para controle de término
+    bool mFacingRight;  // Adicionado membro para controle da direção
 
     std::list<Platform>& mPlatforms;
     std::list<SolidPlatform>& mSolidPlatforms;
@@ -37,6 +38,7 @@ private:
     Mylib::Math::Vector2f mAttackPos;
 
     SDL_Texture* mTexture;  // Adiciona a textura do jogador
+    
 
     SDL_Rect mSpriteClip;
     int mCurrentFrame;
