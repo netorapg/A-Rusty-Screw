@@ -3,9 +3,9 @@
 
 const int PLAYER_WIDTH = 25;
 const int PLAYER_HEIGHT = 26;
-const float PLAYER_SPEED = 5;
 const float GRAVITY = 0.5f;
-const float JUMP_VELOCITY = -10.0f;
+bool onGround = false; // Variável para verificar se o jogador está no chão
+bool aboveCrate = false;
 
 Player::Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls, std::list<Crate>& crates, SDL_Renderer* renderer)
     : mPos(x, y), mPlatforms(platforms), mSolidPlatforms(solidPlatforms), mWalls(walls), mCrates(crates), mQuit(false), mFacingRight(true), mFalling(false)
@@ -22,9 +22,9 @@ Player::Player(float x, float y, std::list<Platform>& platforms, std::list<Solid
     mVel = Mylib::Math::Vector2f(0, 0);
     mSpriteClip = {0, 0, PLAYER_WIDTH, PLAYER_HEIGHT};
     mCurrentFrame = 0;
-    mFrameCount = 1;
+    mFrameCount = 4;
     mAnimationTimer = 0.0f;
-    mAnimationSpeed = 0.1f;
+    mAnimationSpeed = 0.5f;
 }
 
 Player::~Player()
@@ -39,30 +39,39 @@ void Player::handleEvent(SDL_Event& e)
     {
         switch (e.key.keysym.sym)
         {
-        case SDLK_a:
-            mVel.x = -PLAYER_SPEED; // Defina a velocidade negativa para mover para a esquerda
-            mFacingRight = false;
-            break;
         case SDLK_d:
-            mVel.x = PLAYER_SPEED; // Defina a velocidade positiva para mover para a direita
+            mVel.x = 5;
             mFacingRight = true;
+            break;
+        case SDLK_a:
+            mVel.x = -5;
+            mFacingRight = false;
             break;
         case SDLK_SPACE:
             if (!mFalling)
             {
-                mVel.y = JUMP_VELOCITY;
+                mVel.y = -20;
                 mFalling = true;
             }
             break;
+        case SDLK_s:
+            if(!mFalling) {
+                mPassingThroughPlatform = true;
+            }
+            break;
         }
+
     }
     else if (e.type == SDL_KEYUP)
     {
         switch (e.key.keysym.sym)
         {
-        case SDLK_LEFT:
-        case SDLK_RIGHT:
+        case SDLK_a:
+        case SDLK_d:
             mVel.x = 0; // Zere a velocidade horizontal ao soltar a tecla
+            break;
+        case SDLK_s:
+            mPassingThroughPlatform = false;
             break;
         }
     }
@@ -98,8 +107,56 @@ void Player::move()
     // Atualizar posição vertical
     mPos.y += mVel.y;
 
+     if(mVel.x != 0) {
+        mAnimationTimer += 0.1;
+        if(mAnimationTimer >= mAnimationSpeed) {
+            mCurrentFrame = (mCurrentFrame + 1) % mFrameCount;
+            mSpriteClip.x = mCurrentFrame * PLAYER_WIDTH;
+            mAnimationTimer = 0;
+        }
+    } else {
+        mCurrentFrame = 0;
+        
+    }
+
+   for (auto &crate : mCrates)
+{
+    // Verifica se há colisão com o caixote
+    if (checkCollision(mPos.x, mPos.y, PLAYER_WIDTH, PLAYER_HEIGHT, crate.getX(), crate.getY(), crate.getWidth(), crate.getHeight()))
+    {
+        if (mVel.x > 0 && !aboveCrate) // Colisão enquanto movendo para a direita
+        {
+            crate.setX(crate.getX() + mVel.x);
+        }
+        else if (mVel.x < 0 && !aboveCrate) // Colisão enquanto movendo para a esquerda
+        {
+            crate.setX(crate.getX() - mVel.x);
+        }
+        else if (mVel.y > 0) // Colisão enquanto caindo
+        {
+            mPos.y = crate.getY() - PLAYER_HEIGHT; // Ajusta a posição do jogador para ficar em cima do caixote
+            aboveCrate = true; // O jogador está em cima do caixote
+            mFalling = false; // O jogador não está mais caindo
+            onGround = true; // O jogador está em cima do caixote
+            mVel.y = 0; // Zera a velocidade vertical
+        }
+    }
+    else // Se não houver colisão com o caixote
+    {
+        if (aboveCrate) // Se o jogador estava em cima do caixote
+        {
+            // Verifica se o jogador está saindo do caixote
+            if (mPos.y + PLAYER_HEIGHT < crate.getY() || mPos.y > crate.getY() + crate.getHeight())
+            {
+                aboveCrate = false; // O jogador não está mais em cima do caixote
+            }
+        }
+    }
+}
+
+
     // Checagem de colisão vertical (plataformas, chão, etc.)
-    bool onGround = false; // Variável para verificar se o jogador está no chão
+  
     for (const auto& platform : mSolidPlatforms) // Verifique plataformas sólidas
     {
         if (checkCollision(mPos.x, mPos.y, PLAYER_WIDTH, PLAYER_HEIGHT, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
@@ -120,22 +177,16 @@ void Player::move()
     }
 
     // Checar também plataformas normais
-    for (const auto& platform : mPlatforms)
+      for (const auto &platform : mPlatforms)
     {
-        if (checkCollision(mPos.x, mPos.y, PLAYER_WIDTH, PLAYER_HEIGHT, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
+        if (!mPassingThroughPlatform &&
+            checkCollision(mPos.x, mPos.y + PLAYER_WIDTH, PLAYER_HEIGHT, 1, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()) && mVel.y >= 0)
         {
-            if (mVel.y > 0) // Colisão enquanto caindo
-            {
-                mPos.y = platform.getY() - PLAYER_HEIGHT; // Ajusta a posição para estar em cima da plataforma
-                mVel.y = 0; // Zera a velocidade vertical
-                onGround = true; // O jogador está no chão
-                mFalling = false; // Reseta o estado de queda
-            }
-            else if (mVel.y < 0) // Colisão enquanto subindo
-            {
-                mPos.y = platform.getY() + platform.getHeight(); // Ajusta a posição para estar abaixo da plataforma
-                mVel.y = 0; // Zera a velocidade vertical
-            }
+            mPos.y = platform.getY() - PLAYER_HEIGHT;
+            mFalling = false;
+            mVel.y = 0;
+            onGround = true;
+            break;
         }
     }
 
