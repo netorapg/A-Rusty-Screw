@@ -9,7 +9,7 @@ const float ATTACK_HEIGHT = 20;
 
 Player::Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls, std::list<Crate>& crates, SDL_Renderer* renderer)
     : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms), mSolidPlatforms(solidPlatforms), mWalls(walls), mCrates(crates),
-    mCurrentFrame(0), mFrameCount(3), mAnimationTimer(0), mAnimationSpeed(0.01), mQuit(false)
+    mCurrentFrame(0), mFrameCount(3), mAnimationTimer(0), mAnimationSpeed(0.5), mQuit(false)
 {
     std::cout << "Player constructor called" << std::endl;
 
@@ -103,7 +103,6 @@ void Player::move()
             mCurrentFrame = (mCurrentFrame + 1) % mFrameCount;
             mSpriteClip.x = mCurrentFrame * PLAYER_SIZE;
             mAnimationTimer = 0;
-
         }
     } else {
         mCurrentFrame = 0;
@@ -214,7 +213,11 @@ void Player::move()
 void Player::render(SDL_Renderer* renderer)
 {
     SDL_Rect renderQuad = {static_cast<int>(mPos.x), static_cast<int>(mPos.y), static_cast<int>(PLAYER_SIZE), static_cast<int>(PLAYER_SIZE)};
-    SDL_RenderCopy(renderer, mTexture, &mSpriteClip, &renderQuad);  // Renderiza o sprite do jogador
+    
+    // Definindo a direção do espelhamento
+    SDL_RendererFlip flip = (mVel.x > 0) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+
+    SDL_RenderCopyEx(renderer, mTexture, &mSpriteClip, &renderQuad, 0, nullptr, flip);  // Renderiza o sprite do jogador
 
     if (mAttacking)
     {

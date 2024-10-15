@@ -5,7 +5,9 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}",
-                "/usr/include/SDL2"
+                "/usr/include/SDL2",
+                "${workspaceFolder}/my-lib-master",
+                "${workspaceFolder}/player/camera"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",
