@@ -1,237 +1,173 @@
 #include "Player.h"
-#include "../config.h"
 #include <iostream>
 
-const int PLAYER_SIZE = 26;
-const float GRAVITY = 0.5;
-const float ATTACK_WIDTH = 70;
-const float ATTACK_HEIGHT = 20;
+const int PLAYER_WIDTH = 25;
+const int PLAYER_HEIGHT = 26;
+const float PLAYER_SPEED = 5;
+const float GRAVITY = 0.5f;
+const float JUMP_VELOCITY = -10.0f;
 
 Player::Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls, std::list<Crate>& crates, SDL_Renderer* renderer)
-    : mPos(x, y), mVel(0, 0), mFalling(true), mAttacking(false), mPassingThroughPlatform(false), mPlatforms(platforms), mSolidPlatforms(solidPlatforms), mWalls(walls), mCrates(crates),
-    mCurrentFrame(0), mFrameCount(4), mAnimationTimer(0), mAnimationSpeed(0.5), mQuit(false), mFacingRight(true) // Inicializa mFacingRight como true
+    : mPos(x, y), mPlatforms(platforms), mSolidPlatforms(solidPlatforms), mWalls(walls), mCrates(crates), mQuit(false), mFacingRight(true), mFalling(false)
 {
-    std::cout << "Player constructor called" << std::endl;
-    // Carregar a textura do jogador
-    SDL_Surface* tempSurface = IMG_Load("/home/netorapg/projects/platfom2d/assets/bezourinha_animacao.png");
-    if (tempSurface == nullptr) {
-        std::cout << "Error loading player sprite: " << IMG_GetError() << std::endl;
-    } else {
-        mTexture = SDL_CreateTextureFromSurface(renderer, tempSurface);
-        SDL_FreeSurface(tempSurface);  // Libera a superfície após criar a textura
+    // Carregar a textura do jogador (substitua pelo caminho correto da sua imagem)
+    SDL_Surface* loadedSurface = IMG_Load("/home/netorapg/projects/platfom2d/assets/bezourinha_correndo.png");
+    if (loadedSurface == nullptr)
+    {
+        std::cerr << "Failed to load player image: " << IMG_GetError() << std::endl;
     }
-    mSpriteClip = { 0 , 0, PLAYER_SIZE, PLAYER_SIZE };
+    mTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+    SDL_FreeSurface(loadedSurface);
+
+    mVel = Mylib::Math::Vector2f(0, 0);
+    mSpriteClip = {0, 0, PLAYER_WIDTH, PLAYER_HEIGHT};
+    mCurrentFrame = 0;
+    mFrameCount = 1;
+    mAnimationTimer = 0.0f;
+    mAnimationSpeed = 0.1f;
 }
 
 Player::~Player()
 {
-    // Liberar a textura do jogador
     SDL_DestroyTexture(mTexture);
 }
 
 void Player::handleEvent(SDL_Event& e)
 {
+    // Movimento horizontal
     if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
     {
         switch (e.key.keysym.sym)
         {
-        case SDLK_d:
-            mVel.x = 5;
-            mFacingRight = true;  // Atualiza a direção para a direita
-            break;
         case SDLK_a:
-            mVel.x = -5;
-            mFacingRight = false;  // Atualiza a direção para a esquerda
+            mVel.x = -PLAYER_SPEED; // Defina a velocidade negativa para mover para a esquerda
+            mFacingRight = false;
+            break;
+        case SDLK_d:
+            mVel.x = PLAYER_SPEED; // Defina a velocidade positiva para mover para a direita
+            mFacingRight = true;
             break;
         case SDLK_SPACE:
             if (!mFalling)
             {
-                mVel.y = -10;
+                mVel.y = JUMP_VELOCITY;
                 mFalling = true;
             }
             break;
-        case SDLK_s:
-            if (!mFalling)
-            {
-                mPassingThroughPlatform = true;
-            }
-            break;
-        case SDLK_j:
-            if (!mAttacking)
-            {
-                mAttacking = true;
-                mAttackPos.set(mPos.x + PLAYER_SIZE, mPos.y + PLAYER_SIZE / 2 - ATTACK_HEIGHT / 2);
-            }
-            break;
-        case SDLK_ESCAPE:
-            mQuit = true;  // Alterado para não chamar exit(0)
-            break;
         }
     }
-    else if (e.type == SDL_KEYUP && e.key.repeat == 0)
+    else if (e.type == SDL_KEYUP)
     {
         switch (e.key.keysym.sym)
         {
-        case SDLK_d:
-            if (mVel.x > 0)
-            {
-                mVel.x = 0;
-            }
-            break;
-        case SDLK_a:
-            if (mVel.x < 0)
-            {
-                mVel.x = 0;
-            }
-            break;
-        case SDLK_s:
-            mPassingThroughPlatform = false;
-            break;
-        case SDLK_j:
-            mAttacking = false;
+        case SDLK_LEFT:
+        case SDLK_RIGHT:
+            mVel.x = 0; // Zere a velocidade horizontal ao soltar a tecla
             break;
         }
     }
 }
+
 
 void Player::move()
 {
-    mPos += mVel;
+    // Gravidade
+    mVel.y += GRAVITY;
 
-    if(mVel.x != 0) {
-        mAnimationTimer += 0.1;
-        if(mAnimationTimer >= mAnimationSpeed) {
-            mCurrentFrame = (mCurrentFrame + 1) % mFrameCount;
-            mSpriteClip.x = mCurrentFrame * PLAYER_SIZE;
-            mAnimationTimer = 0;
-        }
-    } else {
-        mCurrentFrame = 0;
-        
-    }
+    // Atualizar posição horizontal
+    mPos.x += mVel.x;
 
-    if (mFalling)
+    // Checagem de colisão horizontal (plataformas, paredes, etc.)
+    for (const auto& wall : mWalls)
     {
-        mPos.y += mVel.y;
-        mVel.y += GRAVITY;
-    }
-
-    if (mPos.y + PLAYER_SIZE >= SCREEN_HEIGHT)
-    {
-        mPos.y = SCREEN_HEIGHT - PLAYER_SIZE;
-        mFalling = false;
-        mVel.y = 0;
-    }
-
-    bool onPlatform = false;
-
-    // Check collision with normal platforms
-    for (const auto &platform : mPlatforms)
-    {
-        if (!mPassingThroughPlatform &&
-            checkCollision(mPos.x, mPos.y + PLAYER_SIZE, PLAYER_SIZE, 1, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()) && mVel.y >= 0)
+        if (checkCollision(mPos.x, mPos.y, PLAYER_WIDTH, PLAYER_HEIGHT, wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight()))
         {
-            mPos.y = platform.getY() - PLAYER_SIZE;
-            mFalling = false;
-            mVel.y = 0;
-            onPlatform = true;
-            break;
+            // Colisão detectada - ajustar posição
+            if (mVel.x > 0) // Movendo para a direita
+            {
+                mPos.x = wall.getX() - PLAYER_WIDTH; // Ajustar a posição para a esquerda do wall
+            }
+            else if (mVel.x < 0) // Movendo para a esquerda
+            {
+                mPos.x = wall.getX() + wall.getWidth(); // Ajustar a posição para a direita do wall
+            }
+            mVel.x = 0; // Parar o movimento horizontal
         }
     }
 
-    // Check collision with solid platforms
-    for (const auto &solidPlatform : mSolidPlatforms)
+    // Atualizar posição vertical
+    mPos.y += mVel.y;
+
+    // Checagem de colisão vertical (plataformas, chão, etc.)
+    bool onGround = false; // Variável para verificar se o jogador está no chão
+    for (const auto& platform : mSolidPlatforms) // Verifique plataformas sólidas
     {
-        if (checkCollision(mPos.x, mPos.y + PLAYER_SIZE, PLAYER_SIZE, 1, solidPlatform.getX(), solidPlatform.getY(), solidPlatform.getWidth(), solidPlatform.getHeight()) && mVel.y >= 0)
+        if (checkCollision(mPos.x, mPos.y, PLAYER_WIDTH, PLAYER_HEIGHT, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
         {
-            mPos.y = solidPlatform.getY() - PLAYER_SIZE;
-            mFalling = false;
-            mVel.y = 0;
-            onPlatform = true;
-            break;
+            if (mVel.y > 0) // Colisão enquanto caindo
+            {
+                mPos.y = platform.getY() - PLAYER_HEIGHT; // Ajusta a posição para estar em cima da plataforma
+                mVel.y = 0; // Zera a velocidade vertical
+                onGround = true; // O jogador está no chão
+                mFalling = false; // Reseta o estado de queda
+            }
+            else if (mVel.y < 0) // Colisão enquanto subindo
+            {
+                mPos.y = platform.getY() + platform.getHeight(); // Ajusta a posição para estar abaixo da plataforma
+                mVel.y = 0; // Zera a velocidade vertical
+            }
         }
     }
 
-    if (!onPlatform && mPos.y + PLAYER_SIZE < SCREEN_HEIGHT)
+    // Checar também plataformas normais
+    for (const auto& platform : mPlatforms)
     {
-        mFalling = true;
-    }
-
-    // Colisão com paredes e caixas
-    for (const auto &wall : mWalls)
-    {
-        if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight()))
+        if (checkCollision(mPos.x, mPos.y, PLAYER_WIDTH, PLAYER_HEIGHT, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
         {
-            if (mVel.x > 0)
+            if (mVel.y > 0) // Colisão enquanto caindo
             {
-                mPos.x = wall.getX() - PLAYER_SIZE;
-                mVel.x = 0;
+                mPos.y = platform.getY() - PLAYER_HEIGHT; // Ajusta a posição para estar em cima da plataforma
+                mVel.y = 0; // Zera a velocidade vertical
+                onGround = true; // O jogador está no chão
+                mFalling = false; // Reseta o estado de queda
             }
-            else if (mVel.x < 0)
+            else if (mVel.y < 0) // Colisão enquanto subindo
             {
-                mPos.x = wall.getX() + wall.getWidth();
-                mVel.x = 0;
-            }
-        }
-    }
-
-    for (auto &crate : mCrates)
-    {
-        if (checkCollision(mPos.x, mPos.y, PLAYER_SIZE, PLAYER_SIZE, crate.getX(), crate.getY(), crate.getWidth(), crate.getHeight()))
-        {
-            if (mVel.y > 0)
-            {
-                mPos.y = crate.getY() - PLAYER_SIZE;
-                mFalling = false;
-                mVel.y = 0;
-            }
-            else if (mVel.y < 0)
-            {
-                mPos.y = crate.getY() + crate.getHeight();
-                mVel.y = 0;
-            }
-            else if (mVel.x > 0)
-            {
-                crate.setX(crate.getX() + 5);
-            }
-            else if (mVel.x < 0)
-            {
-                crate.setX(crate.getX() - 5);
+                mPos.y = platform.getY() + platform.getHeight(); // Ajusta a posição para estar abaixo da plataforma
+                mVel.y = 0; // Zera a velocidade vertical
             }
         }
     }
 
-    if (mAttacking)
+    // Se não estiver em uma plataforma, está caindo
+    if (!onGround)
     {
-        mAttackPos.x += mVel.x;
-        if (mAttackPos.x > SCREEN_WIDTH)
-        {
-            mAttacking = false;
-        }
+        mFalling = true; // O jogador está caindo
     }
 }
 
-void Player::render(SDL_Renderer* renderer)
+
+void Player::render(SDL_Renderer* renderer, float cameraX, float cameraY) // Atualizado para incluir câmera
 {
-    SDL_Rect renderQuad = {static_cast<int>(mPos.x), static_cast<int>(mPos.y), static_cast<int>(PLAYER_SIZE), static_cast<int>(PLAYER_SIZE)};
-    
-    // Definindo a direção do espelhamento com base em mFacingRight
-    SDL_RendererFlip flip = mFacingRight ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
+    SDL_Rect renderQuad = {
+        static_cast<int>(mPos.x - cameraX), // Ajusta a posição pela câmera
+        static_cast<int>(mPos.y - cameraY), // Ajusta a posição pela câmera
+        PLAYER_WIDTH,
+        PLAYER_HEIGHT
+    };
 
-    SDL_RenderCopyEx(renderer, mTexture, &mSpriteClip, &renderQuad, 0, nullptr, flip);  // Renderiza o sprite do jogador
-
-    if (mAttacking)
+    // Renderizar o jogador, ajustando o flip dependendo da direção
+    if (mFacingRight)
     {
-        SDL_Rect attackRect = {static_cast<int>(mAttackPos.x), static_cast<int>(mAttackPos.y), static_cast<int>(ATTACK_WIDTH), static_cast<int>(ATTACK_HEIGHT)};
-        SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
-        SDL_RenderFillRect(renderer, &attackRect);
+        SDL_RenderCopy(renderer, mTexture, &mSpriteClip, &renderQuad);
+    }
+    else
+    {
+        SDL_RenderCopyEx(renderer, mTexture, &mSpriteClip, &renderQuad, 0, nullptr, SDL_FLIP_HORIZONTAL);
     }
 }
 
 bool Player::checkCollision(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2)
 {
-    return (x1 < x2 + w2 &&
-            x1 + w1 > x2 &&
-            y1 < y2 + h2 &&
-            y1 + h1 > y2);
+    return (x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2);
 }

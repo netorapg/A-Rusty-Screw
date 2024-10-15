@@ -5,7 +5,7 @@ Object::Object(float x, float y, float width, float height)
 {
 }
 
-void Object::render(SDL_Renderer *renderer)
+void Object::render(SDL_Renderer *renderer, float cameraX, float cameraY)
 {
     // Implementação padrão, se necessário
 }

@@ -18,8 +18,10 @@ public:
 
     void handleEvent(SDL_Event& e);
     void move();
-    void render(SDL_Renderer* renderer);
+    void render(SDL_Renderer* renderer, float cameraX, float cameraY); // Adicionando parâmetros da câmera
     bool getQuit() const { return mQuit; } // Método para obter o estado de término
+    float getPosX() const { return mPos.x; } // Método para obter a posição x
+    float getPosY() const { return mPos.y; } // Método para obter a posição y
 
 private:
     Mylib::Math::Vector2f mVel;
@@ -39,7 +41,6 @@ private:
 
     SDL_Texture* mTexture;  // Adiciona a textura do jogador
     
-
     SDL_Rect mSpriteClip;
     int mCurrentFrame;
     int mFrameCount;

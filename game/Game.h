@@ -30,6 +30,7 @@ private:
     std::list<Wall> mWalls;
     std::list<Crate> mCrates;
     Player mPlayer;
+    SDL_Rect mCamera;
 
     TTF_Font* mFont;
     TTF_Font* mSmallFont;

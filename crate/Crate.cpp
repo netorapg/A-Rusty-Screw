@@ -1,3 +1,4 @@
+// Crate.cpp
 #include "Crate.h"
 #include "../platforms/SolidPlatform.h"
 
@@ -7,8 +8,14 @@ bool falling = false;
 
 Crate::Crate(float x, float y, float width, float height) : Object(x, y, width, height) {}
 
-void Crate::render(SDL_Renderer* renderer) {
-    SDL_Rect fillRect = {static_cast<int>(mPosX), static_cast<int>(mPosY), static_cast<int>(mWidth), static_cast<int>(mHeight)};
+void Crate::render(SDL_Renderer* renderer, float cameraX, float cameraY) {
+    // Calcule a posição relativa à câmera
+    SDL_Rect fillRect = {
+        static_cast<int>(mPosX - cameraX),
+        static_cast<int>(mPosY - cameraY),
+        static_cast<int>(mWidth),
+        static_cast<int>(mHeight)
+    };
     SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255); // Cor do caixote
     SDL_RenderFillRect(renderer, &fillRect);
 }
@@ -16,12 +23,9 @@ void Crate::render(SDL_Renderer* renderer) {
 void Crate::update(const std::list<SolidPlatform>& SolidPlatforms) {
     // Se não está colidindo com plataformas, aplica gravidade
     if (!isCollidingWithPlatforms(SolidPlatforms)) {
-            for (int i = 0; i < 4; i++) {
-                GRAVITY += 0.1;
-            }
-            mPosY += GRAVITY;
-    }
-    else {
+        GRAVITY += 0.1;
+        mPosY += GRAVITY;
+    } else {
         GRAVITY = 0.5f;
     }
 }

@@ -1,3 +1,4 @@
+// Object.h
 #ifndef OBJECT_H
 #define OBJECT_H
 
@@ -8,7 +9,8 @@ class Object
 public:
     Object(float x, float y, float width, float height);
 
-    virtual void render(SDL_Renderer *renderer) = 0; // Função virtual pura
+    // Agora a função render aceita a posição da câmera
+    virtual void render(SDL_Renderer *renderer, float cameraX, float cameraY) = 0; // Função virtual pura
 
     float getX() const { return mPosX; }
     float getY() const { return mPosY; }
