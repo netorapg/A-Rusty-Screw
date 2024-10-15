@@ -37,6 +37,9 @@ private:
 
     Mix_Music* mMusic;
     Mix_Chunk* mJumpSound;
+
+    SDL_Texture* mBackgroundTexture;
+    
     void renderText(const char* text, int x, int y, TTF_Font* font); // Método para renderizar o texto
 };
 

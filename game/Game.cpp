@@ -11,6 +11,14 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     // Inicializar a câmera
     mCamera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 
+   SDL_Surface* loadedBackground = IMG_Load("/home/netorapg/projects/platfom2d/assets/background.png");
+if (loadedBackground == nullptr)
+{
+    std::cerr << "Failed to load background image: " << IMG_GetError() << std::endl;
+}
+mBackgroundTexture = SDL_CreateTextureFromSurface(renderer, loadedBackground);
+SDL_FreeSurface(loadedBackground);
+
     if (TTF_Init() == -1)
     {
         std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
@@ -47,16 +55,38 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
         std::cerr << "Failed to load small font! SDL_ttf Error: " << TTF_GetError() << std::endl;
     }
 
-    // Adicionando plataformas e outros elementos
-    mSolidPlatforms.push_back(SolidPlatform(10, SCREEN_HEIGHT - 150, 570, 20));
-    mSolidPlatforms.push_back(SolidPlatform(800, SCREEN_HEIGHT - 150, 570, 20));
-    mPlatforms.push_back(Platform(500, SCREEN_HEIGHT - 340, 50, 20));
-    mPlatforms.push_back(Platform(500, SCREEN_HEIGHT - 540, 50, 20));
-    mSolidPlatforms.push_back(SolidPlatform(570, SCREEN_HEIGHT - 540, 220, 20));
-    mSolidPlatforms.push_back(SolidPlatform(1200, SCREEN_HEIGHT - 420, 220, 20));
-    mWalls.push_back(Wall(0, 0, 20, 800));
-    mWalls.push_back(Wall(1260, 0, 20, 800));
-    mCrates.push_back(Crate(700, SCREEN_HEIGHT - 590, 50, 50));
+ // Adicionando plataformas e outros elementos
+
+// Plataforma base
+mSolidPlatforms.push_back(SolidPlatform(0, SCREEN_HEIGHT - 50, 1280, 20)); // Plataforma de chão
+
+// Crate
+mCrates.push_back(Crate(200, SCREEN_HEIGHT - 100, 50, 50)); // Crate posicionado à esquerda
+
+// Plataformas flutuantes
+mPlatforms.push_back(Platform(300, SCREEN_HEIGHT - 200, 100, 20)); // Plataforma superior à direita
+mPlatforms.push_back(Platform(500, SCREEN_HEIGHT - 300, 150, 20)); // Plataforma do meio
+mPlatforms.push_back(Platform(800, SCREEN_HEIGHT - 250, 100, 20)); // Plataforma direita
+mPlatforms.push_back(Platform(600, SCREEN_HEIGHT - 450, 150, 20)); // Plataforma alta no centro
+mPlatforms.push_back(Platform(1000, SCREEN_HEIGHT - 350, 100, 20)); // Plataforma alta à direita
+mPlatforms.push_back(Platform(1100, SCREEN_HEIGHT - 550, 150, 20)); // Plataforma superior à direita
+
+// Paredes laterais
+mWalls.push_back(Wall(0, 0, 20, SCREEN_HEIGHT)); // Parede esquerda
+mWalls.push_back(Wall(1260, 0, 20, SCREEN_HEIGHT)); // Parede direita
+
+// Obstáculos adicionais
+mSolidPlatforms.push_back(SolidPlatform(300, SCREEN_HEIGHT - 400, 250, 20)); // Plataforma flutuante alta
+mSolidPlatforms.push_back(SolidPlatform(700, SCREEN_HEIGHT - 350, 20, 150)); // Parede alta à direita
+mSolidPlatforms.push_back(SolidPlatform(1000, SCREEN_HEIGHT - 600, 300, 20)); // Plataforma alta central
+mSolidPlatforms.push_back(SolidPlatform(1200, SCREEN_HEIGHT - 250, 20, 300)); // Parede direita central
+
+// Área de exploração
+mSolidPlatforms.push_back(SolidPlatform(500, SCREEN_HEIGHT - 650, 300, 20)); // Plataforma elevada
+mPlatforms.push_back(Platform(200, SCREEN_HEIGHT - 500, 50, 20)); // Plataforma flutuante à esquerda
+mPlatforms.push_back(Platform(800, SCREEN_HEIGHT - 550, 50, 20)); // Plataforma flutuante à direita
+mPlatforms.push_back(Platform(400, SCREEN_HEIGHT - 300, 100, 20)); // Plataforma flutuante no meio
+
 }
 
 Game::~Game()
@@ -124,6 +154,10 @@ void Game::render()
 {
     SDL_SetRenderDrawColor(mRenderer, 0xFF, 0xFF, 0xFF, 0xFF); // Branco
     SDL_RenderClear(mRenderer);
+
+    SDL_Rect bgRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    SDL_RenderCopy(mRenderer, mBackgroundTexture, nullptr, &bgRect);
+
 
     // Renderizar plataformas, paredes, etc., somente se estiverem visíveis
     for (auto &platform : mPlatforms)
