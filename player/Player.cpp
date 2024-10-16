@@ -50,7 +50,7 @@ void Player::handleEvent(SDL_Event& e)
         case SDLK_SPACE:
             if (!mFalling)
             {
-                mVel.y = -20;
+                mVel.y = -10;
                 mFalling = true;
             }
             break;
