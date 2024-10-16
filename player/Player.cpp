@@ -119,7 +119,7 @@ void Player::move()
         
     }
 
-   for (auto &crate : mCrates)
+  for (auto &crate : mCrates)
 {
     // Verifica se há colisão com o caixote
     if (checkCollision(mPos.x, mPos.y, PLAYER_WIDTH, PLAYER_HEIGHT, crate.getX(), crate.getY(), crate.getWidth(), crate.getHeight()))
@@ -127,10 +127,12 @@ void Player::move()
         if (mVel.x > 0 && !aboveCrate) // Colisão enquanto movendo para a direita
         {
             crate.setX(crate.getX() + mVel.x);
+            mPos.x = crate.getX() - PLAYER_WIDTH; // Ajusta a posição do jogador para não atravessar o caixote
         }
         else if (mVel.x < 0 && !aboveCrate) // Colisão enquanto movendo para a esquerda
         {
-            crate.setX(crate.getX() - mVel.x);
+            crate.setX(crate.getX() + mVel.x); // Mover o caixote para a esquerda
+            mPos.x = crate.getX() + crate.getWidth(); // Ajusta a posição do jogador para não atravessar o caixote
         }
         else if (mVel.y > 0) // Colisão enquanto caindo
         {
@@ -153,7 +155,6 @@ void Player::move()
         }
     }
 }
-
 
     // Checagem de colisão vertical (plataformas, chão, etc.)
   
