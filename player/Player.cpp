@@ -22,9 +22,9 @@ Player::Player(float x, float y, std::list<Platform>& platforms, std::list<Solid
     mVel = Mylib::Math::Vector2f(0, 0);
     mSpriteClip = {0, 0, PLAYER_WIDTH, PLAYER_HEIGHT};
     mCurrentFrame = 0;
-    mFrameCount = 4;
+    mFrameCount = 3;
     mAnimationTimer = 0.0f;
-    mAnimationSpeed = 0.5f;
+    mAnimationSpeed = 0.7f;
 }
 
 Player::~Player()

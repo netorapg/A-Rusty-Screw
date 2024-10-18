@@ -10,7 +10,11 @@ void Platform::render(SDL_Renderer *renderer, float cameraX, float cameraY) {
         static_cast<int>(mWidth),
         static_cast<int>(mHeight)
     };
-    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0xFF);
+    SDL_SetRenderDrawColor(renderer, 0x00, 0xAA, 0xCC, 0x80);  // Azul menos claro com 50% de transparência
+
+
+
+
     SDL_RenderFillRect(renderer, &fillRect);
 }
 
