@@ -22,6 +22,9 @@ public:
     bool getQuit() const { return mQuit; } // Método para obter o estado de término
     float getPosX() const { return mPos.x; } // Método para obter a posição x
     float getPosY() const { return mPos.y; } // Método para obter a posição y
+    int getWidth() const; // Método para obter a largura
+    int getHeight() const; // Método para obter a altura
+    void reset();
 
 private:
     Mylib::Math::Vector2f mVel;

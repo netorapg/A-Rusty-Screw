@@ -20,6 +20,7 @@ public:
     void update();
     void render();
     bool isRunning();
+    void resetGame();
    // bool isQuit() const;
 
   private:

@@ -32,6 +32,19 @@ Player::~Player()
     SDL_DestroyTexture(mTexture);
 }
 
+void Player::reset()
+{
+    mPos.x = 25;
+    mPos.y = 5;
+    mVel.x = 0;
+    mVel.y = 0;
+    mFalling = false;
+    mAttacking = false;
+    mPassingThroughPlatform = false;
+    mQuit = false;
+    mFacingRight = true;
+}
+
 void Player::handleEvent(SDL_Event& e)
 {
     // Movimento horizontal
@@ -217,6 +230,13 @@ void Player::render(SDL_Renderer* renderer, float cameraX, float cameraY) // Atu
     {
         SDL_RenderCopyEx(renderer, mTexture, &mSpriteClip, &renderQuad, 0, nullptr, SDL_FLIP_HORIZONTAL);
     }
+}
+int Player::getWidth() const {
+    return mSpriteClip.w;  // Retorna a largura do sprite
+}
+
+int Player::getHeight() const {
+    return mSpriteClip.h;  // Retorna a altura do sprite
 }
 
 bool Player::checkCollision(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2)

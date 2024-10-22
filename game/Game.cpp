@@ -58,7 +58,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
 // Define a matriz do nível com quartos e aberturas entre eles
 // Define a matriz do nível 10x15 com quartos e aberturas
 int level[29][43] = {
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
+    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,},
     {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 0, 1, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 3,},
     {3, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 3, 2, 2, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
     {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
@@ -69,19 +69,19 @@ int level[29][43] = {
     {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
     {3, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3,},
     {3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 1, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 0, 2, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 3,},
-    {3, 2, 0, 0, 0, 2, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 2, 0, 2, 0, 2, 2, 0, 2, 0, 2, 0, 0, 2, 0, 2, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 1, 0, 3, 0, 0, 0, 0, 3,},
-    {3, 2, 0, 2, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 3, 0, 3, 0, 0, 0, 0, 3,},
+    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 3,},
+    {3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3,},
+    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 1, 0, 3, 0, 0, 0, 0, 3,},
+    {3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 3, 0, 3, 0, 0, 0, 0, 3,},
     {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 0, 3, 0, 3, 0, 3, 0, 0, 0, 0, 3,},
     {3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 0, 0, 0, 3,},
     {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 0, 0, 0, 3,},
     {3, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 2, 1,},
     {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 0, 1, 0, 0, 2, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 0, 2, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0, 2, 0, 0, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 3, 0, 2, 0, 0, 2, 0, 0, 2, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
+    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
+    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
+    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
+    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
     {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
     {3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3,},
     {3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3,},
@@ -142,6 +142,11 @@ void Game::handleEvents()
         }
         mPlayer.handleEvent(e);
 
+        if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_r)
+        {
+            resetGame();
+        }
+
         if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE)
         {
             Mix_PlayChannel(-1, mJumpSound, 0);
@@ -152,29 +157,37 @@ void Game::handleEvents()
 void Game::update()
 {
     mPlayer.move();
+    std::cout << "Player Position: (" << mPlayer.getPosX() << ", " << mPlayer.getPosY() << ")\n";
+std::cout << "Camera Position: (" << mCamera.x << ", " << mCamera.y << ")\n";
 
 
-    // Ajusta a posição da câmera para seguir o jogador
-    mCamera.x = static_cast<int>(mPlayer.getPosX() - mCamera.w / 2);
-    mCamera.y = static_cast<int>(mPlayer.getPosY() - mCamera.h / 2);
+int cameraMarginX = SCREEN_WIDTH / 2;   // Margem horizontal (pode ajustar conforme necessário)
+int cameraMarginY = SCREEN_HEIGHT / 2;
+ // Obter posição do jogador
+int playerCenterX = static_cast<int>(mPlayer.getPosX()) + mPlayer.getWidth() / 2;
+int playerCenterY = static_cast<int>(mPlayer.getPosY()) + mPlayer.getHeight() / 2;
 
-    // Limita a câmera dentro dos limites do cenário
-    if (mCamera.x < 0)
-    {
-        mCamera.x = 0;
-    }
-    if (mCamera.y < 0)
-    {
-        mCamera.y = 0;
-    }
-    if (mCamera.x > LEVEL_WIDTH - mCamera.w)
-    {
-        mCamera.x = LEVEL_WIDTH - mCamera.w;
-    }
-    if (mCamera.y > LEVEL_HEIGHT - mCamera.h)
-    {
-        mCamera.y = LEVEL_HEIGHT - mCamera.h;
-    }
+// Verificar se o jogador ultrapassou a margem da câmera (horizontal)
+if (playerCenterX < mCamera.x + cameraMarginX)
+{
+    mCamera.x = playerCenterX - cameraMarginX;
+}
+else if (playerCenterX > mCamera.x + SCREEN_WIDTH - cameraMarginX)
+{
+    mCamera.x = playerCenterX - (SCREEN_WIDTH - cameraMarginX);
+}
+
+// Verificar se o jogador ultrapassou a margem da câmera (vertical)
+if (playerCenterY < mCamera.y + cameraMarginY)
+{
+    mCamera.y = playerCenterY - cameraMarginY;
+}
+else if (playerCenterY > mCamera.y + SCREEN_HEIGHT - cameraMarginY)
+{
+    mCamera.y = playerCenterY - (SCREEN_HEIGHT - cameraMarginY);
+}
+
+
 
     // Atualiza as caixas
     for (auto &crate : mCrates)
@@ -213,6 +226,18 @@ void Game::render()
     mPlayer.render(mRenderer, mCamera.x, mCamera.y);
 
     SDL_RenderPresent(mRenderer);
+}
+
+void Game::resetGame() {
+   mPlayer.reset();
+   mCamera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+   mCrates.clear();
+   mCrates.push_back(Crate(300, 600, 50, 50));
+
+    
+    Mix_PlayMusic(mMusic, -1);
+   std::cout << "Resetting game..." << std::endl;
+
 }
 
 bool Game::isRunning()
