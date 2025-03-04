@@ -1,4 +1,0 @@
-Tasks:
-Nao guardar as plataformas como um vetor, guarde-as em lista
-Criar uma classe objeto e passe para ela todos 
-os atributos em comum de player e platform
