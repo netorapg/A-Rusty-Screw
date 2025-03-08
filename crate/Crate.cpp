@@ -4,7 +4,7 @@ float GRAVITY = 0.1f; // Força da gravidade
 const float CRATE_SIZE = 50;
 bool falling = false;
 
-Crate::Crate(float x, float y, float width, float height) : Object(x, y, width, height) {}
+Crate::Crate(float x, float y, float width, float height) : Scenario(x, y, width, height) {}
 
 void Crate::render(SDL_Renderer* renderer, float cameraX, float cameraY) {
     // Calcule a posição relativa à câmera
@@ -57,7 +57,7 @@ bool Crate::isCollidingWithPlatforms(const std::list<SolidPlatform>& SolidPlatfo
 }
 
 bool Crate::isVisible(float cameraX, float cameraY, int screenWidth, int screenHeight) {
-    // Verifica se a plataforma está visível na tela
+    // Verifica se a crate está visível na tela
     return (mPosX + mWidth > cameraX && mPosX < cameraX + screenWidth &&
             mPosY + mHeight > cameraY && mPosY < cameraY + screenHeight);
 }

@@ -1,16 +1,15 @@
-// Object.h
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef SCENARIO_H
+#define SCENARIO_H
 
 #include <SDL2/SDL.h>
 
-class Object
+class Scenario
 {
 public:
-    Object(float x, float y, float width, float height);
+    Scenario(float x, float y, float width, float height);
 
-    // Agora a função render aceita a posição da câmera
     virtual void render(SDL_Renderer *renderer, float cameraX, float cameraY) = 0; // Função virtual pura
+    virtual bool isVisible(float cameraX, float cameraY, int screenWidth, int screenHeight);
 
     float getX() const { return mPosX; }
     float getY() const { return mPosY; }
@@ -24,4 +23,4 @@ protected:
     float mPosX, mPosY, mWidth, mHeight;
 };
 
-#endif // OBJECT_H
+#endif // SCENARIO_H
