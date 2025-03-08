@@ -10,6 +10,8 @@
 #include "../wall/Wall.h"
 #include "../crate/Crate.h"
 #include <SDL2/SDL_mixer.h>
+#include <json-c/json.h> // Incluir a biblioteca json-c
+#include <string> // Para usar std::string
 
 class Game
 {
@@ -21,9 +23,9 @@ public:
     void render();
     bool isRunning();
     void resetGame();
-   // bool isQuit() const;
+    // bool isQuit() const;
 
-  private:
+private:
     SDL_Window* mWindow;
     SDL_Renderer* mRenderer;
     bool mQuit;
@@ -43,6 +45,9 @@ public:
     SDL_Texture* mBackgroundTexture;
     
     void renderText(const char* text, int x, int y, TTF_Font* font); // Método para renderizar o texto
+
+    // Método para carregar o nível a partir de um arquivo JSON
+    void loadLevelFromJSON(const std::string& filePath);
 };
 
 #endif // GAME_H

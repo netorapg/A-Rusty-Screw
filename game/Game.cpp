@@ -4,7 +4,7 @@
 
 Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     : mWindow(window), mRenderer(renderer), mQuit(false),
-      mPlayer(25, 5, mPlatforms, mSolidPlatforms, mWalls, mCrates, renderer)
+      mPlayer(50, 5, mPlatforms, mSolidPlatforms, mWalls, mCrates, renderer)
 {
     std::cout << "Game constructor called" << std::endl;
 
@@ -57,68 +57,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
 
 // Define a matriz do nível com quartos e aberturas entre eles
 // Define a matriz do nível 10x15 com quartos e aberturas
-int level[29][43] = {
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 0, 1, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 3, 2, 2, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 3, 2, 2, 2, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 3, 2, 2, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3,},
-    {3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 3,},
-    {3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 1, 0, 3, 0, 0, 0, 0, 3,},
-    {3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 3, 0, 3, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 0, 3, 0, 3, 0, 3, 0, 0, 0, 0, 3,},
-    {3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 0, 0, 0, 3,},
-    {3, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 2, 1,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,},
-    {3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3,},
-    {3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3,},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,},
-};
-
-
-
-    // Mapear os números da matriz para os objetos do jogo
-    const int tileSize = 30;  // Tamanho de cada tile no jogo
-    for (int i = 0; i < 29; ++i)
-    {
-        for (int j = 0; j < 43; ++j)
-        {
-            int tileType = level[i][j];
-            int x = j * tileSize;
-            int y = i * tileSize;
-
-            switch (tileType)
-            {
-            case 0: // Espaço vazio
-                break;
-            case 1: // SolidPlatform
-                mSolidPlatforms.push_back(SolidPlatform(x, y, tileSize, tileSize));
-                break;
-            case 2: // Platform
-                mPlatforms.push_back(Platform(x, y, tileSize, tileSize));
-                break;
-            case 3: // Parede
-                mWalls.push_back(Wall(x, y, tileSize, tileSize));
-                break;
-            case 4: // Caixote (Crate)
-                mCrates.push_back(Crate(x, y, 50, 50));
-                break;
-            }
-        }
-    }
+loadLevelFromJSON("../map/level1.json");
 }
 
 Game::~Game()
@@ -129,6 +68,79 @@ Game::~Game()
     TTF_CloseFont(mFont);
     TTF_CloseFont(mSmallFont);
     TTF_Quit();
+}
+
+
+void Game::loadLevelFromJSON(const std::string& filePath) {
+    // Carregar o JSON
+    json_object *root = json_object_from_file(filePath.c_str());
+    if (!root) {
+        std::cerr << "Failed to load JSON file: " << filePath << std::endl;
+        return;
+    }
+
+    // Acessar o array "layers"
+    json_object *layers;
+    if (!json_object_object_get_ex(root, "layers", &layers)) {
+        std::cerr << "Invalid JSON: missing 'layers'" << std::endl;
+        json_object_put(root);
+        return;
+    }
+
+    // Acessar o primeiro objeto dentro de "layers"
+    json_object *first_layer = json_object_array_get_idx(layers, 0);
+    if (!first_layer) {
+        std::cerr << "Invalid JSON: no layers found" << std::endl;
+        json_object_put(root);
+        return;
+    }
+
+    // Acessar o array "data"
+    json_object *data;
+    if (!json_object_object_get_ex(first_layer, "data", &data)) {
+        std::cerr << "Invalid JSON: missing 'data'" << std::endl;
+        json_object_put(root);
+        return;
+    }
+
+    // Tamanho de cada tile
+    const int tileSize = 30;
+
+    // Iterar sobre as linhas da matriz
+    const int rows = json_object_array_length(data);
+    for (int i = 0; i < rows; ++i) {
+        json_object *row = json_object_array_get_idx(data, i);
+        const int cols = json_object_array_length(row);
+
+        for (int j = 0; j < cols; ++j) {
+            json_object *tile = json_object_array_get_idx(row, j);
+            int tileType = json_object_get_int(tile);
+            int x = j * tileSize;
+            int y = i * tileSize;
+
+            switch (tileType) {
+                case 0: // Espaço vazio
+                    break;
+                case 1: // SolidPlatform
+                    mSolidPlatforms.emplace_back(x, y, tileSize, tileSize);
+                    break;
+                case 2: // Platform
+                    mPlatforms.emplace_back(x, y, tileSize, tileSize);
+                    break;
+                case 3: // Parede
+                    mWalls.emplace_back(x, y, tileSize, tileSize);
+                    break;
+                case 4: // Caixote (Crate)
+                    mCrates.emplace_back(x, y, 50, 50); // Tamanho fixo para caixotes
+                    break;
+                default:
+                    std::cerr << "Unknown tile type: " << tileType << std::endl;
+            }
+        }
+    }
+
+    // Liberar a memória do JSON
+    json_object_put(root);
 }
 
 void Game::handleEvents()
@@ -157,6 +169,7 @@ void Game::handleEvents()
 void Game::update()
 {
     mPlayer.move();
+
     std::cout << "Player Position: (" << mPlayer.getPosX() << ", " << mPlayer.getPosY() << ")\n";
 std::cout << "Camera Position: (" << mCamera.x << ", " << mCamera.y << ")\n";
 
@@ -204,23 +217,34 @@ void Game::render()
     SDL_Rect bgRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
     SDL_RenderCopy(mRenderer, mBackgroundTexture, nullptr, &bgRect);
 
-
     // Renderizar plataformas, paredes, etc., somente se estiverem visíveis
-    for (auto &platform : mPlatforms)
-        if (platform.isVisible(mCamera.x, mCamera.y, SCREEN_WIDTH, SCREEN_HEIGHT))
+    for (auto &platform : mPlatforms) {
+        if (platform.isVisible(mCamera.x, mCamera.y, SCREEN_WIDTH, SCREEN_HEIGHT)) {
             platform.render(mRenderer, mCamera.x, mCamera.y);
+            std::cout << "Rendering Platform at (" << platform.getX() << ", " << platform.getY() << ")\n";
+        }
+    }
 
-    for (auto &solidPlatform : mSolidPlatforms)
-        if (solidPlatform.isVisible(mCamera.x, mCamera.y, SCREEN_WIDTH, SCREEN_HEIGHT))
+    for (auto &solidPlatform : mSolidPlatforms) {
+        if (solidPlatform.isVisible(mCamera.x, mCamera.y, SCREEN_WIDTH, SCREEN_HEIGHT)) {
             solidPlatform.render(mRenderer, mCamera.x, mCamera.y);
+            std::cout << "Rendering SolidPlatform at (" << solidPlatform.getX() << ", " << solidPlatform.getY() << ")\n";
+        }
+    }
 
-    for (auto &wall : mWalls)
-        if (wall.isVisible(mCamera.x, mCamera.y, SCREEN_WIDTH, SCREEN_HEIGHT))
+    for (auto &wall : mWalls) {
+        if (wall.isVisible(mCamera.x, mCamera.y, SCREEN_WIDTH, SCREEN_HEIGHT)) {
             wall.render(mRenderer, mCamera.x, mCamera.y);
+            std::cout << "Rendering Wall at (" << wall.getX() << ", " << wall.getY() << ")\n";
+        }
+    }
 
-    for (auto &crate : mCrates)
-        if (crate.isVisible(mCamera.x, mCamera.y, SCREEN_WIDTH, SCREEN_HEIGHT))
+    for (auto &crate : mCrates) {
+        if (crate.isVisible(mCamera.x, mCamera.y, SCREEN_WIDTH, SCREEN_HEIGHT)) {
             crate.render(mRenderer, mCamera.x, mCamera.y);
+            std::cout << "Rendering Crate at (" << crate.getX() << ", " << crate.getY() << ")\n";
+        }
+    }
 
     // Renderizar o jogador
     mPlayer.render(mRenderer, mCamera.x, mCamera.y);
