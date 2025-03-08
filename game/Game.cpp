@@ -4,7 +4,7 @@
 
 Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     : mWindow(window), mRenderer(renderer), mQuit(false),
-      mPlayer(25, 5, mPlatforms, mSolidPlatforms, mWalls, mCrates, renderer)
+      mPlayer(50, 5, renderer)
 {
     std::cout << "Game constructor called" << std::endl;
 
@@ -156,7 +156,8 @@ void Game::handleEvents()
 
 void Game::update()
 {
-    mPlayer.move();
+    mPlayer.move(mPlatforms, mSolidPlatforms, mWalls, mCrates);
+
     std::cout << "Player Position: (" << mPlayer.getPosX() << ", " << mPlayer.getPosY() << ")\n";
 std::cout << "Camera Position: (" << mCamera.x << ", " << mCamera.y << ")\n";
 

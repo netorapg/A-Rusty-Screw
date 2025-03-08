@@ -60,7 +60,12 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "variant": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "charconv": "cpp",
+        "format": "cpp",
+        "iomanip": "cpp",
+        "span": "cpp",
+        "text_encoding": "cpp"
     },
     "editor.formatOnSave": false,
     "editor.formatOnSaveMode": "modificationsIfAvailable"
