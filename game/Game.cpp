@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "../config.h"
 #include <iostream>
+#include <unordered_map>
 
 Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     : mWindow(window), mRenderer(renderer), mQuit(false),
@@ -70,13 +71,28 @@ Game::~Game()
     TTF_Quit();
 }
 
-
 void Game::loadLevelFromJSON(const std::string& filePath) {
     // Carregar o JSON
     json_object *root = json_object_from_file(filePath.c_str());
     if (!root) {
         std::cerr << "Failed to load JSON file: " << filePath << std::endl;
         return;
+    }
+
+    // Acessar o objeto "tiles" para mapear variáveis
+    json_object *tiles;
+    if (!json_object_object_get_ex(root, "tiles", &tiles)) {
+        std::cerr << "Invalid JSON: missing 'tiles'" << std::endl;
+        json_object_put(root);
+        return;
+    }
+
+    // Criar um mapa para armazenar os valores das variáveis
+    std::unordered_map<std::string, int> tileMap;
+
+    // Iterar sobre as entradas do objeto "tiles"
+    json_object_object_foreach(tiles, key, val) {
+        tileMap[key] = json_object_get_int(val);
     }
 
     // Acessar o array "layers"
@@ -114,24 +130,32 @@ void Game::loadLevelFromJSON(const std::string& filePath) {
 
         for (int j = 0; j < cols; ++j) {
             json_object *tile = json_object_array_get_idx(row, j);
-            int tileType = json_object_get_int(tile);
+            const char *tileName = json_object_get_string(tile);
+
+            // Verificar se o tileName existe no mapa
+            if (tileMap.find(tileName) == tileMap.end()) {
+                std::cerr << "Unknown tile name: " << tileName << std::endl;
+                continue;
+            }
+
+            int tileType = tileMap[tileName];
             int x = j * tileSize;
             int y = i * tileSize;
 
             switch (tileType) {
                 case 0: // Espaço vazio
                     break;
-                case 1: // SolidPlatform
-                    mSolidPlatforms.emplace_back(x, y, tileSize, tileSize);
-                    break;
-                case 2: // Platform
+                case 1: // Plataforma
                     mPlatforms.emplace_back(x, y, tileSize, tileSize);
+                    break;
+                case 2: // Plataforma sólida
+                    mSolidPlatforms.emplace_back(x, y, tileSize, tileSize);
                     break;
                 case 3: // Parede
                     mWalls.emplace_back(x, y, tileSize, tileSize);
                     break;
-                case 4: // Caixote (Crate)
-                    mCrates.emplace_back(x, y, 50, 50); // Tamanho fixo para caixotes
+                case 4: // Caixote
+                    mCrates.emplace_back(x, y, 50, 50);
                     break;
                 default:
                     std::cerr << "Unknown tile type: " << tileType << std::endl;
