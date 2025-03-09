@@ -34,7 +34,7 @@ void PhysicsEngine::HandleCollisions(
     const float ph = entity.getHeight();
     float       vx = entity.getHorizontalVelocity();
     float       vy = entity.getVerticalVelocity();
-    bool onPlatform;// Verifica se o jogador está em cima de uma plataforma
+    bool onPlatform = false;// Verifica se o jogador está em cima de uma plataforma
   
     // Colisão com paredes
     for( const auto &wall : walls )
@@ -83,7 +83,6 @@ void PhysicsEngine::HandleCollisions(
   
     // Colisão com plataformas sólidas
    // Colisão com plataformas sólidas (REVISADO)
-onPlatform = false; // Verifica se o jogador está em cima de uma plataforma
 for( const auto &platform : solidPlatforms )
 {
     // Verifique apenas a área dos pés do jogador (1 pixel de altura)
