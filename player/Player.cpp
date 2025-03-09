@@ -4,11 +4,10 @@
 const int PLAYER_WIDTH = 25;
 const int PLAYER_HEIGHT = 26;
 const float GRAVITY = 0.5f;
-bool onGround = false; // Variável para verificar se o jogador está no chão
-bool aboveCrate = false;
 
-Player::Player(float x, float y, std::list<Platform>& platforms, std::list<SolidPlatform>& solidPlatforms, std::list<Wall>& walls, std::list<Crate>& crates, SDL_Renderer* renderer)
-    : mPos(x, y), mPlatforms(platforms), mSolidPlatforms(solidPlatforms), mWalls(walls), mCrates(crates), mQuit(false), mFacingRight(true), mFalling(false)
+
+Player::Player(float x, float y, SDL_Renderer* renderer)
+    : mPos(x, y), mQuit(false), mFacingRight(true), mFalling(false)
 {
     // Carregar a textura do jogador (substitua pelo caminho correto da sua imagem)
     SDL_Surface* loadedSurface = IMG_Load("/home/netorapg/projects/platfom2d/assets/bezourinha_correndo.png");
@@ -91,36 +90,14 @@ void Player::handleEvent(SDL_Event& e)
 }
 
 
-void Player::move()
-{
-    // Gravidade
+void Player::move() {
+    // Apenas aplica movimento básico SEM FÍSICA
     mVel.y += GRAVITY;
-
-    // Atualizar posição horizontal
     mPos.x += mVel.x;
-
-    // Checagem de colisão horizontal (plataformas, paredes, etc.)
-    for (const auto& wall : mWalls)
-    {
-        if (checkCollision(mPos.x, mPos.y, PLAYER_WIDTH, PLAYER_HEIGHT, wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight()))
-        {
-            // Colisão detectada - ajustar posição
-            if (mVel.x > 0) // Movendo para a direita
-            {
-                mPos.x = wall.getX() - PLAYER_WIDTH; // Ajustar a posição para a esquerda do wall
-            }
-            else if (mVel.x < 0) // Movendo para a esquerda
-            {
-                mPos.x = wall.getX() + wall.getWidth(); // Ajustar a posição para a direita do wall
-            }
-            mVel.x = 0; // Parar o movimento horizontal
-        }
-    }
-
-    // Atualizar posição vertical
     mPos.y += mVel.y;
 
-     if(mVel.x != 0) {
+    // Animação (mantida aqui)
+    if(mVel.x != 0) {
         mAnimationTimer += 0.1;
         if(mAnimationTimer >= mAnimationSpeed) {
             mCurrentFrame = (mCurrentFrame + 1) % mFrameCount;
@@ -129,85 +106,6 @@ void Player::move()
         }
     } else {
         mCurrentFrame = 0;
-        
-    }
-
-  for (auto &crate : mCrates)
-{
-    // Verifica se há colisão com o caixote
-    if (checkCollision(mPos.x, mPos.y, PLAYER_WIDTH, PLAYER_HEIGHT, crate.getX(), crate.getY(), crate.getWidth(), crate.getHeight()))
-    {
-        if (mVel.x > 0 && !aboveCrate) // Colisão enquanto movendo para a direita
-        {
-            crate.setX(crate.getX() + mVel.x);
-            mPos.x = crate.getX() - PLAYER_WIDTH; // Ajusta a posição do jogador para não atravessar o caixote
-        }
-        else if (mVel.x < 0 && !aboveCrate) // Colisão enquanto movendo para a esquerda
-        {
-            crate.setX(crate.getX() + mVel.x); // Mover o caixote para a esquerda
-            mPos.x = crate.getX() + crate.getWidth(); // Ajusta a posição do jogador para não atravessar o caixote
-        }
-        else if (mVel.y > 0) // Colisão enquanto caindo
-        {
-            mPos.y = crate.getY() - PLAYER_HEIGHT; // Ajusta a posição do jogador para ficar em cima do caixote
-            aboveCrate = true; // O jogador está em cima do caixote
-            mFalling = false; // O jogador não está mais caindo
-            onGround = true; // O jogador está em cima do caixote
-            mVel.y = 0; // Zera a velocidade vertical
-        }
-    }
-    else // Se não houver colisão com o caixote
-    {
-        if (aboveCrate) // Se o jogador estava em cima do caixote
-        {
-            // Verifica se o jogador está saindo do caixote
-            if (mPos.y + PLAYER_HEIGHT < crate.getY() || mPos.y > crate.getY() + crate.getHeight())
-            {
-                aboveCrate = false; // O jogador não está mais em cima do caixote
-            }
-        }
-    }
-}
-
-    // Checagem de colisão vertical (plataformas, chão, etc.)
-  
-    for (const auto& platform : mSolidPlatforms) // Verifique plataformas sólidas
-    {
-        if (checkCollision(mPos.x, mPos.y, PLAYER_WIDTH, PLAYER_HEIGHT, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
-        {
-            if (mVel.y > 0) // Colisão enquanto caindo
-            {
-                mPos.y = platform.getY() - PLAYER_HEIGHT; // Ajusta a posição para estar em cima da plataforma
-                mVel.y = 0; // Zera a velocidade vertical
-                onGround = true; // O jogador está no chão
-                mFalling = false; // Reseta o estado de queda
-            }
-            else if (mVel.y < 0) // Colisão enquanto subindo
-            {
-                mPos.y = platform.getY() + platform.getHeight(); // Ajusta a posição para estar abaixo da plataforma
-                mVel.y = 0; // Zera a velocidade vertical
-            }
-        }
-    }
-
-    // Checar também plataformas normais
-      for (const auto &platform : mPlatforms)
-    {
-        if (!mPassingThroughPlatform &&
-            checkCollision(mPos.x, mPos.y + PLAYER_WIDTH, PLAYER_HEIGHT, 1, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()) && mVel.y >= 0)
-        {
-            mPos.y = platform.getY() - PLAYER_HEIGHT;
-            mFalling = false;
-            mVel.y = 0;
-            onGround = true;
-            break;
-        }
-    }
-
-    // Se não estiver em uma plataforma, está caindo
-    if (!onGround)
-    {
-        mFalling = true; // O jogador está caindo
     }
 }
 
@@ -237,9 +135,4 @@ int Player::getWidth() const {
 
 int Player::getHeight() const {
     return mSpriteClip.h;  // Retorna a altura do sprite
-}
-
-bool Player::checkCollision(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2)
-{
-    return (x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2);
 }

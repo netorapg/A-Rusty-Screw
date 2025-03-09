@@ -12,6 +12,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <json-c/json.h> // Incluir a biblioteca json-c
 #include <string> // Para usar std::string
+#include "../physics/PhysicsEngine.h" // Incluir o PhysicsEngine
 
 class Game
 {
