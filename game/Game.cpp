@@ -9,6 +9,12 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
 {
     std::cout << "Game constructor called" << std::endl;
 
+    SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    if(SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
+        std::cerr << "Failed to set fullscreen mode: " << SDL_GetError() << std::endl;
+    }
+
     // Inicializar a câmera
     mCamera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 
@@ -56,8 +62,6 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
         std::cerr << "Failed to load small font! SDL_ttf Error: " << TTF_GetError() << std::endl;
     }
 
-// Define a matriz do nível com quartos e aberturas entre eles
-// Define a matriz do nível 10x15 com quartos e aberturas
 loadLevelFromJSON("../map/level1.json");
 }
 
@@ -187,9 +191,18 @@ void Game::handleEvents()
         {
             Mix_PlayChannel(-1, mJumpSound, 0);
         }
+
+        // Alternar entre modo janela e tela cheia ao pressionar F11
+        if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_F11) {
+            Uint32 flags = SDL_GetWindowFlags(mWindow);
+            if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+                SDL_SetWindowFullscreen(mWindow, 0); // Voltar ao modo janela
+            } else {
+                SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP); // Entrar em tela cheia
+            }
+        }
     }
 }
-
 void Game::update()
 {
     mPlayer.move();
