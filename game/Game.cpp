@@ -248,7 +248,7 @@ else if (playerCenterY > mCamera.y + SCREEN_HEIGHT - cameraMarginY)
 
 void Game::render()
 {
-    SDL_SetRenderDrawColor(mRenderer, 0xFF, 0xFF, 0xFF, 0xFF); // Branco
+    SDL_SetRenderDrawColor(mRenderer, 0x00, 0x00, 0x00, 0x00); // Branco
     SDL_RenderClear(mRenderer);
 
     SDL_Rect bgRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
