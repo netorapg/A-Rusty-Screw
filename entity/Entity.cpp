@@ -5,30 +5,13 @@ Entity::Entity(float x, float y, int width, int height)
       mVelX(0), mVelY(0), mPassingThroughPlatform(false),
       mAboveCrate(false), mOnGround(false) {}
 
-
+// Getters
 int Entity::getWidth() const {
     return mWidth;
 }
 
 int Entity::getHeight() const {
     return mHeight;
-}
-
-// Métodos para estados de colisão
-void Entity::setOnGround(bool onGround) {
-    mOnGround = onGround;
-}
-
-bool Entity::isOnGround() const {
-    return mOnGround;
-}
-
-void Entity::setFalling(bool falling) {
-    mFalling = falling;
-}
-
-bool Entity::isFalling() const {
-    return mFalling;
 }
 
 float Entity::getPosX() const {
@@ -39,17 +22,30 @@ float Entity::getPosY() const {
     return mPosY;
 }
 
-void Entity::setPosition(float x, float y) {
-    mPosX = x;
-    mPosY = y;
-}
-
 float Entity::getHorizontalVelocity() const {
     return mVelX;
 }
 
 float Entity::getVerticalVelocity() const {
     return mVelY;
+}
+
+bool Entity::isOnGround() const {
+    return mOnGround;
+}
+
+bool Entity::isFalling() const {
+    return mFalling;
+}
+
+bool Entity::isPassingThroughPlatform() const {
+    return mPassingThroughPlatform;
+}
+
+// Setters
+void Entity::setPosition(float x, float y) {
+    mPosX = x;
+    mPosY = y;
 }
 
 void Entity::setVelocity(float vx, float vy) {
@@ -65,8 +61,12 @@ void Entity::setVerticalVelocity(float vy) {
     mVelY = vy;
 }
 
-bool Entity::isPassingThroughPlatform() const {
-    return mPassingThroughPlatform;
+void Entity::setOnGround(bool onGround) {
+    mOnGround = onGround;
+}
+
+void Entity::setFalling(bool falling) {
+    mFalling = falling;
 }
 
 void Entity::setAboveCrate(bool aboveCrate) {

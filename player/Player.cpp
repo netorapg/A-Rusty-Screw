@@ -24,9 +24,8 @@ Player::Player(float x, float y, SDL_Renderer* renderer)
     mAnimationSpeed = 0.7f;
 }
 
-Player::~Player()
-{
-  SDL_DestroyTexture( mTexture );
+Player::~Player() {
+    SDL_DestroyTexture(mTexture);
 }
 
 void Player::reset() {
@@ -41,16 +40,16 @@ void Player::handleEvent(SDL_Event& e) {
     if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
         switch (e.key.keysym.sym) {
             case SDLK_d:
-                mVelX = 5; // Usando mVelX em vez de mVel.x
+                mVelX = 5;
                 mFacingRight = true;
                 break;
             case SDLK_a:
-                mVelX = -5; // Usando mVelX em vez de mVel.x
+                mVelX = -5;
                 mFacingRight = false;
                 break;
             case SDLK_SPACE:
                 if (!mFalling) {
-                    mVelY = -10; // Usando mVelY em vez de mVel.y
+                    mVelY = -10;
                     mFalling = true;
                 }
                 break;
@@ -63,7 +62,7 @@ void Player::handleEvent(SDL_Event& e) {
         switch (e.key.keysym.sym) {
             case SDLK_a:
             case SDLK_d:
-                mVelX = 0; // Usando mVelX em vez de mVel.x
+                mVelX = 0;
                 break;
             case SDLK_s:
                 mPassingThroughPlatform = false;
@@ -73,9 +72,9 @@ void Player::handleEvent(SDL_Event& e) {
 }
 
 void Player::move() {
-    mVelY += GRAVITY; // Usando mVelY em vez de mVel.y
-    mPosX += mVelX;   // Usando mPosX e mVelX
-    mPosY += mVelY;   // Usando mPosY e mVelY
+    mVelY += GRAVITY;
+    mPosX += mVelX;
+    mPosY += mVelY;
 
     // Animação
     if (mVelX != 0) {
@@ -91,9 +90,9 @@ void Player::move() {
 }
 
 void Player::update() {
-    mVelY += GRAVITY; // Usando mVelY em vez de mVel.y
-    mPosX += mVelX;   // Usando mPosX e mVelX
-    mPosY += mVelY;   // Usando mPosY e mVelY
+    mVelY += GRAVITY;
+    mPosX += mVelX;
+    mPosY += mVelY;
 
     // Atualizar animação
     if (mVelX != 0) {
@@ -110,8 +109,8 @@ void Player::update() {
 
 void Player::render(SDL_Renderer* renderer, float cameraX, float cameraY) {
     SDL_Rect renderQuad = {
-        static_cast<int>(mPosX - cameraX), // Usando mPosX
-        static_cast<int>(mPosY - cameraY), // Usando mPosY
+        static_cast<int>(mPosX - cameraX),
+        static_cast<int>(mPosY - cameraY),
         static_cast<int>(PLAYER_WIDTH),
         static_cast<int>(PLAYER_HEIGHT)
     };
@@ -120,12 +119,10 @@ void Player::render(SDL_Renderer* renderer, float cameraX, float cameraY) {
     SDL_RenderCopyEx(renderer, mTexture, &mSpriteClip, &renderQuad, 0, nullptr, flip);
 }
 
-int Player::getWidth() const
-{
-  return mSpriteClip.w;   // Retorna a largura do sprite
+int Player::getWidth() const {
+    return mSpriteClip.w;
 }
 
-int Player::getHeight() const
-{
-  return mSpriteClip.h;   // Retorna a altura do sprite
+int Player::getHeight() const {
+    return mSpriteClip.h;
 }
