@@ -212,6 +212,10 @@ void Game::update()
     {
         mPlayer.setFalling(true);
     }
+    else
+    {
+        mPlayer.setFalling(false);
+    }
 
     std::cout << "Player Position: (" << mPlayer.getPosX() << ", " << mPlayer.getPosY() << ")\n";
 std::cout << "Camera Position: (" << mCamera.x << ", " << mCamera.y << ")\n";
