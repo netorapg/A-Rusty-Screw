@@ -1,17 +1,15 @@
-// Wall.h
 #ifndef WALL_H
 #define WALL_H
 
 #include <SDL2/SDL.h>
-#include "../Object.h"
+#include "../scenario/Scenario.h"
 
-class Wall : public Object
+class Wall : public Scenario
 {
 public:
     Wall(float x, float y, float width, float height);
-
-    void render(SDL_Renderer *renderer, float cameraX, float cameraY) override; // Adicione os parâmetros da câmera
-    bool isVisible(float cameraX, float cameraY, int screenWidth, int screenHeight); // Adicionando o método isVisible
+    void render(SDL_Renderer *renderer, float cameraX, float cameraY) override; 
+    bool isVisible(float cameraX, float cameraY, int screenWidth, int screenHeight) override;
 };
 
 #endif // WALL_H

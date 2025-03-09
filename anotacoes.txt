@@ -1,4 +1,5 @@
-Tasks:
-Nao guardar as plataformas como um vetor, guarde-as em lista
-Criar uma classe objeto e passe para ela todos 
-os atributos em comum de player e platform
+codigo esta mais organizado, agora temos duas proximas etapas importantes
+
+criar o objeto porta
+
+recriar o objeto caixote para ser considerado uma entidade ao invés de um cenario
