@@ -2,7 +2,7 @@
 #define WALL_H
 
 #include <SDL2/SDL.h>
-#include "../Scenario.h"
+#include "../scenario/Scenario.h"
 
 class Wall : public Scenario
 {

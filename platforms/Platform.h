@@ -2,7 +2,7 @@
 #define PLATFORM_H
 
 #include <SDL2/SDL.h>
-#include "../Scenario.h"
+#include "../scenario/Scenario.h"
 
 class Platform : public Scenario
 {

@@ -2,7 +2,7 @@
 #define PHYSICS_ENGINE_H
 
 #include <list>
-#include "../player/Player.h"
+#include "../entity/Entity.h"
 #include "../platforms/Platform.h"
 #include "../platforms/SolidPlatform.h"
 #include "../wall/Wall.h"
@@ -10,7 +10,7 @@
 
 class PhysicsEngine {
     public: 
-    static void HandleCollisions(Player& player,
+    static void HandleCollisions(Entity& entity,
                                   const std::list<Platform>& platforms,
                                   const std::list<SolidPlatform>& solidPlatforms,
                                   const std::list<Wall>& walls,
