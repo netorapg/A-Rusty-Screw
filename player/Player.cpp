@@ -8,9 +8,7 @@ const float GRAVITY       = 0.5f;
 
 Player::Player(float x, float y, SDL_Renderer* renderer)
     : Entity(x, y, PLAYER_WIDTH, PLAYER_HEIGHT),
-      mFacingRight(true),
-      mPassingThroughPlatform(false),
-      mFalling(false) {
+      mFacingRight(true), mSpriteClip{0, 0, PLAYER_WIDTH, PLAYER_HEIGHT} {
 
     SDL_Surface* loadedSurface = IMG_Load("../assets/bezourinha_correndo.png");
     if (!loadedSurface) {

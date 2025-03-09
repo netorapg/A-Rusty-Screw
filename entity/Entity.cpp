@@ -14,10 +14,22 @@ int Entity::getHeight() const {
     return mHeight;
 }
 
+// Métodos para estados de colisão
 void Entity::setOnGround(bool onGround) {
     mOnGround = onGround;
 }
 
+bool Entity::isOnGround() const {
+    return mOnGround;
+}
+
+void Entity::setFalling(bool falling) {
+    mFalling = falling;
+}
+
+bool Entity::isFalling() const {
+    return mFalling;
+}
 
 float Entity::getPosX() const {
     return mPosX;

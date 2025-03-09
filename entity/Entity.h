@@ -21,11 +21,16 @@ class Entity {
         void setVerticalVelocity(float vy);
     
         // Métodos para obter dimensões
-        int getWidth() const;  // Adicione este método
-        int getHeight() const; // Adicione este método
+        virtual int getWidth() const;
+        virtual int getHeight() const;
     
         // Métodos para gerenciar estados
-        void setOnGround(bool onGround); // Adicione este método
+        void setOnGround(bool onGround);
+        bool isOnGround() const;
+    
+        void setFalling(bool falling); // Adicione este método
+        bool isFalling() const;       // Adicione este método
+    
         bool isPassingThroughPlatform() const;
         void setAboveCrate(bool aboveCrate);
     
@@ -33,14 +38,6 @@ class Entity {
         virtual void update() = 0;
         virtual void render(SDL_Renderer* renderer, float cameraX, float cameraY) = 0;
         virtual void handleEvent(SDL_Event& e) = 0;
-
-        bool isOnGround() const {
-            return mOnGround;
-        }
-
-        void setFalling(bool falling) {
-            mOnGround = !falling;
-        }
     
     protected:
         float mPosX, mPosY; // Posição
@@ -48,6 +45,7 @@ class Entity {
         int mWidth, mHeight; // Dimensões
         bool mPassingThroughPlatform; // Estado de passar por plataformas
         bool mAboveCrate; // Estado de estar acima de uma caixa
-        bool mOnGround;   // Estado de estar no chão (adicione este membro)
+        bool mOnGround;   // Estado de estar no chão
+        bool mFalling;    // Estado de cair (movido para Entity)
     };
 #endif // ENTITY_H

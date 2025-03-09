@@ -210,17 +210,11 @@ void Game::update()
     mPlayer.move();
     PhysicsEngine::HandleCollisions(mPlayer, mPlatforms, mSolidPlatforms, mWalls, mCrates);
 
-    if (!mPlayer.isOnGround())
-    {
-        mPlayer.setFalling(true);
-    }
-    else
-    {
-        mPlayer.setFalling(false);
-    }
+
 
     std::cout << "Player Position: (" << mPlayer.getPosX() << ", " << mPlayer.getPosY() << ")\n";
 std::cout << "Camera Position: (" << mCamera.x << ", " << mCamera.y << ")\n";
+std::cout << "mOnGround: " << mPlayer.isOnGround() << ", mFalling: " << mPlayer.isFalling() << std::endl;
 
 
 int cameraMarginX = SCREEN_WIDTH / 2;   // Margem horizontal (pode ajustar conforme necessário)
