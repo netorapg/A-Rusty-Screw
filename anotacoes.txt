@@ -1,5 +1,0 @@
-codigo esta mais organizado, agora temos duas proximas etapas importantes
-
-criar o objeto porta
-
-recriar o objeto caixote para ser considerado uma entidade ao invés de um cenario
