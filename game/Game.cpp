@@ -69,7 +69,16 @@ Game::~Game()
 
 void Game::loadLevelFromJSON(const std::string& filePath)
 {
+
+     // Limpar listas ou variáveis antes de carregar o novo conteúdo
+     mPlatforms.clear();
+     mSolidPlatforms.clear();
+     mWalls.clear();
+     mCrates.clear();
+     mDoors.clear();
+   
     json_object *root = json_object_from_file(filePath.c_str());
+    
     if (!root) {
         std::cerr << "Failed to load JSON file: " << filePath << std::endl;
         return;
@@ -142,17 +151,29 @@ void Game::loadLevelFromJSON(const std::string& filePath)
                 case 4: // Caixote
                     mCrates.emplace_back(x, y, 50, 50);
                     break;
-                case 5: // Porta
-                    mDoors.emplace_back(x, y, tileSize, tileSize, "../map/level2.json");
-                    break;
                 default:
                     std::cerr << "Unknown tile type: " << tileType << std::endl;
             }
         }
     }
 
+    // Agora, carregue as portas do JSON (com destino)
+    json_object *doors;
+    if (json_object_object_get_ex(root, "doors", &doors)) {
+        for (int i = 0; i < json_object_array_length(doors); ++i) {
+            json_object *door = json_object_array_get_idx(doors, i);
+            float x = json_object_get_double(json_object_object_get(door, "x")) * tileSize;
+            float y = json_object_get_double(json_object_object_get(door, "y")) * tileSize;            
+            std::string target = json_object_get_string(json_object_object_get(door, "target"));
+
+            // Adicionar porta à lista de portas
+            mDoors.emplace_back(x, y, tileSize, tileSize, target);
+        }
+    }
+
     json_object_put(root);
 }
+
 
 void Game::handleEvents()
 {
@@ -189,6 +210,7 @@ void Game::update()
     PhysicsEngine::HandleCollisions(mPlayer, mPlatforms, mSolidPlatforms, mWalls, mCrates, mDoors, levelToLoad);
     if(!levelToLoad.empty()) {
         loadLevelFromJSON(levelToLoad);
+        resetGame();
     }
 
     std::cout << "Player Position: (" << mPlayer.getPosX() << ", " << mPlayer.getPosY() << ")\n";
