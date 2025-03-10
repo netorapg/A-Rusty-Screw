@@ -112,12 +112,14 @@ void PhysicsEngine::HandleCollisions(
   entity.setHorizontalVelocity(vx);
 
   for (const auto &door : doors)
-{
-    if (CheckCollision(px, py, pw, ph, door.getX(), door.getY(), door.getWidth(), door.getHeight()))
-    {
-        levelToLoad = door.getLevelToLoad();
-        break;
-    }
-}
+  {
+      if (CheckCollision(px, py, pw, ph, door.getX(), door.getY(), door.getWidth(), door.getHeight()))
+      {
+          std::cout << "Colisão com a porta detectada (usando px, py)!" << std::endl;
+          levelToLoad = door.getLevelToLoad();
+          break;
+      }
+  }
+  
 
 }

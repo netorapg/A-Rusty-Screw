@@ -143,7 +143,7 @@ void Game::loadLevelFromJSON(const std::string& filePath)
                     mCrates.emplace_back(x, y, 50, 50);
                     break;
                 case 5: // Porta
-                    mDoors.emplace_back(x, y, tileSize, tileSize, "level2.json");
+                    mDoors.emplace_back(x, y, tileSize, tileSize, "../map/level2.json");
                     break;
                 default:
                     std::cerr << "Unknown tile type: " << tileType << std::endl;
