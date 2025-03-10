@@ -13,6 +13,7 @@
 #include "../platforms/SolidPlatform.h"
 #include "../wall/Wall.h"
 #include "../crate/Crate.h"
+#include "../door/Door.h"
 #include "../physics/PhysicsEngine.h"
 
 class Game
@@ -36,6 +37,7 @@ private:
     std::list<SolidPlatform> mSolidPlatforms;
     std::list<Wall> mWalls;
     std::list<Crate> mCrates;
+    std::list<Door> mDoors;
     Player mPlayer;
     SDL_Rect mCamera;
 

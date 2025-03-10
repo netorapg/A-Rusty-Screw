@@ -6,6 +6,7 @@
 #include "../platforms/Platform.h"
 #include "../platforms/SolidPlatform.h"
 #include "../wall/Wall.h"
+#include "../door/Door.h"
 
 #include <list>
 
@@ -16,7 +17,10 @@ public:
                                 const std::list<Platform>      &platforms,
                                 const std::list<SolidPlatform> &solidPlatforms,
                                 const std::list<Wall>          &walls,
-                                std::list<Crate>               &crates );
+                                std::list<Crate>         &crates,
+                                const std::list<Door>          &doors,
+                                std::string                    &levelToLoad
+                              );
 };
 
 #endif   // PHYSICS_ENGINE_H

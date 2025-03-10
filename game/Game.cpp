@@ -142,6 +142,9 @@ void Game::loadLevelFromJSON(const std::string& filePath)
                 case 4: // Caixote
                     mCrates.emplace_back(x, y, 50, 50);
                     break;
+                case 5: // Porta
+                    mDoors.emplace_back(x, y, tileSize, tileSize, "level2.json");
+                    break;
                 default:
                     std::cerr << "Unknown tile type: " << tileType << std::endl;
             }
@@ -182,7 +185,11 @@ void Game::handleEvents()
 void Game::update()
 {
     mPlayer.move();
-    PhysicsEngine::HandleCollisions(mPlayer, mPlatforms, mSolidPlatforms, mWalls, mCrates);
+    std::string levelToLoad = "";
+    PhysicsEngine::HandleCollisions(mPlayer, mPlatforms, mSolidPlatforms, mWalls, mCrates, mDoors, levelToLoad);
+    if(!levelToLoad.empty()) {
+        loadLevelFromJSON(levelToLoad);
+    }
 
     std::cout << "Player Position: (" << mPlayer.getPosX() << ", " << mPlayer.getPosY() << ")\n";
     std::cout << "Camera Position: (" << mCamera.x << ", " << mCamera.y << ")\n";
@@ -243,6 +250,13 @@ void Game::render()
         if (crate.isVisible(mCamera.x, mCamera.y, SCREEN_WIDTH, SCREEN_HEIGHT)) {
             crate.render(mRenderer, mCamera.x, mCamera.y);
             std::cout << "Rendering Crate at (" << crate.getX() << ", " << crate.getY() << ")\n";
+        }
+    }
+
+    for (auto &door : mDoors) {
+        if (door.isVisible(mCamera.x, mCamera.y, SCREEN_WIDTH, SCREEN_HEIGHT)) {
+            door.render(mRenderer, mCamera.x, mCamera.y);
+            std::cout << "Rendering Door at (" << door.getX() << ", " << door.getY() << ")\n";
         }
     }
 

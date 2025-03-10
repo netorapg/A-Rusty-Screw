@@ -15,7 +15,8 @@ void PhysicsEngine::HandleCollisions(
   const std::list<Platform> &platforms,
   const std::list<SolidPlatform> &solidPlatforms,
   const std::list<Wall> &walls,
-  std::list<Crate> &crates)
+  std::list<Crate> &crates,
+  const std::list<Door> &doors, std::string &levelToLoad)
 {
   // Resetar estados
   entity.setOnGround(false);
@@ -103,8 +104,20 @@ void PhysicsEngine::HandleCollisions(
     }
   }
 
+
+
   // Aplicar mudanças
   entity.setPosition(px, py);
   entity.setVerticalVelocity(vy);
   entity.setHorizontalVelocity(vx);
+
+  for (const auto &door : doors)
+{
+    if (CheckCollision(px, py, pw, ph, door.getX(), door.getY(), door.getWidth(), door.getHeight()))
+    {
+        levelToLoad = door.getLevelToLoad();
+        break;
+    }
+}
+
 }
