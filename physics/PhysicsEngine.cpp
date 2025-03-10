@@ -71,13 +71,23 @@ void PhysicsEngine::HandleCollisions(
     // Verifique apenas a área dos pés do jogador (1 pixel de altura)
     if (CheckCollision(px, py + ph - 1, pw, 1, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
     {
-      py = platform.getY() - ph;
-      entity.setOnGround(true);
-      entity.setFalling(false);
-      vy = 0;
-      onPlatform = true;
+      if (vy > 0)
+        {
+            py = platform.getY() - ph; // Posiciona em cima da plataforma
+            vy = 0;
+            entity.setOnGround(true);
+            entity.setFalling(false);
+            onPlatform = true;
+        }
+        // Colisão enquanto subindo (velocidade negativa)
+        else if (vy < 0)
+        {
+            py = platform.getY() + platform.getHeight(); // Posiciona abaixo da plataforma
+            vy = 0;
+        }
       break; // Sai do loop, pois já encontrou uma plataforma
     }
+
   }
 
   // Colisão com plataformas normais
