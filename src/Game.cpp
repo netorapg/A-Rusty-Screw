@@ -1,10 +1,12 @@
-#include "Game.h"
-#include "../config.h"
+#include "../include/bettlerider/Game.h"
+#include "../include/bettlerider/config.h"
 #include <iostream>
 #include <unordered_map>
 #include <json-c/json.h>
 #include <SDL2/SDL_image.h>
 
+namespace BRTC
+{
 Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     : mWindow(window), mRenderer(renderer), mQuit(false), mPlayer(50, 5, renderer)
 {
@@ -300,4 +302,6 @@ void Game::resetGame()
 bool Game::isRunning()
 {
     return !mQuit;
+}
+
 }

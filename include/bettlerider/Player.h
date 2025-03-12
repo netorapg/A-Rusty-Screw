@@ -1,8 +1,11 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "../entity/Entity.h"
+#include "../../entity/Entity.h"
 #include <SDL2/SDL.h>
+
+namespace BRTC
+{
 
 class Player : public Entity {
     public:
@@ -28,4 +31,5 @@ class Player : public Entity {
         bool mFacingRight;
     };
 
+} // namespace BRTC
 #endif // PLAYER_H

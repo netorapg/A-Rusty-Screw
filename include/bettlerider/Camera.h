@@ -3,22 +3,26 @@
 
 #include <SDL.h>
 
+namespace BRTC
+{
+
 class Camera {
-public:
-    Camera(int width, int height);
-
-    void move(int x, int y);
-    SDL_Rect getCamera() const;
-
-    // Métodos que você deve adicionar
-    void setPosition(int x, int y);
-    int getX() const;
-    int getY() const;
-
-private:
-    SDL_Rect mCamera;
-    int mWidth;
-    int mHeight;
-};
+    public:
+        Camera(int width, int height);
+    
+        void move(int x, int y);
+        SDL_Rect getCamera() const;
+    
+        // Métodos que você deve adicionar
+        void setPosition(int x, int y);
+        int getX() const;
+        int getY() const;
+    
+    private:
+        SDL_Rect mCamera;
+        int mWidth;
+        int mHeight;
+    };
+}
 
 #endif // CAMERA_H

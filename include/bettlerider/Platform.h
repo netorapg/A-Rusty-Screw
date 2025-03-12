@@ -2,13 +2,16 @@
 #define PLATFORM_H
 
 #include <SDL2/SDL.h>
-#include "../scenario/Scenario.h"
+#include "../../scenario/Scenario.h"
 
-class Platform : public Scenario
+namespace BRTC
+{
+    class Platform : public Scenario
 {
 public:
     Platform(float x, float y, float width, float height);
     void render(SDL_Renderer *renderer, float cameraX, float cameraY) override; 
 };
+}
 
 #endif // PLATFORM_H
