@@ -1,7 +1,7 @@
 #include <iostream>
 #include <SDL2/SDL.h>
-#include "game/Game.h"
-#include "config.h"
+#include "../include/bettlerider/Game.h"
+#include "../include/bettlerider/config.h"
 
 int main(int argc, char* args[]) {
     // Inicializar SDL
@@ -28,7 +28,7 @@ int main(int argc, char* args[]) {
     }
 
     // Criar o jogo
-    Game game(window, renderer);
+    BRTC::Game game(window, renderer);
 
     // Loop principal do jogo
     while (game.isRunning()) {

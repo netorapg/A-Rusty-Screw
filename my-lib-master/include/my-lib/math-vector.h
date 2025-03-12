@@ -9,7 +9,7 @@
 
 #include <cmath>
 
-#include <my-lib/std.h>
+#include "std.h"
 
 namespace Mylib
 {

@@ -2,14 +2,16 @@
 #define WALL_H
 
 #include <SDL2/SDL.h>
-#include "../scenario/Scenario.h"
+#include "../../scenario/Scenario.h"
 
-class Wall : public Scenario
+namespace BRTC
+{
+    class Wall : public Scenario
 {
 public:
     Wall(float x, float y, float width, float height);
     void render(SDL_Renderer *renderer, float cameraX, float cameraY) override; 
     bool isVisible(float cameraX, float cameraY, int screenWidth, int screenHeight) override;
 };
-
+}
 #endif // WALL_H

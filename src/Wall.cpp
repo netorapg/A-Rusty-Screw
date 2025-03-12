@@ -1,4 +1,7 @@
-#include "Wall.h"
+#include "../include/bettlerider/Wall.h"
+
+namespace BRTC
+{
 
 Wall::Wall(float x, float y, float width, float height) : Scenario(x, y, width, height) {}
 
@@ -18,4 +21,6 @@ bool Wall::isVisible(float cameraX, float cameraY, int screenWidth, int screenHe
 {
     return (mPosX + mWidth > cameraX && mPosX < cameraX + screenWidth &&
             mPosY + mHeight > cameraY && mPosY < cameraY + screenHeight);
+}
+
 }

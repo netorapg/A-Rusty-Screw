@@ -14,6 +14,11 @@
 #include "Crate.h"
 #include "Door.h"
 #include "Player.h"
+#include "PhysicsEngine.h"
+
+
+namespace BRTC
+{
 
 class Game
 {
@@ -51,5 +56,6 @@ private:
     void renderText(const char* text, int x, int y, TTF_Font* font);
     void loadLevelFromJSON(const std::string& filePath);
 };
+}
 
 #endif // GAME_H
