@@ -12,7 +12,7 @@ void Platform::render(SDL_Renderer *renderer, float cameraX, float cameraY)
         static_cast<int>(mWidth),
         static_cast<int>(mHeight)
     };
-    SDL_SetRenderDrawColor(renderer, 0x00, 0xAA, 0xCC, 0x80); // Cor para plataforma
+    SDL_SetRenderDrawColor(renderer, 0x00, 0xAA, 0xCC, 0x80);
     SDL_RenderFillRect(renderer, &fillRect);
 }
 

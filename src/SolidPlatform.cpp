@@ -11,7 +11,7 @@ void SolidPlatform::render(SDL_Renderer *renderer, float cameraX, float cameraY)
         static_cast<int>(mWidth),
         static_cast<int>(mHeight)
     };
-    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x8B, 0xFF); // Cor para plataforma sólida
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x8B, 0xFF);
     SDL_RenderFillRect(renderer, &fillRect);
 }
 
