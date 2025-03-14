@@ -2,15 +2,15 @@
 #define SOLIDPLATFORM_H
 
 #include <SDL2/SDL.h>
-#include "../../scenario/Scenario.h"
+#include "Object.h"
 
 namespace BRTC
 {
 
-class SolidPlatform : public Scenario
+class SolidPlatform : public StaticObject
 {
 public:
-    SolidPlatform(float x, float y, float width, float height);
+    SolidPlatform(float x, float y, float width, float height) : StaticObject(x, y, width, height) {}
     void render(SDL_Renderer *renderer, float cameraX, float cameraY) override; 
 };
 

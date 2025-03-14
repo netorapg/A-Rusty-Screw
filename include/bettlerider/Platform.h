@@ -2,7 +2,6 @@
 #define PLATFORM_H
 
 #include <SDL2/SDL.h>
-//#include "../../scenario/Scenario.h"
 #include "Object.h"
 namespace BRTC
 {
