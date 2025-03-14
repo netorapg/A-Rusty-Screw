@@ -13,7 +13,7 @@ class Camera {
         void move(int x, int y);
         SDL_Rect getCamera() const;
     
-        // Métodos que você deve adicionar
+    
         void setPosition(int x, int y);
         int getX() const;
         int getY() const;

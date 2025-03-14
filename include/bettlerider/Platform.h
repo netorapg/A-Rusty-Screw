@@ -2,14 +2,14 @@
 #define PLATFORM_H
 
 #include <SDL2/SDL.h>
-#include "../../scenario/Scenario.h"
-
+//#include "../../scenario/Scenario.h"
+#include "Object.h"
 namespace BRTC
 {
-    class Platform : public Scenario
+class Platform : public StaticObject
 {
 public:
-    Platform(float x, float y, float width, float height);
+    Platform(float x, float y, float width, float height) : StaticObject(x, y, width, height) {}
     void render(SDL_Renderer *renderer, float cameraX, float cameraY) override; 
 };
 }

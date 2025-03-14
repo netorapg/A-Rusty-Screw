@@ -1,6 +1,14 @@
 #include "../include/bettlerider/Object.h"
 
-bool BRTC::StaticObject::isVisible(float cameraX, float cameraY, float screenWidth, float screenHeight )
+namespace BRTC
 {
-    return (mPosX + mWidth > cameraX && mPosX < cameraX + screenWidth && mPosY + mHeight > cameraY && mPosY < cameraY + screenHeight);
+
+bool Object::isVisible( float cameraX,
+                        float cameraY,
+                        float screenWidth,
+                        float screenHeight )
+{
+  return ( mX + mWidth > cameraX && mX < cameraX + screenWidth &&
+           mY + mHeight > cameraY && mY < cameraY + screenHeight );
 }
+}   // namespace BRTC

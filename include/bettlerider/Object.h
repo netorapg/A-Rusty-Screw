@@ -6,40 +6,38 @@
 
 namespace BRTC {
 
-class Object
-{
-public:
-    Object(float x, float y, float width, float height) : x(x), y(y), width(width), height(height) {}
+    class Object
+    {
+    public:
+    Object(float x, float y, float width, float height) : mX(x), mY(y), mWidth(width), mHeight(height){}
+        virtual ~Object() = default;
     
-    virtual ~Object() = default;
-
-    virtual void render(SDL_Renderer *renderer, float cameraX, float cameraY) = 0;
-
-protected:
-    float x, y;
-    float width, height;
-
-};
-
-class StaticObject : public Object
-{
-public:
-    StaticObject(float x, float y, float width, float height) 
-    : Object(x, y, width, height) {}
-
-    virtual void render(SDL_Renderer *renderer, float cameraX, float cameraY) = 0; // Função virtual pura
-    virtual bool isVisible(float cameraX, float cameraY, float screenWidth, float screenHeight);
-
-    float getX() const { return mPosX; }
-    float getY() const { return mPosY; }
-    float getWidth() const { return mWidth; }
-    float getHeight() const { return mHeight; }
-    void setX(float x) { mPosX = x; }
-    void setY(float y) { mPosY = y; }
-
-
-protected:
-    float mPosX, mPosY, mWidth, mHeight;
+        virtual void render(SDL_Renderer *renderer, float cameraX, float cameraY) = 0;
+    
+        // Getters e Setters
+        float getX() const      { return mX; }
+        float getY() const      { return mY; }
+        float getWidth() const  { return mWidth; }
+        float getHeight() const { return mHeight; }
+        void setX(float x)      { mX = x; }
+        void setY(float y)      { mY = y; }
+        bool isVisible(float cameraX, float cameraY, float screenWidth, float screenHeight);
+    
+    protected:
+        float mX, mY;
+        float mWidth, mHeight;
+    
+    };
+    
+    class StaticObject : public Object
+    {
+    public:
+        StaticObject(float x, float y, float width, float height) 
+            : Object(x, y, width, height) {}
+        
+        virtual ~StaticObject() = default;
+    
+        void render(SDL_Renderer *renderer, float cameraX, float cameraY) override = 0;
 }; 
 
 class DynamicObject : public Object
@@ -56,8 +54,8 @@ public:
     virtual void render(SDL_Renderer* renderer, float cameraX, float cameraY) = 0;
     virtual void handleEvent(SDL_Event& e) = 0;
    
-    float getPosX() const {mPosX; };
-    float getPosY() const {mPosY; };
+    float getPosX() const {return mPosX; };
+    float getPosY() const {return mPosY; };
     float getHorizontalVelocity() const { return mVelX; };
     float getVerticalVelocity() const { return mVelY; };
     bool isOnGround() const { return mOnGround; };
