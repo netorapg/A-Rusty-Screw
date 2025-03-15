@@ -207,7 +207,7 @@ void Game::handleEvents()
 
 void Game::update()
 {
-    mPlayer.move();
+    mPlayer.update();
     std::string levelToLoad = "";
     PhysicsEngine::HandleCollisions(mPlayer, mPlatforms, mSolidPlatforms, mWalls, mCrates, mDoors, levelToLoad);
     if(!levelToLoad.empty()) {

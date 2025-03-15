@@ -11,7 +11,7 @@ bool CheckCollision(float x1, float y1, float w1, float h1, float x2, float y2, 
 
 
 void PhysicsEngine::HandleCollisions(
-  Entity &entity,
+  DynamicObject &DynamicObject,
   const std::list<Platform> &platforms,
   const std::list<SolidPlatform> &solidPlatforms,
   const std::list<Wall> &walls,
@@ -19,17 +19,17 @@ void PhysicsEngine::HandleCollisions(
   const std::list<Door> &doors, std::string &levelToLoad)
 {
   // Resetar estados
-  entity.setOnGround(false);
-  entity.setAboveCrate(false);
+  DynamicObject.setOnGround(false);
+  DynamicObject.setAboveCrate(false);
 
-  // Obter dados do jogador
-  float px = entity.getPosX();
-  float py = entity.getPosY();
-  const float pw = entity.getWidth();
-  const float ph = entity.getHeight();
-  float vx = entity.getHorizontalVelocity();
-  float vy = entity.getVerticalVelocity();
-  bool onPlatform = false; // Verifica se o jogador está em cima de uma plataforma
+
+  float px = DynamicObject.getPosX();
+  float py = DynamicObject.getPosY();
+  const float pw = DynamicObject.getWidth();
+  const float ph = DynamicObject.getHeight();
+  float vx = DynamicObject.getHorizontalVelocity();
+  float vy = DynamicObject.getVerticalVelocity();
+  bool onPlatform = false;
 
   // Colisão com paredes
   for (const auto &wall : walls)
@@ -41,26 +41,26 @@ void PhysicsEngine::HandleCollisions(
         px = wall.getX() - pw;
       else if (vx < 0)
         px = wall.getX() + wall.getWidth();
-      entity.setHorizontalVelocity(0);
+      DynamicObject.setHorizontalVelocity(0);
     }
   }
 
   // Colisão com caixas
   for (auto &crate : crates)
   {
-    if (crate.checkCollision(entity.getPosX(), entity.getPosY(), entity.getWidth(), entity.getHeight()))
+    if (crate.checkCollision(DynamicObject.getPosX(), DynamicObject.getPosY(), DynamicObject.getWidth(), DynamicObject.getHeight()))
     {
       // Empurrar caixa horizontalmente
-      if (entity.getHorizontalVelocity() != 0)
-        crate.applyForce(entity.getHorizontalVelocity() * 0.8f, 0);
+      if (DynamicObject.getHorizontalVelocity() != 0)
+        crate.applyForce(DynamicObject.getHorizontalVelocity() * 0.8f, 0);
 
       // Colisão vertical
-      if (entity.getVerticalVelocity() > 0)
+      if (DynamicObject.getVerticalVelocity() > 0)
       { // Jogador caindo
-        entity.setOnGround(true);
-        entity.setFalling(false); // Jogador não está mais caindo
-        entity.setVerticalVelocity(0);
-        entity.setPosition(entity.getPosX(), crate.getY() - entity.getHeight());
+        DynamicObject.setOnGround(true);
+        DynamicObject.setFalling(false); // Jogador não está mais caindo
+        DynamicObject.setVerticalVelocity(0);
+        DynamicObject.setPosition(DynamicObject.getPosX(), crate.getY() - DynamicObject.getHeight());
       }
     }
   }
@@ -75,8 +75,8 @@ void PhysicsEngine::HandleCollisions(
         {
             py = platform.getY() - ph; // Posiciona em cima da plataforma
             vy = 0;
-            entity.setOnGround(true);
-            entity.setFalling(false);
+            DynamicObject.setOnGround(true);
+            DynamicObject.setFalling(false);
             onPlatform = true;
         }
         // Colisão enquanto subindo (velocidade negativa)
@@ -91,15 +91,15 @@ void PhysicsEngine::HandleCollisions(
   }
 
   // Colisão com plataformas normais
-  if (!entity.isPassingThroughPlatform())
+  if (!DynamicObject.isPassingThroughPlatform())
   {
     for (const auto &platform : platforms)
     {
       if (CheckCollision(px, py + ph - 1, pw, 1, platform.getX(), platform.getY(), platform.getWidth(), platform.getHeight()))
       {
         py = platform.getY() - ph;
-        entity.setOnGround(true);
-        entity.setFalling(false); // Jogador não está mais caindo
+        DynamicObject.setOnGround(true);
+        DynamicObject.setFalling(false); // Jogador não está mais caindo
         vy = 0;
         onPlatform = true;
         break; // Sai do loop, pois já encontrou uma plataforma
@@ -107,19 +107,19 @@ void PhysicsEngine::HandleCollisions(
     }
 
     // Se não estiver em cima de nenhuma plataforma, marque como "não no chão"
-    if (!onPlatform && entity.isOnGround())
+    if (!onPlatform && DynamicObject.isOnGround())
     {
-      entity.setOnGround(false);
-      entity.setFalling(true); // Jogador está caindo
+      DynamicObject.setOnGround(false);
+      DynamicObject.setFalling(true); // Jogador está caindo
     }
   }
 
 
 
   // Aplicar mudanças
-  entity.setPosition(px, py);
-  entity.setVerticalVelocity(vy);
-  entity.setHorizontalVelocity(vx);
+  DynamicObject.setPosition(px, py);
+  DynamicObject.setVerticalVelocity(vy);
+  DynamicObject.setHorizontalVelocity(vx);
 
   for (const auto &door : doors)
   {

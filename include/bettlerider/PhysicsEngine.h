@@ -1,7 +1,7 @@
 #ifndef PHYSICS_ENGINE_H
 #define PHYSICS_ENGINE_H
 
-#include "../../entity/Entity.h"
+#include "Object.h"
 #include "Crate.h"
 #include "Door.h"
 #include "Platform.h"
@@ -16,7 +16,7 @@ namespace BRTC
 class PhysicsEngine
 {
 public:
-  static void HandleCollisions( Entity                         &entity,
+  static void HandleCollisions( DynamicObject                  &DynamicObject,
                                 const std::list<Platform>      &platforms,
                                 const std::list<SolidPlatform> &solidPlatforms,
                                 const std::list<Wall>          &walls,
