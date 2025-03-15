@@ -2,7 +2,7 @@
 #define CRATE_H
 
 #include <SDL2/SDL.h>
-#include "../../scenario/Scenario.h"
+#include "Object.h" // Substitua Scenario.h
 #include <list>
 #include "SolidPlatform.h"
 #include "Platform.h"
@@ -12,28 +12,32 @@
 namespace BRTC
 {
 
-class Crate : public Scenario {
-    public:
-        Crate(float x, float y, float width, float height);
-        void render(SDL_Renderer* renderer, float cameraX, float cameraY) override;
-        void update(const std::list<SolidPlatform>& SolidPlatforms, 
-                   const std::list<Wall>& Walls,
-                   const std::list<Platform>& Platforms);
-        bool isVisible(float cameraX, float cameraY, int screenWidth, int screenHeight) override;
-        
-        // Novos métodos
-        void applyForce(float fx, float fy);
-        Mylib::Math::Vector2f getVelocity() const { return mVel; }
-        bool checkCollision(float x, float y, float w, float h) const;
+class Crate : public DynamicObject { // Herda de DynamicObject
+public:
+    Crate(float x, float y, float width, float height);
+    void render(SDL_Renderer* renderer, float cameraX, float cameraY) override;
+    void update() override; // Assinatura modificada
+   // bool isVisible(float cameraX, float cameraY, float screenWidth, float screenHeight) override; // Tipos ajustados
+   /*bool Crate::isVisible(float cameraX, float cameraY, float screenWidth, float screenHeight) {
+    return DynamicObject::isVisible(cameraX, cameraY, screenWidth, screenHeight);
+}*/
     
-    private:
-        Mylib::Math::Vector2f mVel;
-        const float mGravity = 0.3f;
-        const float mFriction = 0.85f;
+    // Novos métodos
+    void applyForce(float fx, float fy);
+    bool checkCollision(float x, float y, float w, float h) const;
     
-        void handlePlatformCollisions(const std::list<SolidPlatform>& SolidPlatforms,
-                                      const std::list<Platform>& Platforms);
-        void handleWallCollisions(const std::list<Wall>& Walls);
-    };
-}
+    // Método vazio para eventos (obrigatório por DynamicObject)
+    void handleEvent(SDL_Event& e) override {}
+    
+private:
+    const float mGravity = 0.3f;
+    const float mFriction = 0.85f;
+    
+    // Remova mVel (usaremos mVelX e mVelY de DynamicObject)
+    void handlePlatformCollisions(const std::list<SolidPlatform>& SolidPlatforms,
+                                  const std::list<Platform>& Platforms);
+    void handleWallCollisions(const std::list<Wall>& Walls);
+};
+
+} // namespace BRTC
 #endif // CRATE_H

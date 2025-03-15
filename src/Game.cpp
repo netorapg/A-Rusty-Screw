@@ -209,7 +209,8 @@ void Game::update()
 {
     mPlayer.update();
     std::string levelToLoad = "";
-    PhysicsEngine::HandleCollisions(mPlayer, mPlatforms, mSolidPlatforms, mWalls, mCrates, mDoors, levelToLoad);
+    PhysicsEngine::HandleCollisions(mPlayer, mWalls, mPlatforms, mSolidPlatforms);
+    PhysicsEngine::HandlePlayerCollisions(mPlayer, mCrates, mDoors, levelToLoad);
     if(!levelToLoad.empty()) {
         loadLevelFromJSON(levelToLoad);
         resetGame();
@@ -237,7 +238,8 @@ void Game::update()
     }
 
     for (auto &crate : mCrates) {
-        crate.update(mSolidPlatforms, mWalls, mPlatforms);
+        crate.update();
+        PhysicsEngine::HandleCollisions(crate, mWalls, mPlatforms, mSolidPlatforms);
     }
 }
 
