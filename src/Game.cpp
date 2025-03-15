@@ -220,10 +220,11 @@ void Game::update()
     std::cout << "Camera Position: (" << mCamera.x << ", " << mCamera.y << ")\n";
     std::cout << "mOnGround: " << mPlayer.isOnGround() << ", mFalling: " << mPlayer.isFalling() << std::endl;
 
-    int cameraMarginX = SCREEN_WIDTH / 2;
-    int cameraMarginY = SCREEN_HEIGHT / 2;
-    int playerCenterX = static_cast<int>(mPlayer.getPosX()) + mPlayer.getWidth() / 2;
-    int playerCenterY = static_cast<int>(mPlayer.getPosY()) + mPlayer.getHeight() / 2;
+    float cameraMarginX = SCREEN_WIDTH * 0.25f;
+    float cameraMarginY = SCREEN_HEIGHT * 0.25f;
+    float playerCenterX = static_cast<int>(mPlayer.getPosX()) + mPlayer.getWidth() / 2;
+    float playerCenterY = static_cast<int>(mPlayer.getPosY()) + mPlayer.getHeight() / 2;
+
 
     if (playerCenterX < mCamera.x + cameraMarginX) {
         mCamera.x = playerCenterX - cameraMarginX;
