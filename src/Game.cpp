@@ -294,8 +294,8 @@ void Game::resetGame()
 {
     mPlayer.reset();
     mCamera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-    mCrates.clear();
-    mCrates.push_back(Crate(300, 600, 50, 50));
+    //mCrates.clear();
+    //mCrates.push_back(Crate(300, 600, 50, 50));
 
    // Mix_PlayMusic(mMusic, -1);
     std::cout << "Resetting game..." << std::endl;
