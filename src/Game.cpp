@@ -19,7 +19,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     }
 
     // Inicializar a câmera
-    mCamera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    mCamera = {1, 1, SCREEN_WIDTH, SCREEN_HEIGHT};
 
     SDL_Surface* loadedBackground = IMG_Load("/home/netorapg/projects/platfom2d/assets/166722.png");
     if (loadedBackground == nullptr) {
