@@ -8,20 +8,20 @@ namespace BRTC
 
 class Camera {
     public:
-        Camera(int width, int height);
+        Camera(float width, float height);
     
-        void move(int x, int y);
+        void move(float x, float y);
         SDL_Rect getCamera() const;
     
     
-        void setPosition(int x, int y);
-        int getX() const;
-        int getY() const;
+        void setPosition(float x, float y);
+        float getX() const;
+        float getY() const;
     
     private:
         SDL_Rect mCamera;
-        int mWidth;
-        int mHeight;
+        float mWidth;
+        float mHeight;
     };
 }
 

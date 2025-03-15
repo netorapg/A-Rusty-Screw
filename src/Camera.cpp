@@ -3,7 +3,7 @@
 namespace BRTC
 {
 
-Camera::Camera(int width, int height)
+Camera::Camera(float width, float height)
 : mWidth(width), mHeight(height) {
 mCamera.x = 0;
 mCamera.y = 0;
@@ -11,7 +11,7 @@ mCamera.w = width;
 mCamera.h = height;
 }
 
-void Camera::move(int x, int y) {
+void Camera::move(float x, float y) {
 mCamera.x += x;
 mCamera.y += y;
 
@@ -29,15 +29,15 @@ return mCamera;
 }
 
 // Implementação dos métodos getX, getY e setPosition
-int Camera::getX() const {
+float Camera::getX() const {
 return mCamera.x;
 }
 
-int Camera::getY() const {
+float Camera::getY() const {
 return mCamera.y;
 }
 
-void Camera::setPosition(int x, int y) {
+void Camera::setPosition(float x, float y) {
 mCamera.x = x;
 mCamera.y = y;
 }

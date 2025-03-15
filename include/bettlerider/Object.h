@@ -44,18 +44,18 @@ class DynamicObject : public Object
 {   
 public:
     DynamicObject(float x, float y, float width, float height)
-    : Object(x, y, width, height) {}
+    : Object(x, y, width, height), mVelX(0.0f), mVelY(0.0f), mPassingThroughPlatform(false),
+      mAboveCrate(false), mOnGround(false), mFalling(false) {}
 
     virtual ~DynamicObject() = default;
    
-    virtual int getWidth() const { return mWidth; };
-    virtual int getHeight() const { return mHeight; };
     virtual void update() = 0;
-    virtual void render(SDL_Renderer* renderer, float cameraX, float cameraY) = 0;
+    virtual void render(SDL_Renderer* renderer, float cameraX, float cameraY) override = 0;
     virtual void handleEvent(SDL_Event& e) = 0;
+
    
-    float getPosX() const {return mPosX; };
-    float getPosY() const {return mPosY; };
+    float getPosX() const {return getX(); };
+    float getPosY() const {return getY(); };
     float getHorizontalVelocity() const { return mVelX; };
     float getVerticalVelocity() const { return mVelY; };
     bool isOnGround() const { return mOnGround; };
@@ -65,20 +65,17 @@ public:
     void setVelocity(float vx, float vy) {mVelX = vx; mVelY = vy;};
     void setHorizontalVelocity(float vx) {mVelX = vx; };
     void setVerticalVelocity(float vy) {mVelY = vy;};
-    void setPosition(float x, float y) {mPosX = x; mPosY = y; };
+    void setPosition(float x, float y) {setX(x); setY(y); };
     void setOnGround(bool onGround) {mOnGround = onGround; };
     void setFalling(bool falling) {mFalling = falling; };
     void setAboveCrate(bool aboveCrate) {mAboveCrate = aboveCrate; };
 
 protected:
-   float mPosX, mPosY; // Posição
-   float mVelX, mVelY; // Velocidade
-   int mWidth, mHeight; // Dimensões
+   float mVelX, mVelY; // Velocidades horizontal e vertical
    bool mPassingThroughPlatform; // Estado de passar por plataformas
    bool mAboveCrate; // Estado de estar acima de uma caixa
    bool mOnGround;   // Estado de estar no chão
    bool mFalling;    // Estado de cair
-
 };
 
 }

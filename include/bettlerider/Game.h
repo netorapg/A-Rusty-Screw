@@ -7,6 +7,11 @@
 #include <json-c/json.h>
 #include <list>
 #include <string>
+#include <iostream>
+#include "config.h"
+#include <unordered_map>
+#include <json-c/json.h>
+#include <SDL2/SDL_image.h>
 
 #include "Platform.h"
 #include "SolidPlatform.h"
@@ -15,6 +20,7 @@
 #include "Door.h"
 #include "Player.h"
 #include "PhysicsEngine.h"
+#include <algorithm>
 
 
 namespace BRTC
@@ -42,6 +48,9 @@ private:
     std::list<Wall> mWalls;
     std::list<Crate> mCrates;
     std::list<Door> mDoors;
+    const float PLAYER_ZOOM_FACTOR = 2.5f;
+    float effectiveScreenWidth = SCREEN_WIDTH / PLAYER_ZOOM_FACTOR;
+    float effectiveScreenHeight = SCREEN_HEIGHT / PLAYER_ZOOM_FACTOR;
     Player mPlayer;
     SDL_Rect mCamera;
 

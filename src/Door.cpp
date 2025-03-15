@@ -3,9 +3,9 @@
 namespace BRTC
 {
 
-Door::Door(float x, float y, float width, float height, const std::string& levelToLoad) : Scenario(x, y, width, height), mLevelToLoad(levelToLoad) {}
+Door::Door(float x, float y, float width, float height, const std::string& levelToLoad) : StaticObject(x, y, width, height), mLevelToLoad(levelToLoad) {}
 
-bool Door::isPlayerColliding(const Entity& player) const {
+bool Door::isPlayerColliding(const DynamicObject& player) const {
     return (player.getPosX() < getX() + getWidth() &&
     player.getPosX() + player.getWidth() > getX() &&
     player.getPosY() < getY() + getHeight() &&
