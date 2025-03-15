@@ -48,7 +48,7 @@ private:
     std::list<Wall> mWalls;
     std::list<Crate> mCrates;
     std::list<Door> mDoors;
-    const float PLAYER_ZOOM_FACTOR = 4.0f;
+    const float PLAYER_ZOOM_FACTOR = 2.5f;
     float effectiveScreenWidth = SCREEN_WIDTH / PLAYER_ZOOM_FACTOR;
     float effectiveScreenHeight = SCREEN_HEIGHT / PLAYER_ZOOM_FACTOR;
     Player mPlayer;

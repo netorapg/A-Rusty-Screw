@@ -30,7 +30,7 @@ Player::~Player() {
 }
 
 void Player::reset() {
-    setPosition(25, 5);
+    setPosition(50, 50);
     setVelocity(0, 0);
     setFalling(false);
     setPassingThroughPlatform(false);

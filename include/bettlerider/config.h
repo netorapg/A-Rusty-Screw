@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-const int SCREEN_WIDTH = 840;
+const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 680;
 
 const float LEVEL_WIDTH = 1280.0f;  // Defina a largura total do nível

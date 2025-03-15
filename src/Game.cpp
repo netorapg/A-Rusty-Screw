@@ -4,7 +4,7 @@ namespace BRTC
 {
 Game::Game( SDL_Window *window, SDL_Renderer *renderer )
     : mWindow( window ), mRenderer( renderer ), mQuit( false ),
-      mPlayer( 50, 5, renderer )
+      mPlayer( 50, 50, renderer )
 {
   std::cout << "Game constructor called" << std::endl;
 
@@ -18,7 +18,7 @@ Game::Game( SDL_Window *window, SDL_Renderer *renderer )
   }
 
   // Inicializar a câmera
-  mCamera = { 1, 1, SCREEN_WIDTH, SCREEN_HEIGHT };
+  mCamera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
   SDL_Surface *loadedBackground =
     IMG_Load( "/home/netorapg/projects/platfom2d/assets/166722.png" );
@@ -253,8 +253,7 @@ void Game::update()
   std::cout << "mOnGround: " << mPlayer.isOnGround()
             << ", mFalling: " << mPlayer.isFalling() << std::endl;
 
-  float cameraMarginX =
-    effectiveScreenWidth * 0.25f;   // Margem de 25% da tela efetiva
+  float cameraMarginX = effectiveScreenWidth * 0.25f;
   float cameraMarginY = effectiveScreenHeight * 0.25f;
 
   // Mantenha o jogador centralizado na área visível reduzida
@@ -264,9 +263,6 @@ void Game::update()
   // Atualize a posição da câmera
   mCamera.x = playerCenterX - effectiveScreenWidth / 2;
   mCamera.y = playerCenterY - effectiveScreenHeight / 2;
-
-  // Limites do mundo (ajuste conforme seu nível)
-  // Corrigir conversão de tipos nos limites da câmera
   mCamera.x = static_cast<int>( std::max(
     0.0f,
     std::min( static_cast<float>( mCamera.x ),
@@ -301,7 +297,7 @@ void Game::render()
   SDL_RenderSetScale( mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR );
   SDL_RenderClear( mRenderer );
 
-  SDL_Rect bgRect = { 0, 0, effectiveScreenWidth, effectiveScreenHeight };
+  SDL_Rect bgRect = { 0, 0, static_cast<int>(effectiveScreenWidth), static_cast<int>(effectiveScreenHeight) };
   SDL_RenderCopy( mRenderer, mBackgroundTexture, nullptr, &bgRect );
 
   for( auto &platform : mPlatforms )
@@ -366,7 +362,7 @@ void Game::render()
 void Game::resetGame()
 {
   mPlayer.reset();
-  mCamera = { 1, 1, SCREEN_WIDTH, SCREEN_HEIGHT };
+  mCamera = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
   // mCrates.clear();
   // mCrates.push_back(Crate(300, 600, 50, 50));
 
