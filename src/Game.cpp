@@ -350,6 +350,8 @@ void Game::resetGame()
 
     // Redefinir a câmera
     mCamera.setPosition(Vector(0, 0));
+  
+
 
     // Outras redefinições, se necessário
     // mCrates.clear();
