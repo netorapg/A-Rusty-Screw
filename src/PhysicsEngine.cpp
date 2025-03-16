@@ -1,133 +1,148 @@
 #include "../include/bettlerider/PhysicsEngine.h"
-
 #include <iostream>
 
 namespace BRTC
 {
-  bool CheckCollision(const Object &obj1, const Object &obj2) {
-    return (obj1.getX() < obj2.getX() + obj2.getWidth() &&
-            obj1.getX() + obj1.getWidth() > obj2.getX() &&
-            obj1.getY() < obj2.getY() + obj2.getHeight() &&
-            obj1.getY() + obj1.getHeight() > obj2.getY());
-  }
-  
+    bool PhysicsEngine::CheckCollision(const Object& obj1, const Object& obj2) 
+    {
+        const Vector pos1 = obj1.getPosition();
+        const Vector size1 = obj1.getSize();
+        Vector pos2 = obj2.getPosition();
+        Vector size2 = obj2.getSize();
+        
+        return (pos1.x < pos2.x + size2.x &&
+                pos1.x + size1.x > pos2.x &&
+                pos1.y < pos2.y + size2.y &&
+                pos1.y + size1.y > pos2.y);
+    }
 
-// PhysicsEngine.cpp
-void PhysicsEngine::HandleCollisions(
-  DynamicObject& dynamicObject,
-  const std::list<Wall>& walls,
-  const std::list<Platform>& platforms,
-  const std::list<SolidPlatform>& solidPlatforms
-) {
-  float px = dynamicObject.getX();
-  float py = dynamicObject.getY();
-  const float pw = dynamicObject.getWidth();
-  const float ph = dynamicObject.getHeight();
-  float vx = dynamicObject.getHorizontalVelocity();
-  float vy = dynamicObject.getVerticalVelocity();
+    void PhysicsEngine::HandleCollisions(
+        DynamicObject& dynamicObject,
+        const std::list<Wall>& walls,
+        const std::list<Platform>& platforms,
+        const std::list<SolidPlatform>& solidPlatforms
+    ) {
+        Vector position = dynamicObject.getPosition();
+        const Vector size = dynamicObject.getSize();
+        Vector velocity = dynamicObject.getVelocity();
 
-  // Colisão com paredes
-  for (const auto& wall : walls) {
-      if (CheckCollision(dynamicObject, wall)) {
-          if (vx > 0) px = wall.getX() - pw;
-          else if (vx < 0) px = wall.getX() + wall.getWidth();
-          dynamicObject.setHorizontalVelocity(0);
-      }
-  }
+        // Colisão com paredes
+        for (const auto& wall : walls) {
+            if (CheckCollision(dynamicObject, wall)) {
+                const Vector wallPos = wall.getPosition();
+                const Vector wallSize = wall.getSize();
+                
+                // Resolve colisão horizontal
+                if (velocity.x > 0) {
+                    position.x = wallPos.x - size.x;
+                } else if (velocity.x < 0) {
+                    position.x = wallPos.x + wallSize.x;
+                }
+                velocity.x = 0;
+            }
+        }
 
-  // Colisão com plataformas sólidas
-  for (const auto& platform : solidPlatforms) {
-      if (CheckCollision(dynamicObject, platform)) {
-          if (vy > 0) {
-              py = platform.getY() - ph;
-              vy = 0;
-              dynamicObject.setOnGround(true);
-          } else if (vy < 0) {
-              py = platform.getY() + platform.getHeight();
-              vy = 0;
-          }
-      }
-  }
+        // Colisão com plataformas sólidas
+        for (const auto& platform : solidPlatforms) {
+            if (CheckCollision(dynamicObject, platform)) {
+                const Vector platformPos = platform.getPosition();
+                const Vector platformSize = platform.getSize();
+                
+                // Resolve colisão vertical
+                if (velocity.y > 0) {
+                    position.y = platformPos.y - size.y;
+                    velocity.y = 0;
+                    dynamicObject.setOnGround(true);
+                } else if (velocity.y < 0) {
+                    position.y = platformPos.y + platformSize.y;
+                    velocity.y = 0;
+                }
+            }
+        }
 
-  // Colisão com plataformas normais
-  if (!dynamicObject.isPassingThroughPlatform()) {
-      for (const auto& platform : platforms) {
-          if (CheckCollision(dynamicObject, platform)) {
-              if (vy > 0) {
-                  py = platform.getY() - ph;
-                  vy = 0;
-                  dynamicObject.setOnGround(true);
-              } else if (vy < 0) {
-                  py = platform.getY() + platform.getHeight();
-                  vy = 0;
-              }
-          }
-      }
-  }
+        // Colisão com plataformas normais
+        if (!dynamicObject.isPassingThroughPlatform()) {
+            for (const auto& platform : platforms) {
+                if (CheckCollision(dynamicObject, platform)) {
+                    const Vector platformPos = platform.getPosition();
+                    const Vector platformSize = platform.getSize();
+                    
+                    if (velocity.y > 0) {
+                        position.y = platformPos.y - size.y;
+                        velocity.y = 0;
+                        dynamicObject.setOnGround(true);
+                    } else if (velocity.y < 0) {
+                        position.y = platformPos.y + platformSize.y;
+                        velocity.y = 0;
+                    }
+                }
+            }
+        }
 
-  // Aplicar mudanças
-  dynamicObject.setPosition(px, py);
-  dynamicObject.setVerticalVelocity(vy);
-  dynamicObject.setHorizontalVelocity(vx);
-};
+        // Aplica mudanças
+        dynamicObject.setPosition(position);
+        dynamicObject.setVelocity(velocity);
+    }
 
-void PhysicsEngine::HandlePlayerCollisions(
-  Player& player,
-  std::list<Crate>& crates,
-  const std::list<Door>& doors,
-  std::string& levelToLoad
-) {
-  bool wasOnGround = player.isOnGround();
-  bool standingOnCrate = false;
+    void PhysicsEngine::HandlePlayerCollisions(
+        Player& player,
+        std::list<Crate>& crates,
+        const std::list<Door>& doors,
+        std::string& levelToLoad
+    ) {
+        bool wasOnGround = player.isOnGround();
+        bool standingOnCrate = false;
 
-  for (auto& crate : crates) {
-      if (CheckCollision(player, crate)) {
-          float playerBottom = player.getY() + player.getHeight();
-          float crateTop = crate.getY();
-          float overlapVertical = playerBottom - crateTop;
-          
-          float playerRight = player.getX() + player.getWidth();
-          float crateLeft = crate.getX();
-          float playerLeft = player.getX();
-          float crateRight = crate.getX() + crate.getWidth();
-          float overlapHorizontal = std::min(playerRight - crateLeft, crateRight - playerLeft);
+        for (auto& crate : crates) {
+            if (CheckCollision(player, crate)) {
+                const Vector playerPos = player.getPosition();
+                const Vector playerSize = player.getSize();
+                const Vector cratePos = crate.getPosition();
+                const Vector crateSize = crate.getSize();
 
-          // Colisão vertical (jogador em cima/embaixo)
-          if (overlapVertical < overlapHorizontal) {
-              if (player.getVerticalVelocity() > 0) { // Caindo
-                  player.setPosition(player.getX(), crate.getY() - player.getHeight());
-                  player.setVerticalVelocity(0);
-                  standingOnCrate = true;
-                  wasOnGround = true;
-              }
-          }
-          // Colisão horizontal (empurrar)
-          else {
-              // Empurra a caixa
-              float pushForce = player.getHorizontalVelocity() * 1.2f;
-              crate.applyForce(pushForce, 0);
-              
-              // Impede que o jogador atravesse a caixa
-              if (player.getHorizontalVelocity() > 0) { // Movendo para direita
-                  player.setPosition(crate.getX() - player.getWidth(), player.getY());
-              }
-              else if (player.getHorizontalVelocity() < 0) { // Movendo para esquerda
-                  player.setPosition(crate.getX() + crate.getWidth(), player.getY());
-              }
-          }
-      }
-  }
+                const float playerBottom = playerPos.y + playerSize.y;
+                const float crateTop = cratePos.y;
+                const float overlapVertical = playerBottom - crateTop;
+                
+                const float playerRight = playerPos.x + playerSize.x;
+                const float crateLeft = cratePos.x;
+                const float playerLeft = playerPos.x;
+                const float crateRight = cratePos.x + crateSize.x;
+                const float overlapHorizontal = std::min(playerRight - crateLeft, crateRight - playerLeft);
 
-  player.setOnGround(wasOnGround || standingOnCrate);
+                // Colisão vertical (jogador em cima/embaixo)
+                if (overlapVertical < overlapHorizontal) {
+                    if (player.getVelocity().y > 0) { // Caindo
+                        player.setPosition(Vector(playerPos.x, crateTop - playerSize.y));
+                        player.setVelocity(Vector(player.getVelocity().x, 0));
+                        standingOnCrate = true;
+                        wasOnGround = true;
+                    }
+                }
+                // Colisão horizontal (empurrar)
+                else {
+                    // Empurra a caixa com força proporcional à velocidade do jogador
+                    const Vector pushForce(player.getVelocity().x * 1.2f, 0.0f);
+                    crate.applyForce(pushForce);
+                    
+                    // Ajusta posição do jogador para evitar sobreposição
+                    if (player.getVelocity().x > 0) { // Movendo para direita
+                        player.setPosition(Vector(crateLeft - playerSize.x, playerPos.y));
+                    } else if (player.getVelocity().x < 0) { // Movendo para esquerda
+                        player.setPosition(Vector(crateRight, playerPos.y));
+                    }
+                }
+            }
+        }
 
-  // Colisão com portas
-  for (const auto& door : doors) {
-      if (CheckCollision(player, door)) {
-          levelToLoad = door.getLevelToLoad();
-          break;
-      }
-  }
-};
+        player.setOnGround(wasOnGround || standingOnCrate);
 
-
-}
+        // Colisão com portas
+        for (const auto& door : doors) {
+            if (CheckCollision(player, door)) {
+                levelToLoad = door.getLevelToLoad();
+                break;
+            }
+        }
+    }
+} // namespace BRTC

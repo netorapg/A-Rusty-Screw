@@ -2,15 +2,12 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 
-const int PLAYER_WIDTH = 25;
-const int PLAYER_HEIGHT = 26;
-const float GRAVITY = 0.5f;
-
 namespace BRTC {
 
-Player::Player(float x, float y, SDL_Renderer* renderer)
-: DynamicObject(x, y, PLAYER_WIDTH, PLAYER_HEIGHT),
-  mFacingRight(true), mSpriteClip{0, 0, PLAYER_WIDTH, PLAYER_HEIGHT}
+Player::Player(Vector position, SDL_Renderer* renderer)
+    : DynamicObject(position, Vector(25, 26)),  // Tamanho 25x26
+      mFacingRight(true),
+      mSpriteClip{0, 0, static_cast<int>(mSize.x), static_cast<int>(mSize.y)}
 {
     SDL_Surface* loadedSurface = IMG_Load("../assets/bezourinha_correndo.png");
     if (!loadedSurface) {
@@ -29,29 +26,23 @@ Player::~Player() {
     SDL_DestroyTexture(mTexture);
 }
 
-void Player::reset() {
-    setPosition(50, 50);
-    setVelocity(0, 0);
-    setFalling(false);
-    setPassingThroughPlatform(false);
-    mFacingRight = true;
-}
-
 void Player::handleEvent(SDL_Event& e) 
 {
+    Vector velocity = getVelocity();
+
     if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
         switch (e.key.keysym.sym) {
             case SDLK_d:
-                setHorizontalVelocity(5); // Usa setter
+                velocity.x = 5.0f;
                 mFacingRight = true;
                 break;
             case SDLK_a:
-                setHorizontalVelocity(-5);
+                velocity.x = -5.0f;
                 mFacingRight = false;
                 break;
             case SDLK_SPACE:
-                if (isOnGround()) { // Usa getter de DynamicObject
-                    setVerticalVelocity(-10);
+                if (isOnGround()) {
+                    velocity.y = -10.0f;
                     setFalling(true);
                 }
                 break;
@@ -60,29 +51,40 @@ void Player::handleEvent(SDL_Event& e)
                     setPassingThroughPlatform(true);
                 break;
         }
-    } else if (e.type == SDL_KEYUP) {
+    } 
+    else if (e.type == SDL_KEYUP) {
         switch (e.key.keysym.sym) {
             case SDLK_a:
             case SDLK_d:
-                setHorizontalVelocity(0);
+                velocity.x = 0.0f;
                 break;
             case SDLK_s:
                 setPassingThroughPlatform(false);
                 break;
         }
     }
+
+    setVelocity(velocity);
 }
 
-void Player::update() {
-    setVerticalVelocity(getVerticalVelocity() + GRAVITY);
-    setPosition(getX() + getHorizontalVelocity(), getY() + getVerticalVelocity());
-    
+void Player::update(float deltaTime) 
+{
+    // Aplicar física com deltaTime
+    Vector velocity = getVelocity();
+    Vector position = getPosition();
+
+    velocity.y += GRAVITY * deltaTime;
+    position += velocity * deltaTime;
+
+    setVelocity(velocity);
+    setPosition(position);
+
     // Animação
-    if (getHorizontalVelocity() != 0) {
-        mAnimationTimer += 0.1f;
+    if (velocity.x != 0.0f) {
+        mAnimationTimer += deltaTime;
         if (mAnimationTimer >= mAnimationSpeed) {
             mCurrentFrame = (mCurrentFrame + 1) % mFrameCount;
-            mSpriteClip.x = mCurrentFrame * PLAYER_WIDTH;
+            mSpriteClip.x = mCurrentFrame * static_cast<int>(mSize.x);
             mAnimationTimer = 0.0f;
         }
     } else {
@@ -90,17 +92,24 @@ void Player::update() {
     }
 }
 
-void Player::render(SDL_Renderer* renderer, float cameraX, float cameraY) {
+void Player::render(SDL_Renderer* renderer, Vector cameraPosition) 
+{
+    Vector screenPosition = getPosition() - cameraPosition;
+    
     SDL_Rect renderQuad = {
-        static_cast<int>(getX() - cameraX),
-        static_cast<int>(getY() - cameraY),
-        PLAYER_WIDTH,
-        PLAYER_HEIGHT
+        static_cast<int>(screenPosition.x),
+        static_cast<int>(screenPosition.y),
+        static_cast<int>(mSize.x),
+        static_cast<int>(mSize.y)
     };
 
     SDL_RendererFlip flip = mFacingRight ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
     SDL_RenderCopyEx(renderer, mTexture, &mSpriteClip, &renderQuad, 0, nullptr, flip);
 }
 
+void Player::setPassingThroughPlatform(bool enable) 
+{
+    mPassingThroughPlatform = enable;
+}
 
 } // namespace BRTC

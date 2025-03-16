@@ -1,16 +1,20 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
-#include <SDL2/SDL.h>
 #include "Object.h"
-namespace BRTC
-{
+#include <SDL2/SDL.h>
+
+namespace BRTC {
+
 class Platform : public StaticObject
 {
 public:
-    Platform(float x, float y, float width, float height) : StaticObject(x, y, width, height) {}
-    void render(SDL_Renderer *renderer, float cameraX, float cameraY) override; 
+    Platform(const Vector position, const Vector size)
+        : StaticObject(position, size) {}
+    
+    void render(SDL_Renderer *renderer, Vector cameraPosition) override;
 };
-}
+
+} // namespace BRTC
 
 #endif // PLATFORM_H

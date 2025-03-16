@@ -4,41 +4,37 @@ namespace BRTC
 {
 
 Camera::Camera(float width, float height)
-: mWidth(width), mHeight(height) {
-mCamera.x = 0;
-mCamera.y = 0;
-mCamera.w = width;
-mCamera.h = height;
+: mSize(width, height), mPosition(0, 0) {
 }
 
-void Camera::move(float x, float y) {
-mCamera.x += x;
-mCamera.y += y;
+void Camera::move(Vector& offset) {
+    mPosition += offset;
 
-// Impede que a câmera saia dos limites do mundo
-if (mCamera.x < 0) {
-    mCamera.x = 0;
-}
-if (mCamera.y < 0) {
-    mCamera.y = 0;
-}
+    mPosition.x = std::max(0.0f, mPosition.x);
+    mPosition.y = std::max(0.0f, mPosition.y);
 }
 
-SDL_Rect Camera::getCamera() const {
-return mCamera;
+SDL_Rect Camera::getSDLRect() const {
+    return {
+        static_cast<int>(mPosition.x),
+        static_cast<int>(mPosition.y),
+        static_cast<int>(mSize.x),
+        static_cast<int>(mSize.y)
+    };
 }
 
-// Implementação dos métodos getX, getY e setPosition
-float Camera::getX() const {
-return mCamera.x;
+void Camera::setPosition(const Vector& position) { // Alterado para const Vector&
+    mPosition = position;
+    mPosition.x = std::max(0.0f, mPosition.x);
+    mPosition.y = std::max(0.0f, mPosition.y);
 }
 
-float Camera::getY() const {
-return mCamera.y;
+Vector Camera::getPosition() const {
+    return mPosition;
 }
 
-void Camera::setPosition(float x, float y) {
-mCamera.x = x;
-mCamera.y = y;
+Vector Camera::getSize() const {
+    return mSize;
 }
-}
+
+} // namespace BRTC

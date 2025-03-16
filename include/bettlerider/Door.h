@@ -10,13 +10,14 @@ namespace BRTC
 
 class Door : public StaticObject {
     public: 
-        Door(float x, float y, float width, float height, const std::string& levelToLoad); 
+        Door(const Vector position, const Vector size, const std::string& levelToLoad):
+            StaticObject(position, size), mLevelToLoad(levelToLoad) {}; 
         
         bool isPlayerColliding(const DynamicObject& player) const;
     
         std::string getLevelToLoad() const;
     
-        void render(SDL_Renderer* renderer, float cameraX, float cameraY) override;
+        void render(SDL_Renderer* renderer, Vector cameraPosition) override;
     
     private:
         std::string mLevelToLoad;

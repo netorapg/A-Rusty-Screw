@@ -10,8 +10,8 @@ namespace BRTC
 class SolidPlatform : public StaticObject
 {
 public:
-    SolidPlatform(float x, float y, float width, float height) : StaticObject(x, y, width, height) {}
-    void render(SDL_Renderer *renderer, float cameraX, float cameraY) override; 
+    SolidPlatform(const Vector position, const Vector size) : StaticObject(position, size) {}
+    void render(SDL_Renderer *renderer, Vector cameraPosition) override; 
 };
 
 }
