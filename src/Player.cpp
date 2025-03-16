@@ -21,9 +21,9 @@ Player::Player(Vector position, SDL_Renderer* renderer)
     runAnim.setLoop(true);
 
     Animation idleAnim;
-    idleAnim.addFrame({{0, 0, 40, 48}, 7.5f, {0, 0}});
-    idleAnim.addFrame({{45, 0, 40, 48}, 7.5f, {0, 0}});
-    idleAnim.addFrame({{91, 0, 40, 48}, 7.5f, {0, 0}});
+    idleAnim.addFrame({{0, 0, 40, 48}, 8.5f, {0, 0}});
+    idleAnim.addFrame({{45, 0, 40, 48}, 8.5f, {0, 0}});
+    idleAnim.addFrame({{91, 0, 40, 48}, 8.5f, {0, 0}});
     idleAnim.setLoop(true);
 
     Animation punchAnim;
