@@ -2,76 +2,76 @@
 #define __BETTLE_RIDER_OBJECT_HEADER_H__
 
 #include <SDL2/SDL.h>
+#include "../../my-lib-master/include/my-lib/math-vector.h"
 
 
 namespace BRTC {
 
+    using Vector = Mylib::Math::Vector<float, 2>;
+    using Point = Vector;
     class Object
     {
     public:
-    Object(float x, float y, float width, float height) : mX(x), mY(y), mWidth(width), mHeight(height){}
+    Object(const Vector position, const Vector size) : mPosition(position), mSize(size){}
         virtual ~Object() = default;
     
-        virtual void render(SDL_Renderer *renderer, float cameraX, float cameraY) = 0;
+        virtual void render(SDL_Renderer *renderer, Vector cameraPosition) = 0;
     
         // Getters e Setters
-        float getX() const      { return mX; }
-        float getY() const      { return mY; }
-        float getWidth() const  { return mWidth; }
-        float getHeight() const { return mHeight; }
-        void setX(float x)      { mX = x; }
-        void setY(float y)      { mY = y; }
-        bool isVisible(float cameraX, float cameraY, float screenWidth, float screenHeight);
+        Vector getPosition() const { return mPosition; }
+        Vector getSize() const { return mSize; }
+        void setPosition(Vector position) { mPosition = position; }
+        bool isVisible(Vector cameraPosition, Vector screenSize) const
+        {
+            return (mPosition.x < cameraPosition.x + screenSize.x &&
+                    mPosition.x + mSize.x > cameraPosition.x &&
+                    mPosition.y < cameraPosition.y + screenSize.y &&
+                    mPosition.y + mSize.y > cameraPosition.y);
+        }
     
     protected:
-        float mX, mY;
-        float mWidth, mHeight;
+        Vector mPosition;
+        Vector mSize;
     
     };
     
     class StaticObject : public Object
     {
     public:
-        StaticObject(float x, float y, float width, float height) 
-            : Object(x, y, width, height) {}
+        StaticObject(const Vector position, const Vector size) 
+            : Object(position, size) {}
         
         virtual ~StaticObject() = default;
     
-        void render(SDL_Renderer *renderer, float cameraX, float cameraY) override = 0;
+        virtual void render(SDL_Renderer *renderer, Vector cameraPosition) override = 0;
 }; 
 
 class DynamicObject : public Object
 {   
 public:
-    DynamicObject(float x, float y, float width, float height)
-    : Object(x, y, width, height), mVelX(0.0f), mVelY(0.0f), mPassingThroughPlatform(false),
+    DynamicObject(Vector position,Vector size)
+    : Object(position, size), mVelocity(Vector::zero()), mPassingThroughPlatform(false),
       mAboveCrate(false), mOnGround(false), mFalling(false) {}
 
     virtual ~DynamicObject() = default;
    
-    virtual void update() = 0;
-    virtual void render(SDL_Renderer* renderer, float cameraX, float cameraY) override = 0;
+    virtual void update(float deltaTime) = 0;
+    virtual void render(SDL_Renderer* renderer, Vector cameraPosition) override = 0;
     virtual void handleEvent(SDL_Event& e) = 0;
 
    
-    float getPosX() const {return getX(); };
-    float getPosY() const {return getY(); };
-    float getHorizontalVelocity() const { return mVelX; };
-    float getVerticalVelocity() const { return mVelY; };
+    Vector getVelocity() const { return mVelocity; };
     bool isOnGround() const { return mOnGround; };
     bool isFalling() const { return mFalling; };
     bool isPassingThroughPlatform() const { return mPassingThroughPlatform; };
 
-    void setVelocity(float vx, float vy) {mVelX = vx; mVelY = vy;};
-    void setHorizontalVelocity(float vx) {mVelX = vx; };
-    void setVerticalVelocity(float vy) {mVelY = vy;};
-    void setPosition(float x, float y) {setX(x); setY(y); };
+    void setVelocity(Vector velocity) { mVelocity = velocity; };
     void setOnGround(bool onGround) {mOnGround = onGround; };
     void setFalling(bool falling) {mFalling = falling; };
     void setAboveCrate(bool aboveCrate) {mAboveCrate = aboveCrate; };
 
 protected:
-   float mVelX, mVelY; // Velocidades horizontal e vertical
+   Vector mVelocity;
    bool mPassingThroughPlatform; // Estado de passar por plataformas
    bool mAboveCrate; // Estado de estar acima de uma caixa
    bool mOnGround;   // Estado de estar no chão

@@ -12,6 +12,8 @@
 #include <unordered_map>
 #include <json-c/json.h>
 #include <SDL2/SDL_image.h>
+#include <algorithm>
+
 
 #include "Platform.h"
 #include "SolidPlatform.h"
@@ -20,7 +22,7 @@
 #include "Door.h"
 #include "Player.h"
 #include "PhysicsEngine.h"
-#include <algorithm>
+#include "Camera.h"
 
 
 namespace BRTC
@@ -52,7 +54,7 @@ private:
     float effectiveScreenWidth = SCREEN_WIDTH / PLAYER_ZOOM_FACTOR;
     float effectiveScreenHeight = SCREEN_HEIGHT / PLAYER_ZOOM_FACTOR;
     Player mPlayer;
-    SDL_Rect mCamera;
+    Camera mCamera;
 
     TTF_Font* mFont;
     TTF_Font* mSmallFont;
@@ -64,6 +66,9 @@ private:
 
     void renderText(const char* text, int x, int y, TTF_Font* font);
     void loadLevelFromJSON(const std::string& filePath);
+
+    Vector mCAmeraPosition;
+    Vector mCameraSize;
 };
 }
 

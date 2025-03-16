@@ -14,17 +14,13 @@ namespace BRTC
 
 class Crate : public DynamicObject { // Herda de DynamicObject
 public:
-    Crate(float x, float y, float width, float height);
-    void render(SDL_Renderer* renderer, float cameraX, float cameraY) override;
-    void update() override; // Assinatura modificada
-   // bool isVisible(float cameraX, float cameraY, float screenWidth, float screenHeight) override; // Tipos ajustados
-   /*bool Crate::isVisible(float cameraX, float cameraY, float screenWidth, float screenHeight) {
-    return DynamicObject::isVisible(cameraX, cameraY, screenWidth, screenHeight);
-}*/
+    Crate(Vector position, SDL_Renderer* renderer);
+    void render(SDL_Renderer* renderer, Vector cameraPosition) override;
+    void update(float deltaTime) override; // Assinatura modificada
     
     // Novos métodos
-    void applyForce(float fx, float fy);
-    bool checkCollision(float x, float y, float w, float h) const;
+    void applyForce(Vector force);
+    //bool checkCollision(float x, float y, float w, float h) const;
     
     // Método vazio para eventos (obrigatório por DynamicObject)
     void handleEvent(SDL_Event& e) override {}
@@ -32,11 +28,6 @@ public:
 private:
     const float mGravity = 0.3f;
     const float mFriction = 0.85f;
-    
-    // Remova mVel (usaremos mVelX e mVelY de DynamicObject)
-    void handlePlatformCollisions(const std::list<SolidPlatform>& SolidPlatforms,
-                                  const std::list<Platform>& Platforms);
-    void handleWallCollisions(const std::list<Wall>& Walls);
 };
 
 } // namespace BRTC

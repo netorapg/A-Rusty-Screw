@@ -9,8 +9,10 @@ namespace BRTC
     class Wall : public StaticObject
 {
 public:
-    Wall(float x, float y, float width, float height) : StaticObject(x, y, width, height) {}
-    void render(SDL_Renderer *renderer, float cameraX, float cameraY) override; 
+Wall(const Vector position, const Vector size)
+: StaticObject(position, size) {}
+
+void render(SDL_Renderer *renderer, Vector cameraPosition) override;
 };
 }
 #endif // WALL_H
