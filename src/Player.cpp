@@ -1,65 +1,60 @@
 #include "../include/bettlerider/Player.h"
-#include <SDL2/SDL_image.h>
 #include <iostream>
 
 namespace BRTC {
 
 Player::Player(Vector position, SDL_Renderer* renderer)
-    : DynamicObject(position, Vector(25, 26)),  // Tamanho 25x26
+    : DynamicObject(position, Vector(25, 26)),
       mFacingRight(true),
-      mSpriteClip{0, 0, static_cast<int>(mSize.x), static_cast<int>(mSize.y)}
+      mSprite(renderer, "../assets/bezourinha_correndo.png") 
 {
-    SDL_Surface* loadedSurface = IMG_Load("../assets/bezourinha_correndo.png");
-    if (!loadedSurface) {
-        std::cerr << "Failed to load player image: " << IMG_GetError() << std::endl;
-    }
-    mTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-    SDL_FreeSurface(loadedSurface);
+    // Configuração das animações
+    Animation runAnim;
+    runAnim.addFrame({{0,   0, 25, 26}, 0.1f, {0, 0}});
+    runAnim.addFrame({{25,  0, 25, 26}, 0.1f, {0, 0}});
+    runAnim.addFrame({{50, 0, 25, 26}, 0.1f, {0, 0}});
+    runAnim.setLoop(true);
 
-    mCurrentFrame = 0;
-    mFrameCount = 3;
-    mAnimationTimer = 0.0f;
-    mAnimationSpeed = 0.7f;
+    Animation idleAnim;
+    idleAnim.addFrame({{0, 0, 25, 26}, 0.2f, {0, 0}});
+    idleAnim.setLoop(true);
+
+    mSprite.addAnimation("run", std::move(runAnim));
+    mSprite.addAnimation("idle", std::move(idleAnim));
+    mSprite.play("idle");
 }
 
 Player::~Player() {
-    SDL_DestroyTexture(mTexture);
+    // A destruição da textura é tratada pela classe Sprite
 }
 
-void Player::handleEvent(SDL_Event& e) 
-{
+void Player::handleEvent(SDL_Event& e) {
     Vector velocity = getVelocity();
 
-    if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
-        switch (e.key.keysym.sym) {
+    if(e.type == SDL_KEYDOWN && e.key.repeat == 0) {
+        switch(e.key.keysym.sym) {
             case SDLK_d:
-                velocity.x = 5.0f;
+                velocity.x = MOVE_SPEED;
                 mFacingRight = true;
                 break;
+                
             case SDLK_a:
-                velocity.x = -5.0f;
+                velocity.x = -MOVE_SPEED;
                 mFacingRight = false;
                 break;
+                
             case SDLK_SPACE:
-                if (isOnGround()) {
-                    velocity.y = -10.0f;
-                    setFalling(true);
+                if(isOnGround()) {
+                    velocity.y = JUMP_FORCE;
                 }
                 break;
-            case SDLK_s:
-                if (isOnGround())
-                    setPassingThroughPlatform(true);
-                break;
         }
-    } 
-    else if (e.type == SDL_KEYUP) {
-        switch (e.key.keysym.sym) {
+    }
+    else if(e.type == SDL_KEYUP) {
+        switch(e.key.keysym.sym) {
             case SDLK_a:
             case SDLK_d:
                 velocity.x = 0.0f;
-                break;
-            case SDLK_s:
-                setPassingThroughPlatform(false);
                 break;
         }
     }
@@ -67,9 +62,8 @@ void Player::handleEvent(SDL_Event& e)
     setVelocity(velocity);
 }
 
-void Player::update(float deltaTime) 
-{
-    // Aplicar física com deltaTime
+void Player::update(float deltaTime) {
+    // Atualização da física
     Vector velocity = getVelocity();
     Vector position = getPosition();
 
@@ -79,37 +73,22 @@ void Player::update(float deltaTime)
     setVelocity(velocity);
     setPosition(position);
 
-    // Animação
-    if (velocity.x != 0.0f) {
-        mAnimationTimer += deltaTime;
-        if (mAnimationTimer >= mAnimationSpeed) {
-            mCurrentFrame = (mCurrentFrame + 1) % mFrameCount;
-            mSpriteClip.x = mCurrentFrame * static_cast<int>(mSize.x);
-            mAnimationTimer = 0.0f;
-        }
+    // Controle de animações
+    if(velocity.x != 0.0f) {
+        mSprite.play("run");
     } else {
-        mCurrentFrame = 0;
+        mSprite.play("idle");
     }
-}
-
-void Player::render(SDL_Renderer* renderer, Vector cameraPosition) 
-{
-    Vector screenPosition = getPosition() - cameraPosition;
     
-    SDL_Rect renderQuad = {
-        static_cast<int>(screenPosition.x),
-        static_cast<int>(screenPosition.y),
-        static_cast<int>(mSize.x),
-        static_cast<int>(mSize.y)
-    };
-
-    SDL_RendererFlip flip = mFacingRight ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
-    SDL_RenderCopyEx(renderer, mTexture, &mSpriteClip, &renderQuad, 0, nullptr, flip);
+    mSprite.update(deltaTime);
 }
 
-void Player::setPassingThroughPlatform(bool enable) 
-{
-    mPassingThroughPlatform = enable;
+void Player::render(SDL_Renderer* renderer, Vector cameraPosition) {
+    Vector screenPosition = getPosition() - cameraPosition;
+    mSprite.draw(renderer, 
+                static_cast<int>(screenPosition.x), 
+                static_cast<int>(screenPosition.y), 
+                !mFacingRight);
 }
 
 } // namespace BRTC
