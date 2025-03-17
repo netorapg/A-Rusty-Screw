@@ -15,6 +15,7 @@ public:
     void update(float deltaTime) override;
     void render(SDL_Renderer* renderer, Vector cameraPosition) override;
     void handleEvent(SDL_Event& e) override;
+    void setPassingThroughPlatform(bool enable);
     
     bool isFacingRight() const { return mFacingRight; }
     int getWidth() const { return static_cast<int>(mSize.x); }

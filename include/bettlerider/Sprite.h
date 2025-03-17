@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BETTLERIDER_SPRITE_H
+#define BETTLERIDER_SPRITE_H
 #include <SDL2/SDL.h>
 #include <memory>
 #include "Animation.h"
@@ -28,3 +29,4 @@ namespace BRTC {
             std::string currentAnimation;
     };
 }
+#endif

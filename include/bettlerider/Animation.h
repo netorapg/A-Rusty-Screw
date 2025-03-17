@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef BETTLERIDER_ANIMATION_H
+#define BETTLERIDER_ANIMATION_H
 #include <SDL2/SDL.h>
 #include <string>
 #include <vector>
@@ -36,3 +36,4 @@ private:
     bool finished = false;
 };
 }
+#endif

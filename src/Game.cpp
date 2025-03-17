@@ -128,7 +128,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
         return;
     }
 
-    const int tileSize = 30;
+    const int tileSize = 45;
     const int rows = json_object_array_length(data);
     for (int i = 0; i < rows; ++i)
     {
@@ -240,8 +240,8 @@ void Game::update()
     std::cout << "mOnGround: " << mPlayer.isOnGround()
               << ", mFalling: " << mPlayer.isFalling() << std::endl;
 
-    float cameraMarginX = effectiveScreenWidth * 0.25f;
-    float cameraMarginY = effectiveScreenHeight * 0.25f;
+    float cameraMarginX = effectiveScreenWidth * 0.50f;
+    float cameraMarginY = effectiveScreenHeight * 0.50f;
 
     // Mantenha o jogador centralizado na área visível reduzida
     float playerCenterX = playerPosition.x + mPlayer.getWidth() / 2;
@@ -345,7 +345,7 @@ void Game::render()
 void Game::resetGame()
 {
     // Redefinir a posição e a velocidade do jogador
-    mPlayer.setPosition(Vector(50, 50)); // Posição inicial
+    mPlayer.setPosition(Vector(70, 70)); // Posição inicial
     mPlayer.setVelocity(Vector(0, 0));   // Velocidade inicial
 
     // Redefinir a câmera
