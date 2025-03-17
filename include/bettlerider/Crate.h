@@ -16,13 +16,11 @@ class Crate : public DynamicObject { // Herda de DynamicObject
 public:
     Crate(Vector position, SDL_Renderer* renderer);
     void render(SDL_Renderer* renderer, Vector cameraPosition) override;
-    void update(float deltaTime) override; // Assinatura modificada
+    void update(float deltaTime) override;
     
     // Novos métodos
     void applyForce(Vector force);
-    //bool checkCollision(float x, float y, float w, float h) const;
-    
-    // Método vazio para eventos (obrigatório por DynamicObject)
+
     void handleEvent(SDL_Event& e) override {}
     
 private:

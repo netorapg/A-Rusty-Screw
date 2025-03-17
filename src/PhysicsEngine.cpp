@@ -72,8 +72,9 @@ namespace BRTC
                         velocity.y = 0;
                         dynamicObject.setOnGround(true);
                     } else if (velocity.y < 0) {
-                        position.y = platformPos.y + platformSize.y;
+                        position.y = platformPos.y - platformSize.y;
                         velocity.y = 0;
+
                     }
                 }
             }

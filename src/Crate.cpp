@@ -3,7 +3,7 @@
 namespace BRTC
 {
     Crate::Crate(Vector position, SDL_Renderer* renderer) 
-        : DynamicObject(position, Vector(50, 50)) 
+        : DynamicObject(position, Vector(80, 80)) 
     {
         setVelocity(Vector::zero());
     }

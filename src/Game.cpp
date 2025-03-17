@@ -62,7 +62,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
         std::cerr << "Failed to load small font! SDL_ttf Error: " << TTF_GetError() << std::endl;
     }
 
-    loadLevelFromJSON("../map/level4.json");
+    loadLevelFromJSON("../map/level1.json");
 }
 
 Game::~Game()
@@ -128,7 +128,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
         return;
     }
 
-    const int tileSize = 45;
+    const int tileSize = 49;
     const int rows = json_object_array_length(data);
     for (int i = 0; i < rows; ++i)
     {
