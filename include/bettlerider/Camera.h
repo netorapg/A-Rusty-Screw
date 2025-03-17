@@ -16,7 +16,7 @@ public:
     Camera(float width, float height);
     void move(Vector& offset);
     SDL_Rect getSDLRect() const;
-    void setPosition(const Vector& position); // Alterado para const Vector&
+    void setPosition(const Vector& position);
     Vector getPosition() const;
     Vector getSize() const;
 
