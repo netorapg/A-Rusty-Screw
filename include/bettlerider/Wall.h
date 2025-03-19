@@ -12,7 +12,7 @@ public:
 Wall(const Vector position, const Vector size)
 : StaticObject(position, size) {}
 
-void render(SDL_Renderer *renderer, Vector cameraPosition) override;
+void render(Vector cameraPosition) override;
 };
 }
 #endif // WALL_H

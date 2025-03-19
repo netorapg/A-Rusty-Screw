@@ -124,10 +124,10 @@ void Player::update( float deltaTime )
   mSprite.update( deltaTime );
 }
 
-void Player::render( SDL_Renderer *renderer, Vector cameraPosition )
+void Player::render(Vector cameraPosition )
 {
   Vector screenPosition = getPosition() - cameraPosition;
-  mSprite.draw( renderer,
+  mSprite.draw( BRTC::renderer,
                 static_cast<int>( screenPosition.x ),
                 static_cast<int>( screenPosition.y ),
                 !mFacingRight );

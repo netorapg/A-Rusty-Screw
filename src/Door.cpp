@@ -7,7 +7,7 @@ std::string Door::getLevelToLoad() const {
     return mLevelToLoad;
 }
 
-void Door::render(SDL_Renderer* renderer, Vector cameraPosition) {
+void Door::render(Vector cameraPosition) {
     const Vector screenPosition = mPosition - cameraPosition;
     SDL_Rect doorRect = {
         static_cast<int>(screenPosition.x),
@@ -16,7 +16,7 @@ void Door::render(SDL_Renderer* renderer, Vector cameraPosition) {
         static_cast<int>(mSize.y)
     };
 
-    SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
-    SDL_RenderFillRect(renderer, &doorRect);
+    SDL_SetRenderDrawColor(BRTC::renderer, 0xFF, 0x00, 0x00, 0xFF);
+    SDL_RenderFillRect(BRTC::renderer, &doorRect);
 }
 }

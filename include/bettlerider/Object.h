@@ -15,7 +15,7 @@ namespace BRTC {
     Object(const Vector position, const Vector size) : mPosition(position), mSize(size){}
         virtual ~Object() = default;
     
-        virtual void render(SDL_Renderer *renderer, Vector cameraPosition) = 0;
+        virtual void render(Vector cameraPosition) = 0;
     
         // Getters e Setters
         Vector getPosition() const { return mPosition; }
@@ -43,7 +43,7 @@ namespace BRTC {
         
         virtual ~StaticObject() = default;
     
-        virtual void render(SDL_Renderer *renderer, Vector cameraPosition) override = 0;
+        virtual void render(Vector cameraPosition) override = 0;
 }; 
 
 class DynamicObject : public Object
@@ -56,7 +56,7 @@ public:
     virtual ~DynamicObject() = default;
    
     virtual void update(float deltaTime) = 0;
-    virtual void render(SDL_Renderer* renderer, Vector cameraPosition) override = 0;
+    virtual void render(Vector cameraPosition) override = 0;
     virtual void handleEvent(SDL_Event& e) = 0;
 
    

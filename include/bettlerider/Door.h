@@ -17,7 +17,7 @@ class Door : public StaticObject {
     
         std::string getLevelToLoad() const;
     
-        void render(SDL_Renderer* renderer, Vector cameraPosition) override;
+        void render(Vector cameraPosition) override;
     
     private:
         std::string mLevelToLoad;
