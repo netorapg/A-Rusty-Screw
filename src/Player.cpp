@@ -18,6 +18,7 @@ Player::Player( Vector position, SDL_Renderer *renderer )
   runAnim.addFrame( { { 113, 2, 20, 41 }, 5.5f, { 0, 0 } } );
   runAnim.addFrame( { { 46, 50, 21, 41 }, 5.5f, { 0, 0 } } );
   runAnim.addFrame( { { 79, 53, 32, 37 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 46, 50, 21, 41 }, 5.5f, { 0, 0 } } );
   runAnim.setLoop( true );
 
   Animation idleAnim;
@@ -27,14 +28,13 @@ Player::Player( Vector position, SDL_Renderer *renderer )
   idleAnim.setLoop( true );
 
   Animation punchAnim;
-  punchAnim.addFrame( { { 0, 102, 29, 45 }, 0.1f, { 0, 0 } } );
-  punchAnim.addFrame( { { 46, 102, 29, 45 }, 0.1f, { 0, 0 } } );
-  punchAnim.addFrame( { { 0, 102, 29, 45 }, 0.1f, { 0, 0 } } );
+  punchAnim.addFrame( { { 11, 108, 33, 42 }, 0.1f, { 0, 0 } } );
+  punchAnim.addFrame( { { 53, 108, 37, 42 }, 0.1f, { 0, 0 } } );
   punchAnim.setLoop( false );
 
   Animation strongPunchAnim;
-  strongPunchAnim.addFrame( { { 0, 102, 29, 45 }, 5.5f, { 0, 0 } } );
-  strongPunchAnim.addFrame( { { 0, 102, 29, 45 }, 5.5f, { 0, 0 } } );
+  strongPunchAnim.addFrame( { { 95, 107, 39, 42 }, 5.5f, { 0, 0 } } );
+  strongPunchAnim.addFrame( { { 141, 107, 40, 42 }, 5.5f, { 0, 0 } } );
   strongPunchAnim.setLoop( false );
 
   Animation jumpAnim;
@@ -113,9 +113,9 @@ void Player::update( float deltaTime )
   setVelocity( velocity );
   setPosition( position );
 
-  if( isOnGround() )
+  if( isOnGround() ) 
     mIsJumping = false;
-  if( velocity.x != 0.0f )
+  if( isOnGround() && velocity.x != 0.0f )
     mSprite.play( "run" );
   else if( mIsJumping )
     mSprite.play( "jump" );
