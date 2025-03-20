@@ -11,7 +11,7 @@
 
 namespace BRTC
 {
-extern SDL_Renderer* renderer;
+inline SDL_Renderer* renderer = nullptr;
 }
 
 #endif // __BETTLE_RIDER_GLOBALS_HEADER_H__

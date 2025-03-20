@@ -8,7 +8,7 @@ namespace BRTC
         setVelocity(Vector::zero());
     }
 
-    void Crate::render(Vector cameraPosition) {
+    void Crate::render(SDL_Renderer* renderer,Vector cameraPosition) {
         Vector screenPosition = getPosition() - cameraPosition;
         SDL_Rect fillRect = {
             static_cast<int>(screenPosition.x),
@@ -16,8 +16,8 @@ namespace BRTC
             static_cast<int>(getSize().x),
             static_cast<int>(getSize().y)
         };
-        SDL_SetRenderDrawColor(BRTC::renderer, 139, 69, 19, 255);
-        SDL_RenderFillRect(BRTC::renderer, &fillRect);
+        SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255);
+        SDL_RenderFillRect(renderer, &fillRect);
     }
 
     void Crate::applyForce(Vector force) {

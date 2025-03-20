@@ -11,20 +11,19 @@ Player::Player( Vector position, SDL_Renderer *renderer )
 {
   // Configuração das animações
   Animation runAnim;
-  runAnim.addFrame( { { 0, 204, 50, 48 }, 5.5f, { 0, 0 } } );
-  runAnim.addFrame( { { 45, 204, 50, 48 }, 5.5f, { 0, 0 } } );
-  runAnim.addFrame( { { 92, 204, 50, 48 }, 5.5f, { 0, 0 } } );
-  runAnim.addFrame( { { 138, 204, 50, 48 }, 5.5f, { 0, 0 } } );
-  runAnim.addFrame( { { 0, 204, 50, 48 }, 5.5f, { 0, 0 } } );
-  runAnim.addFrame( { { 184, 204, 50, 48 }, 5.5f, { 0, 0 } } );
-  runAnim.addFrame( { { 230, 204, 50, 48 }, 5.5f, { 0, 0 } } );
-  runAnim.addFrame( { { 276, 204, 50, 48 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 113, 2, 20, 41 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 146, 2, 32, 41 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 181, 5, 36, 37 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 1, 49, 32, 41 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 113, 2, 20, 41 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 46, 50, 21, 41 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 79, 53, 32, 37 }, 5.5f, { 0, 0 } } );
   runAnim.setLoop( true );
 
   Animation idleAnim;
-  idleAnim.addFrame( { { 0, 0, 40, 48 }, 8.5f, { 0, 0 } } );
-  idleAnim.addFrame( { { 45, 0, 40, 48 }, 8.5f, { 0, 0 } } );
-  idleAnim.addFrame( { { 91, 0, 40, 48 }, 8.5f, { 0, 0 } } );
+  idleAnim.addFrame( { { 6, 1, 28, 42 }, 8.5f, { 0, 0 } } );
+  idleAnim.addFrame( { { 39, 1, 28, 42 }, 8.5f, { 0, 0 } } );
+  idleAnim.addFrame( { { 76, 2, 29, 41 }, 8.5f, { 0, 0 } } );
   idleAnim.setLoop( true );
 
   Animation punchAnim;
@@ -124,10 +123,10 @@ void Player::update( float deltaTime )
   mSprite.update( deltaTime );
 }
 
-void Player::render(Vector cameraPosition )
+void Player::render( SDL_Renderer *renderer, Vector cameraPosition )
 {
   Vector screenPosition = getPosition() - cameraPosition;
-  mSprite.draw( BRTC::renderer,
+  mSprite.draw( renderer,
                 static_cast<int>( screenPosition.x ),
                 static_cast<int>( screenPosition.y ),
                 !mFacingRight );

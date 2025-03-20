@@ -3,7 +3,7 @@
 namespace BRTC
 {
 
-void SolidPlatform::render(Vector cameraPosition)
+void SolidPlatform::render(SDL_Renderer* renderer, Vector cameraPosition)
 {
     const Vector screenPosition = mPosition - cameraPosition;
     SDL_Rect fillRect = {
@@ -12,8 +12,8 @@ void SolidPlatform::render(Vector cameraPosition)
         static_cast<int>(mSize.x),
         static_cast<int>(mSize.y)
     };
-    SDL_SetRenderDrawColor(BRTC::renderer, 0x00, 0x00, 0x8B, 0xFF);
-    SDL_RenderFillRect(BRTC::renderer, &fillRect);
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x8B, 0xFF);
+    SDL_RenderFillRect(renderer, &fillRect);
 }
 
 }

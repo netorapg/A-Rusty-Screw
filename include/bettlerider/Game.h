@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "PhysicsEngine.h"
 #include "Camera.h"
+#include "Globals.h"
 
 
 namespace BRTC

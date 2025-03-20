@@ -2,7 +2,7 @@
 
 namespace BRTC {
 
-void Platform::render(Vector cameraPosition)
+void Platform::render(SDL_Renderer* renderer, Vector cameraPosition)
 {
     // Calcular posição relativa à câmera
     const Vector screenPosition = mPosition - cameraPosition;
@@ -14,8 +14,8 @@ void Platform::render(Vector cameraPosition)
         static_cast<int>(mSize.y)
     };
     
-    SDL_SetRenderDrawColor(BRTC::renderer, 0x00, 0xAA, 0xCC, 0x80);
-    SDL_RenderFillRect(BRTC::renderer, &fillRect);
+    SDL_SetRenderDrawColor(renderer, 0x00, 0xAA, 0xCC, 0x80);
+    SDL_RenderFillRect(renderer, &fillRect);
 }
 
 } // namespace BRTC

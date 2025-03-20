@@ -3,6 +3,7 @@
 
 #include "Object.h"
 #include <SDL2/SDL.h>
+#include "Globals.h"
 
 namespace BRTC {
 
@@ -12,7 +13,7 @@ public:
     Platform(const Vector position, const Vector size)
         : StaticObject(position, size) {}
     
-    void render(Vector cameraPosition) override;
+    void render(SDL_Renderer* renderer,Vector cameraPosition) override;
 };
 
 } // namespace BRTC

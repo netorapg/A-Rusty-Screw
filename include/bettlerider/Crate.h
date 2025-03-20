@@ -15,7 +15,7 @@ namespace BRTC
 class Crate : public DynamicObject { // Herda de DynamicObject
 public:
     Crate(Vector position, SDL_Renderer* renderer);
-    void render(Vector cameraPosition) override;
+    void render(SDL_Renderer* renderer, Vector cameraPosition) override;
     void update(float deltaTime) override;
     
     // Novos métodos

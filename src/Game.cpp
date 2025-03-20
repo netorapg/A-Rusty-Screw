@@ -220,7 +220,7 @@ void Game::handleEvents()
 
 void Game::update()
 {
-    mPlayer.update(0.8f); // Passe um valor de tempo delta apropriado
+    mPlayer.update(0.8f);
     std::string levelToLoad = "";
     PhysicsEngine::HandleCollisions(
         mPlayer, mWalls, mPlatforms, mSolidPlatforms);
