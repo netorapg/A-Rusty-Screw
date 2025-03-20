@@ -171,8 +171,6 @@ void Game::loadLevelFromJSON(const std::string &filePath)
             }
         }
     }
-
-    // Agora, carregue as portas do JSON (com destino)
     json_object *doors;
     if (json_object_object_get_ex(root, "doors", &doors))
     {

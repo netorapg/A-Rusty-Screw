@@ -6,7 +6,7 @@ namespace BRTC
 {
 
 Player::Player( Vector position, SDL_Renderer *renderer )
-    : DynamicObject( position, Vector( 40, 48 ) ), mFacingRight( true ),
+    : DynamicObject( position, Vector( 29, 41) ), mFacingRight( true ),
       mSprite( renderer, "../assets/bezourinha_sprites.png" )
 {
   // Configuração das animações
@@ -33,14 +33,14 @@ Player::Player( Vector position, SDL_Renderer *renderer )
   punchAnim.setLoop( false );
 
   Animation strongPunchAnim;
-  strongPunchAnim.addFrame( { { 0, 153, 29, 45 }, 0.1f, { 0, 0 } } );
-  strongPunchAnim.addFrame( { { 46, 153, 29, 45 }, 0.1f, { 0, 0 } } );
+  strongPunchAnim.addFrame( { { 0, 102, 29, 45 }, 5.5f, { 0, 0 } } );
+  strongPunchAnim.addFrame( { { 0, 102, 29, 45 }, 5.5f, { 0, 0 } } );
   strongPunchAnim.setLoop( false );
 
   Animation jumpAnim;
-  jumpAnim.addFrame( { { 0, 50, 29, 45 }, 0.1f, { 0, 0 } } );
-  jumpAnim.addFrame( { { 46, 51, 29, 45 }, 0.1f, { 0, 0 } } );
-  jumpAnim.setLoop( false );
+  jumpAnim.addFrame( { { 120, 50, 31, 49 }, 5.5f, { 0, 0 } } );
+  jumpAnim.addFrame( { { 158, 50, 31, 49 }, 5.5f, { 0, 0 } } );
+  jumpAnim.setLoop( true );
 
   mSprite.addAnimation( "run", std::move( runAnim ) );
   mSprite.addAnimation( "idle", std::move( idleAnim ) );
@@ -50,10 +50,7 @@ Player::Player( Vector position, SDL_Renderer *renderer )
   mSprite.play( "idle" );
 }
 
-Player::~Player()
-{
-  // A destruição da textura é tratada pela classe Sprite
-}
+Player::~Player(){}
 
 void Player::handleEvent( SDL_Event &e )
 {
@@ -74,12 +71,16 @@ void Player::handleEvent( SDL_Event &e )
         break;
 
       case SDLK_SPACE:
-        if( isOnGround() )
+        if(isOnGround() )
+        {
+          setOnGround( false );
+          mIsJumping = true;
           velocity.y = JUMP_FORCE;
+        }
         break;
       case SDLK_s:
-         if(isOnGround())
-         setPassingThroughPlatform( true );
+        if( isOnGround() )
+          setPassingThroughPlatform( true );
         break;
     }
   }
@@ -112,10 +113,11 @@ void Player::update( float deltaTime )
   setVelocity( velocity );
   setPosition( position );
 
-  // Controle de animações
+  if( isOnGround() )
+    mIsJumping = false;
   if( velocity.x != 0.0f )
     mSprite.play( "run" );
-  else if( !isOnGround() )
+  else if( mIsJumping )
     mSprite.play( "jump" );
   else
     mSprite.play( "idle" );

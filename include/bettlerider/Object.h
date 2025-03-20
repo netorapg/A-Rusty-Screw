@@ -63,8 +63,8 @@ public:
 
    
     Vector getVelocity() const { return mVelocity; };
-    bool isOnGround() const { return mOnGround; };
-    bool isFalling() const { return mFalling; };
+    bool isOnGround() { return mOnGround; };
+    bool isFalling()  { return mFalling; };
     bool isPassingThroughPlatform() const { return mPassingThroughPlatform; };
 
     void setVelocity(Vector velocity) { mVelocity = velocity; };
