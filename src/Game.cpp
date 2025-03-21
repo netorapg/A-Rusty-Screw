@@ -163,7 +163,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
                 mSolidPlatforms.emplace_back(Vector(x, y), Vector(52, 40), mRenderer, mPlatformsTexturePath);
                 break;
             case 3: // Parede
-                mWalls.emplace_back(Vector(x, y), Vector(20, 40), mRenderer, mPlatformsTexturePath);
+                mWalls.emplace_back(Vector(x, y), Vector(20, 42), mRenderer, mPlatformsTexturePath);
                 break;
             case 4: // Caixote
                 mCrates.emplace_back(Vector(x, y), mRenderer);
