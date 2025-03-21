@@ -28,13 +28,13 @@ Player::Player( Vector position, SDL_Renderer *renderer )
   idleAnim.setLoop( true );
 
   Animation punchAnim;
-  punchAnim.addFrame( { { 11, 108, 33, 42 }, 0.1f, { 0, 0 } } );
-  punchAnim.addFrame( { { 53, 108, 37, 42 }, 0.1f, { 0, 0 } } );
-  punchAnim.setLoop( false );
+  punchAnim.addFrame( { { 11, 108, 33, 42 }, 0.8f, { 0, 0 } } );
+  punchAnim.addFrame( { { 53, 108, 37, 42 }, 0.8f, { 0, 0 } } );
+  punchAnim.setLoop( true );
 
   Animation strongPunchAnim;
-  strongPunchAnim.addFrame( { { 95, 107, 39, 42 }, 5.5f, { 0, 0 } } );
-  strongPunchAnim.addFrame( { { 141, 107, 40, 42 }, 5.5f, { 0, 0 } } );
+  strongPunchAnim.addFrame( { { 95, 107, 39, 42 }, 0.8f, { 0, 0 } } );
+  strongPunchAnim.addFrame( { { 141, 107, 40, 42 }, 0.8f, { 0, 0 } } );
   strongPunchAnim.setLoop( false );
 
   Animation jumpAnim;
@@ -82,6 +82,12 @@ void Player::handleEvent( SDL_Event &e )
         if( isOnGround() )
           setPassingThroughPlatform( true );
         break;
+      case SDLK_j:
+        mSprite.play( "punch", true );
+        break;
+      case SDLK_k:
+        mSprite.play( "strong_punch", true );
+        break;
     }
   }
   else if( e.type == SDL_KEYUP )
@@ -95,6 +101,7 @@ void Player::handleEvent( SDL_Event &e )
       case SDLK_s:
         setPassingThroughPlatform( false );
         break;
+      
     }
   }
 

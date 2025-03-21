@@ -25,6 +25,8 @@ private:
     Sprite mSprite;
     bool mFacingRight;
     bool mIsJumping;
+   // bool mIsAttacking;
+   // bool mIsSuperAttacking;
     
     static constexpr float GRAVITY = 0.5f;
     static constexpr float JUMP_FORCE = -10.0f;

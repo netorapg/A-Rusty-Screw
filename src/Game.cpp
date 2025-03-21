@@ -7,6 +7,8 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
 {
     std::cout << "Game constructor called" << std::endl;
 
+    mPlatformsTexturePath = "../assets/scenario.png";
+
     SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
 
@@ -35,7 +37,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
         std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 
-    mMusic = Mix_LoadMUS("../../platfom2d/assets/8-bit-game-158815.mp3");
+    mMusic = Mix_LoadMUS("../../platfom2d/assets/8-bit-game-158815.mp");
     if (mMusic == nullptr)
     {
         std::cerr << "Failed to load music! SDL_mixer Error: " << Mix_GetError() << std::endl;
@@ -155,10 +157,10 @@ void Game::loadLevelFromJSON(const std::string &filePath)
             case 0: // Espaço vazio
                 break;
             case 1: // Plataforma
-                mPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize));
+                mPlatforms.emplace_back(Vector(x, y), Vector(72, 20), mRenderer, mPlatformsTexturePath);
                 break;
             case 2: // Plataforma sólida
-                mSolidPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize));
+                mSolidPlatforms.emplace_back(Vector(x, y), Vector(52, 40), mRenderer, mPlatformsTexturePath);
                 break;
             case 3: // Parede
                 mWalls.emplace_back(Vector(x, y), Vector(tileSize, tileSize));
