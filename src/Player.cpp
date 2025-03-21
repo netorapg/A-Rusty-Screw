@@ -6,7 +6,7 @@ namespace BRTC
 {
 
 Player::Player( Vector position, SDL_Renderer *renderer )
-    : DynamicObject( position, Vector( 29, 41) ), mFacingRight( true ),
+    : DynamicObject( position, Vector( 29, 30) ), mFacingRight( true ),
       mSprite( renderer, "../assets/bezourinha_sprites.png" )
 {
   // Configuração das animações
@@ -28,13 +28,13 @@ Player::Player( Vector position, SDL_Renderer *renderer )
   idleAnim.setLoop( true );
 
   Animation punchAnim;
-  punchAnim.addFrame( { { 11, 108, 33, 42 }, 0.8f, { 0, 0 } } );
-  punchAnim.addFrame( { { 53, 108, 37, 42 }, 0.8f, { 0, 0 } } );
-  punchAnim.setLoop( true );
+  punchAnim.addFrame( { { 11, 108, 33, 42 }, 4.8f, { 0, 0 } } );
+  punchAnim.addFrame( { { 53, 108, 37, 42 }, 4.8f, { 0, 0 } } );
+  punchAnim.setLoop( false );
 
   Animation strongPunchAnim;
-  strongPunchAnim.addFrame( { { 95, 107, 39, 42 }, 0.8f, { 0, 0 } } );
-  strongPunchAnim.addFrame( { { 141, 107, 40, 42 }, 0.8f, { 0, 0 } } );
+  strongPunchAnim.addFrame( { { 95, 107, 39, 42 }, 2.8f, { 0, 0 } } );
+  strongPunchAnim.addFrame( { { 141, 107, 40, 42 }, 2.8f, { 0, 0 } } );
   strongPunchAnim.setLoop( false );
 
   Animation jumpAnim;
@@ -83,10 +83,10 @@ void Player::handleEvent( SDL_Event &e )
           setPassingThroughPlatform( true );
         break;
       case SDLK_j:
-        mSprite.play( "punch", true );
+        mIspunching = true;
         break;
       case SDLK_k:
-        mSprite.play( "strong_punch", true );
+        mIspunchingHarder = true;
         break;
     }
   }
@@ -100,6 +100,12 @@ void Player::handleEvent( SDL_Event &e )
         break;
       case SDLK_s:
         setPassingThroughPlatform( false );
+        break;
+      case SDLK_j:
+        mIspunching = false;
+        break;
+      case SDLK_k:
+        mIspunchingHarder = false;
         break;
       
     }
@@ -126,6 +132,10 @@ void Player::update( float deltaTime )
     mSprite.play( "run" );
   else if( mIsJumping )
     mSprite.play( "jump" );
+  else if( mIspunching )
+    mSprite.play( "punch" );
+  else if( mIspunchingHarder )
+    mSprite.play( "strong_punch" );
   else
     mSprite.play( "idle" );
 

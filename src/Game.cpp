@@ -185,7 +185,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
                 json_object_get_string(json_object_object_get(door, "target"));
 
             // Adicionar porta à lista de portas
-            mDoors.emplace_back(Vector(x, y), Vector(20, 50), target, mRenderer, mPlatformsTexturePath);
+            mDoors.emplace_back(Vector(x, y), Vector(20, 45), target, mRenderer, mPlatformsTexturePath);
         }
     }
 
