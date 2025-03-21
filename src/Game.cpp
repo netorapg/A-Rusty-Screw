@@ -3,7 +3,7 @@
 namespace BRTC
 {
 Game::Game(SDL_Window *window, SDL_Renderer *renderer)
-    : mWindow(window), mRenderer(renderer), mQuit(false), mPlayer(Vector(50, 50), renderer), mCamera(SCREEN_WIDTH, SCREEN_HEIGHT)
+    : mWindow(window), mRenderer(renderer), mQuit(false), mPlayer(Vector(0, 0), renderer), mCamera(SCREEN_WIDTH, SCREEN_HEIGHT)
 {
     std::cout << "Game constructor called" << std::endl;
 
@@ -44,7 +44,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     }
 
     mJumpSound = Mix_LoadWAV(
-        "../../platfom2d/assets/mixkit-player-jumping-in-a-video-game-2043.wav");
+        "../../platfom2d/assets/mixkit-player-jumping-in-a-video-game-2043.wa");
     if (mJumpSound == nullptr)
     {
         std::cerr << "Failed to load jump sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
@@ -163,7 +163,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
                 mSolidPlatforms.emplace_back(Vector(x, y), Vector(52, 40), mRenderer, mPlatformsTexturePath);
                 break;
             case 3: // Parede
-                mWalls.emplace_back(Vector(x, y), Vector(20, 42), mRenderer, mPlatformsTexturePath);
+                mWalls.emplace_back(Vector(x, y), Vector(20, 40), mRenderer, mPlatformsTexturePath);
                 break;
             case 4: // Caixote
                 mCrates.emplace_back(Vector(x, y), mRenderer);
@@ -185,8 +185,20 @@ void Game::loadLevelFromJSON(const std::string &filePath)
                 json_object_get_string(json_object_object_get(door, "target"));
 
             // Adicionar porta à lista de portas
-            mDoors.emplace_back(Vector(x, y), Vector(tileSize, tileSize), target);
+            mDoors.emplace_back(Vector(x, y), Vector(20, 50), target, mRenderer, mPlatformsTexturePath);
         }
+    }
+
+    
+
+    json_object *player_spawn;
+    if (json_object_object_get_ex(root, "player_spawn", &player_spawn)) {
+        float spawnX = json_object_get_int(json_object_object_get(player_spawn, "x")) * tileSize;
+        float spawnY = json_object_get_int(json_object_object_get(player_spawn, "y")) * tileSize;
+        mPlayer.setPosition(Vector(spawnX, spawnY));
+    }
+    else {
+        mPlayer.setPosition(Vector(70, 70));
     }
 
     json_object_put(root);
@@ -229,7 +241,7 @@ void Game::update()
     if (!levelToLoad.empty())
     {
         loadLevelFromJSON(levelToLoad);
-        resetGame();
+       // resetGame();
     }
 
     Vector playerPosition = mPlayer.getPosition();
@@ -345,7 +357,7 @@ void Game::render()
 void Game::resetGame()
 {
     // Redefinir a posição e a velocidade do jogador
-    mPlayer.setPosition(Vector(70, 70)); // Posição inicial
+    mPlayer.setPosition(Vector(0, 0)); // Posição inicial
     mPlayer.setVelocity(Vector(0, 0));   // Velocidade inicial
 
     // Redefinir a câmera

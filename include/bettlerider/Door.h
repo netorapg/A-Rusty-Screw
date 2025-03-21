@@ -4,14 +4,16 @@
 #include "Object.h"
 #include <string>
 #include <SDL2/SDL.h>
+#include "Sprite.h"
 
 namespace BRTC
 {
 
 class Door : public StaticObject {
+    private:
+        Sprite mSprite;
     public: 
-        Door(const Vector position, const Vector size, const std::string& levelToLoad):
-            StaticObject(position, size), mLevelToLoad(levelToLoad) {}; 
+        Door(const Vector position, const Vector size, const std::string& levelToLoad, SDL_Renderer* renderer, const std::string& texturePath);
         
         bool isPlayerColliding(const DynamicObject& player) const;
     
