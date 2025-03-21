@@ -3,17 +3,25 @@
 namespace BRTC
 {
 
-void Wall::render(SDL_Renderer* renderer, Vector cameraPosition)
+Wall::Wall(const Vector position, const Vector size, SDL_Renderer* renderer, const std::string& texturePath)
+    : StaticObject(position, size),
+      mSprite(renderer, texturePath)
 {
+    Animation wallAnim;
+    wallAnim.addFrame({
+        { 84, 49, static_cast<int>(size.x), static_cast<int>(size.y) },
+        1.0f,
+        { 0, 0 }
+    });
+    wallAnim.setLoop(true);
+
+    mSprite.addAnimation("default", std::move(wallAnim));
+    mSprite.play("default");
+}
+
+void Wall::render(SDL_Renderer* renderer, Vector cameraPosition) {
     const Vector screenPosition = mPosition - cameraPosition;
-    SDL_Rect fillRect = {
-        static_cast<int>(screenPosition.x),
-        static_cast<int>(screenPosition.y),
-        static_cast<int>(mSize.x),
-        static_cast<int>(mSize.y)
-    };
-    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
-    SDL_RenderFillRect(renderer, &fillRect);
+    mSprite.draw(renderer, screenPosition.x, screenPosition.y);
 }
 
 }

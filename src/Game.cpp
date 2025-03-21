@@ -130,7 +130,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
         return;
     }
 
-    const int tileSize = 49;
+    const int tileSize = 41;
     const int rows = json_object_array_length(data);
     for (int i = 0; i < rows; ++i)
     {
@@ -163,7 +163,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
                 mSolidPlatforms.emplace_back(Vector(x, y), Vector(52, 40), mRenderer, mPlatformsTexturePath);
                 break;
             case 3: // Parede
-                mWalls.emplace_back(Vector(x, y), Vector(tileSize, tileSize));
+                mWalls.emplace_back(Vector(x, y), Vector(20, 42), mRenderer, mPlatformsTexturePath);
                 break;
             case 4: // Caixote
                 mCrates.emplace_back(Vector(x, y), mRenderer);
