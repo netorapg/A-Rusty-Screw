@@ -3,13 +3,9 @@
       "P": 1, 
       "Ps": 2, 
       "W": 3,
-      "C": 4,
-      "D": 5
+      "C": 4
     },
-    "player_spawn": {
-      "x": 1.5,
-      "y": 5
-    },
+
     "layers": [
       {
         "data": [
@@ -40,7 +36,9 @@
       {
         "x": 0,
         "y": 5,
-        "target": "../map/level1.json"
+        "target": "../map/level1.json",
+        "spawn_x": 12.5,
+        "spawn_y": 12.0
       }
     ]
   }

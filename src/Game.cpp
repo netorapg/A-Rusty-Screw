@@ -181,11 +181,19 @@ void Game::loadLevelFromJSON(const std::string &filePath)
             json_object *door = json_object_array_get_idx(doors, i);
             float x = json_object_get_double(json_object_object_get(door, "x")) * tileSize;
             float y = json_object_get_double(json_object_object_get(door, "y")) * tileSize;
-            std::string target =
-                json_object_get_string(json_object_object_get(door, "target"));
+            float spawnX = -1.0f;
+            float spawnY = -1.0f;
+            json_object* spawnXObj;
+            if (json_object_object_get_ex(door, "spawn_x", &spawnXObj)) {
+                spawnX = json_object_get_double(spawnXObj) * tileSize;
+            }
+            json_object* spawnYObj;
+            if (json_object_object_get_ex(door, "spawn_y", &spawnYObj)) {
+                spawnY = json_object_get_double(spawnYObj) * tileSize;
+            }
 
-            // Adicionar porta à lista de portas
-            mDoors.emplace_back(Vector(x, y), Vector(20, 45), target, mRenderer, mPlatformsTexturePath);
+            std::string target = json_object_get_string(json_object_object_get(door, "target"));
+            mDoors.emplace_back(Vector(x, y), Vector(20, 45), target, mRenderer, mPlatformsTexturePath, Vector(spawnX, spawnY));
         }
     }
 
@@ -195,10 +203,14 @@ void Game::loadLevelFromJSON(const std::string &filePath)
     if (json_object_object_get_ex(root, "player_spawn", &player_spawn)) {
         float spawnX = json_object_get_int(json_object_object_get(player_spawn, "x")) * tileSize;
         float spawnY = json_object_get_int(json_object_object_get(player_spawn, "y")) * tileSize;
-        mPlayer.setPosition(Vector(spawnX, spawnY));
-    }
-    else {
-        mPlayer.setPosition(Vector(70, 70));
+        
+        if (mPlayer.getPosition() == Vector(0, 0)) {
+            mPlayer.setPosition(Vector(spawnX, spawnY));
+        }
+    } else {
+        if (mPlayer.getPosition() == Vector(0, 0)) {
+            mPlayer.setPosition(Vector(0, 0));
+        }
     }
 
     json_object_put(root);
@@ -234,14 +246,18 @@ void Game::update()
 {
     mPlayer.update(0.8f);
     std::string levelToLoad = "";
+    Vector spawnPosition;
     PhysicsEngine::HandleCollisions(
         mPlayer, mWalls, mPlatforms, mSolidPlatforms);
-    PhysicsEngine::HandlePlayerCollisions(
-        mPlayer, mCrates, mDoors, levelToLoad);
-    if (!levelToLoad.empty())
-    {
+    if (PhysicsEngine::HandlePlayerCollisions(
+        mPlayer, mCrates, mDoors, levelToLoad, spawnPosition))
+    { 
+        Vector newSpawn = (spawnPosition.x >= 0 && spawnPosition.y >= 0) ? spawnPosition : Vector(-1, -1);
+
         loadLevelFromJSON(levelToLoad);
-       // resetGame();
+        if (newSpawn.x >= 0 && newSpawn.y >= 0) {
+            mPlayer.setPosition(newSpawn);
+        }
     }
 
     Vector playerPosition = mPlayer.getPosition();
@@ -356,20 +372,9 @@ void Game::render()
 
 void Game::resetGame()
 {
-    // Redefinir a posição e a velocidade do jogador
-    mPlayer.setPosition(Vector(0, 0)); // Posição inicial
     mPlayer.setVelocity(Vector(0, 0));   // Velocidade inicial
-
-    // Redefinir a câmera
     mCamera.setPosition(Vector(0, 0));
-  
 
-
-    // Outras redefinições, se necessário
-    // mCrates.clear();
-    // mCrates.push_back(Crate(300, 600, 50, 50));
-
-    // Mix_PlayMusic(mMusic, -1);
     std::cout << "Resetting game..." << std::endl;
 }
 

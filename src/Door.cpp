@@ -4,10 +4,11 @@
 namespace BRTC
 {
 
-Door::Door(const Vector position, const Vector size, const std::string& levelToLoad, SDL_Renderer* renderer, const std::string& texturePath)
+Door::Door(const Vector position, const Vector size, const std::string& levelToLoad, SDL_Renderer* renderer, const std::string& texturePath, Vector spawnPosition)
     : StaticObject(position, size),
       mSprite(renderer, texturePath),
-      mLevelToLoad(levelToLoad)
+      mLevelToLoad(levelToLoad),
+      mSpawnPosition(spawnPosition)
 {
     Animation doorAnim;
     doorAnim.addFrame({
@@ -23,6 +24,10 @@ Door::Door(const Vector position, const Vector size, const std::string& levelToL
 
 std::string Door::getLevelToLoad() const {
     return mLevelToLoad;
+}
+
+Vector Door::getSpawnPosition() const {
+    return mSpawnPosition;
 }
 
 void Door::render(SDL_Renderer* renderer, Vector cameraPosition) {
