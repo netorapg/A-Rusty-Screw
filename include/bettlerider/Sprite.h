@@ -9,6 +9,8 @@ namespace BRTC {
         public:
             Sprite(SDL_Renderer* renderer, const std::string& texturePath);
 
+           // ~Sprite();
+
             void addAnimation(const std::string& name, Animation&& animation);
             void play(const std::string& animation, bool forceReset = false);
             void update(float deltaTime);

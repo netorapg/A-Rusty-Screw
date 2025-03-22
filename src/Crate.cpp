@@ -8,7 +8,7 @@ namespace BRTC
         setVelocity(Vector::zero());
     }
 
-    void Crate::render(SDL_Renderer* renderer, Vector cameraPosition) {
+    void Crate::render(SDL_Renderer* renderer,Vector cameraPosition) {
         Vector screenPosition = getPosition() - cameraPosition;
         SDL_Rect fillRect = {
             static_cast<int>(screenPosition.x),

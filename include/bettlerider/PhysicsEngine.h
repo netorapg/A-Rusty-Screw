@@ -22,10 +22,11 @@ public:
     const std::list<Wall>          &walls,
     const std::list<Platform>      &platforms,
     const std::list<SolidPlatform> &solidPlatforms );
-  static void HandlePlayerCollisions( Player                &player,
+  static bool HandlePlayerCollisions( Player                &player,
                                       std::list<Crate>      &crates,
                                       const std::list<Door> &doors,
-                                      std::string           &levelToLoad );
+                                      std::string           &levelToLoad,
+                                      Vector                &spawnPosition );
 
 private:
   static bool CheckCollision( const Object& obj1, const Object& obj2 );

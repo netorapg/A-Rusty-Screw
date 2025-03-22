@@ -3,9 +3,11 @@
 namespace BRTC
 {
 Game::Game(SDL_Window *window, SDL_Renderer *renderer)
-    : mWindow(window), mRenderer(renderer), mQuit(false), mPlayer(Vector(50, 50), renderer), mCamera(SCREEN_WIDTH, SCREEN_HEIGHT)
+    : mWindow(window), mRenderer(renderer), mQuit(false), mPlayer(Vector(0, 0), renderer), mCamera(SCREEN_WIDTH, SCREEN_HEIGHT)
 {
     std::cout << "Game constructor called" << std::endl;
+
+    mPlatformsTexturePath = "../assets/scenario.png";
 
     SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
@@ -35,14 +37,14 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
         std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 
-    mMusic = Mix_LoadMUS("../../platfom2d/assets/8-bit-game-158815.mp3");
+    mMusic = Mix_LoadMUS("../../platfom2d/assets/8-bit-game-158815.mp");
     if (mMusic == nullptr)
     {
         std::cerr << "Failed to load music! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 
     mJumpSound = Mix_LoadWAV(
-        "../../platfom2d/assets/mixkit-player-jumping-in-a-video-game-2043.wav");
+        "../../platfom2d/assets/mixkit-player-jumping-in-a-video-game-2043.wa");
     if (mJumpSound == nullptr)
     {
         std::cerr << "Failed to load jump sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
@@ -128,7 +130,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
         return;
     }
 
-    const int tileSize = 49;
+    const int tileSize = 30;
     const int rows = json_object_array_length(data);
     for (int i = 0; i < rows; ++i)
     {
@@ -155,13 +157,13 @@ void Game::loadLevelFromJSON(const std::string &filePath)
             case 0: // Espaço vazio
                 break;
             case 1: // Plataforma
-                mPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize));
+                mPlatforms.emplace_back(Vector(x, y), Vector(30, 20), mRenderer, mPlatformsTexturePath);
                 break;
             case 2: // Plataforma sólida
-                mSolidPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize));
+                mSolidPlatforms.emplace_back(Vector(x, y), Vector(30, 40), mRenderer, mPlatformsTexturePath);
                 break;
             case 3: // Parede
-                mWalls.emplace_back(Vector(x, y), Vector(tileSize, tileSize));
+                mWalls.emplace_back(Vector(x, y), Vector(30, 40), mRenderer, mPlatformsTexturePath);
                 break;
             case 4: // Caixote
                 mCrates.emplace_back(Vector(x, y), mRenderer);
@@ -171,8 +173,6 @@ void Game::loadLevelFromJSON(const std::string &filePath)
             }
         }
     }
-
-    // Agora, carregue as portas do JSON (com destino)
     json_object *doors;
     if (json_object_object_get_ex(root, "doors", &doors))
     {
@@ -181,11 +181,35 @@ void Game::loadLevelFromJSON(const std::string &filePath)
             json_object *door = json_object_array_get_idx(doors, i);
             float x = json_object_get_double(json_object_object_get(door, "x")) * tileSize;
             float y = json_object_get_double(json_object_object_get(door, "y")) * tileSize;
-            std::string target =
-                json_object_get_string(json_object_object_get(door, "target"));
+            float spawnX = -1.0f;
+            float spawnY = -1.0f;
+            json_object* spawnXObj;
+            if (json_object_object_get_ex(door, "spawn_x", &spawnXObj)) {
+                spawnX = json_object_get_double(spawnXObj) * tileSize;
+            }
+            json_object* spawnYObj;
+            if (json_object_object_get_ex(door, "spawn_y", &spawnYObj)) {
+                spawnY = json_object_get_double(spawnYObj) * tileSize;
+            }
 
-            // Adicionar porta à lista de portas
-            mDoors.emplace_back(Vector(x, y), Vector(tileSize, tileSize), target);
+            std::string target = json_object_get_string(json_object_object_get(door, "target"));
+            mDoors.emplace_back(Vector(x, y), Vector(20, 62), target, mRenderer, mPlatformsTexturePath, Vector(spawnX, spawnY));
+        }
+    }
+
+    
+
+    json_object *player_spawn;
+    if (json_object_object_get_ex(root, "player_spawn", &player_spawn)) {
+        float spawnX = json_object_get_int(json_object_object_get(player_spawn, "x")) * tileSize;
+        float spawnY = json_object_get_int(json_object_object_get(player_spawn, "y")) * tileSize;
+        
+        if (mPlayer.getPosition() == Vector(0, 0)) {
+            mPlayer.setPosition(Vector(spawnX, spawnY));
+        }
+    } else {
+        if (mPlayer.getPosition() == Vector(0, 0)) {
+            mPlayer.setPosition(Vector(0, 0));
         }
     }
 
@@ -220,16 +244,20 @@ void Game::handleEvents()
 
 void Game::update()
 {
-    mPlayer.update(0.8f); // Passe um valor de tempo delta apropriado
+    mPlayer.update(0.8f);
     std::string levelToLoad = "";
+    Vector spawnPosition;
     PhysicsEngine::HandleCollisions(
         mPlayer, mWalls, mPlatforms, mSolidPlatforms);
-    PhysicsEngine::HandlePlayerCollisions(
-        mPlayer, mCrates, mDoors, levelToLoad);
-    if (!levelToLoad.empty())
-    {
+    if (PhysicsEngine::HandlePlayerCollisions(
+        mPlayer, mCrates, mDoors, levelToLoad, spawnPosition))
+    { 
+        Vector newSpawn = (spawnPosition.x >= 0 && spawnPosition.y >= 0) ? spawnPosition : Vector(-1, -1);
+
         loadLevelFromJSON(levelToLoad);
-        resetGame();
+        if (newSpawn.x >= 0 && newSpawn.y >= 0) {
+            mPlayer.setPosition(newSpawn);
+        }
     }
 
     Vector playerPosition = mPlayer.getPosition();
@@ -344,20 +372,9 @@ void Game::render()
 
 void Game::resetGame()
 {
-    // Redefinir a posição e a velocidade do jogador
-    mPlayer.setPosition(Vector(70, 70)); // Posição inicial
     mPlayer.setVelocity(Vector(0, 0));   // Velocidade inicial
-
-    // Redefinir a câmera
     mCamera.setPosition(Vector(0, 0));
-  
 
-
-    // Outras redefinições, se necessário
-    // mCrates.clear();
-    // mCrates.push_back(Crate(300, 600, 50, 50));
-
-    // Mix_PlayMusic(mMusic, -1);
     std::cout << "Resetting game..." << std::endl;
 }
 

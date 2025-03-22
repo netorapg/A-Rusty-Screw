@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "PhysicsEngine.h"
 #include "Camera.h"
+#include "Globals.h"
 
 
 namespace BRTC
@@ -50,6 +51,7 @@ private:
     std::list<Wall> mWalls;
     std::list<Crate> mCrates;
     std::list<Door> mDoors;
+    std::string mPlatformsTexturePath;
     const float PLAYER_ZOOM_FACTOR = 2.5f;
     float effectiveScreenWidth = SCREEN_WIDTH / PLAYER_ZOOM_FACTOR;
     float effectiveScreenHeight = SCREEN_HEIGHT / PLAYER_ZOOM_FACTOR;

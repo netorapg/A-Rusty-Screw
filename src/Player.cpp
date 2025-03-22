@@ -6,42 +6,41 @@ namespace BRTC
 {
 
 Player::Player( Vector position, SDL_Renderer *renderer )
-    : DynamicObject( position, Vector( 40, 48 ) ), mFacingRight( true ),
+    : DynamicObject( position, Vector( 29, 29) ), mFacingRight( true ),
       mSprite( renderer, "../assets/bezourinha_sprites.png" )
 {
   // Configuração das animações
   Animation runAnim;
-  runAnim.addFrame( { { 0, 204, 50, 48 }, 5.5f, { 0, 0 } } );
-  runAnim.addFrame( { { 45, 204, 50, 48 }, 5.5f, { 0, 0 } } );
-  runAnim.addFrame( { { 92, 204, 50, 48 }, 5.5f, { 0, 0 } } );
-  runAnim.addFrame( { { 138, 204, 50, 48 }, 5.5f, { 0, 0 } } );
-  runAnim.addFrame( { { 0, 204, 50, 48 }, 5.5f, { 0, 0 } } );
-  runAnim.addFrame( { { 184, 204, 50, 48 }, 5.5f, { 0, 0 } } );
-  runAnim.addFrame( { { 230, 204, 50, 48 }, 5.5f, { 0, 0 } } );
-  runAnim.addFrame( { { 276, 204, 50, 48 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 113, 2, 20, 41 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 146, 2, 32, 41 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 181, 5, 36, 37 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 1, 49, 32, 41 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 113, 2, 20, 41 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 46, 50, 21, 41 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 79, 53, 32, 37 }, 5.5f, { 0, 0 } } );
+  runAnim.addFrame( { { 46, 50, 21, 41 }, 5.5f, { 0, 0 } } );
   runAnim.setLoop( true );
 
   Animation idleAnim;
-  idleAnim.addFrame( { { 0, 0, 40, 48 }, 8.5f, { 0, 0 } } );
-  idleAnim.addFrame( { { 45, 0, 40, 48 }, 8.5f, { 0, 0 } } );
-  idleAnim.addFrame( { { 91, 0, 40, 48 }, 8.5f, { 0, 0 } } );
+  idleAnim.addFrame( { { 6, 1, 28, 42 }, 8.5f, { 0, 0 } } );
+  idleAnim.addFrame( { { 39, 1, 28, 42 }, 8.5f, { 0, 0 } } );
+  idleAnim.addFrame( { { 76, 2, 29, 41 }, 8.5f, { 0, 0 } } );
   idleAnim.setLoop( true );
 
   Animation punchAnim;
-  punchAnim.addFrame( { { 0, 102, 29, 45 }, 0.1f, { 0, 0 } } );
-  punchAnim.addFrame( { { 46, 102, 29, 45 }, 0.1f, { 0, 0 } } );
-  punchAnim.addFrame( { { 0, 102, 29, 45 }, 0.1f, { 0, 0 } } );
+  punchAnim.addFrame( { { 11, 108, 33, 42 }, 4.8f, { 0, 0 } } );
+  punchAnim.addFrame( { { 53, 108, 37, 42 }, 4.8f, { 0, 0 } } );
   punchAnim.setLoop( false );
 
   Animation strongPunchAnim;
-  strongPunchAnim.addFrame( { { 0, 153, 29, 45 }, 0.1f, { 0, 0 } } );
-  strongPunchAnim.addFrame( { { 46, 153, 29, 45 }, 0.1f, { 0, 0 } } );
+  strongPunchAnim.addFrame( { { 95, 107, 39, 42 }, 2.8f, { 0, 0 } } );
+  strongPunchAnim.addFrame( { { 141, 107, 40, 42 }, 2.8f, { 0, 0 } } );
   strongPunchAnim.setLoop( false );
 
   Animation jumpAnim;
-  jumpAnim.addFrame( { { 0, 50, 29, 45 }, 0.1f, { 0, 0 } } );
-  jumpAnim.addFrame( { { 46, 51, 29, 45 }, 0.1f, { 0, 0 } } );
-  jumpAnim.setLoop( false );
+  jumpAnim.addFrame( { { 120, 50, 31, 49 }, 5.5f, { 0, 0 } } );
+  jumpAnim.addFrame( { { 158, 50, 31, 49 }, 5.5f, { 0, 0 } } );
+  jumpAnim.setLoop( true );
 
   mSprite.addAnimation( "run", std::move( runAnim ) );
   mSprite.addAnimation( "idle", std::move( idleAnim ) );
@@ -51,10 +50,7 @@ Player::Player( Vector position, SDL_Renderer *renderer )
   mSprite.play( "idle" );
 }
 
-Player::~Player()
-{
-  // A destruição da textura é tratada pela classe Sprite
-}
+Player::~Player(){}
 
 void Player::handleEvent( SDL_Event &e )
 {
@@ -75,12 +71,22 @@ void Player::handleEvent( SDL_Event &e )
         break;
 
       case SDLK_SPACE:
-        if( isOnGround() )
+        if(isOnGround() )
+        {
+          setOnGround( false );
+          mIsJumping = true;
           velocity.y = JUMP_FORCE;
+        }
         break;
       case SDLK_s:
-         if(isOnGround())
-         setPassingThroughPlatform( true );
+        if( isOnGround() )
+          setPassingThroughPlatform( true );
+        break;
+      case SDLK_j:
+        mIspunching = true;
+        break;
+      case SDLK_k:
+        mIspunchingHarder = true;
         break;
     }
   }
@@ -95,6 +101,13 @@ void Player::handleEvent( SDL_Event &e )
       case SDLK_s:
         setPassingThroughPlatform( false );
         break;
+      case SDLK_j:
+        mIspunching = false;
+        break;
+      case SDLK_k:
+        mIspunchingHarder = false;
+        break;
+      
     }
   }
 
@@ -113,11 +126,16 @@ void Player::update( float deltaTime )
   setVelocity( velocity );
   setPosition( position );
 
-  // Controle de animações
-  if( velocity.x != 0.0f )
+  if( isOnGround() ) 
+    mIsJumping = false;
+  if( isOnGround() && velocity.x != 0.0f )
     mSprite.play( "run" );
-  else if( !isOnGround() )
+  else if( mIsJumping )
     mSprite.play( "jump" );
+  else if( mIspunching )
+    mSprite.play( "punch" );
+  else if( mIspunchingHarder )
+    mSprite.play( "strong_punch" );
   else
     mSprite.play( "idle" );
 

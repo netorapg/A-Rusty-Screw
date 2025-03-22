@@ -1,22 +1,38 @@
 #include "../include/bettlerider/Door.h"
+#include "../include/bettlerider/Animation.h"
 
 namespace BRTC
 {
+
+Door::Door(const Vector position, const Vector size, const std::string& levelToLoad, SDL_Renderer* renderer, const std::string& texturePath, Vector spawnPosition)
+    : StaticObject(position, size),
+      mSprite(renderer, texturePath),
+      mLevelToLoad(levelToLoad),
+      mSpawnPosition(spawnPosition)
+{
+    Animation doorAnim;
+    doorAnim.addFrame({
+        { 160, 79, static_cast<int>(size.x), static_cast<int>(size.y) },
+        1.0f,
+        { 0, 0 }
+    });
+    doorAnim.setLoop(true);
+
+    mSprite.addAnimation("default", std::move(doorAnim));
+    mSprite.play("default");
+}
 
 std::string Door::getLevelToLoad() const {
     return mLevelToLoad;
 }
 
+Vector Door::getSpawnPosition() const {
+    return mSpawnPosition;
+}
+
 void Door::render(SDL_Renderer* renderer, Vector cameraPosition) {
     const Vector screenPosition = mPosition - cameraPosition;
-    SDL_Rect doorRect = {
-        static_cast<int>(screenPosition.x),
-        static_cast<int>(screenPosition.y),
-        static_cast<int>(mSize.x),
-        static_cast<int>(mSize.y)
-    };
+    mSprite.draw(renderer, screenPosition.x, screenPosition.y);
 
-    SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
-    SDL_RenderFillRect(renderer, &doorRect);
 }
 }

@@ -53,6 +53,7 @@ namespace BRTC
                     position.y = platformPos.y - size.y;
                     velocity.y = 0;
                     dynamicObject.setOnGround(true);
+                    std::cout << "isOnGround: " << dynamicObject.isOnGround() << std::endl;
                 } else if (velocity.y < 0) {
                     position.y = platformPos.y + platformSize.y;
                     velocity.y = 0;
@@ -71,6 +72,7 @@ namespace BRTC
                         position.y = platformPos.y - size.y;
                         velocity.y = 0;
                         dynamicObject.setOnGround(true);
+                        std::cout << "isOnGround: " << dynamicObject.isOnGround() << std::endl;
                     } else if (velocity.y < 0) {
                         position.y = platformPos.y - platformSize.y;
                         velocity.y = 0;
@@ -85,12 +87,27 @@ namespace BRTC
         dynamicObject.setVelocity(velocity);
     }
 
-    void PhysicsEngine::HandlePlayerCollisions(
+    bool PhysicsEngine::HandlePlayerCollisions(
         Player& player,
         std::list<Crate>& crates,
         const std::list<Door>& doors,
-        std::string& levelToLoad
+        std::string& levelToLoad,
+        Vector& spawnPosition
     ) {
+
+
+        for (auto& door : doors) {
+            if (CheckCollision(player, door)) {
+                levelToLoad = door.getLevelToLoad();
+                if (door.hasValidSpawn()) {
+                    spawnPosition = door.getSpawnPosition();
+                } else {
+                    spawnPosition = Vector(-1, -1);
+                }
+                return true;
+            }
+        }
+
         bool wasOnGround = player.isOnGround();
         bool standingOnCrate = false;
 
@@ -137,13 +154,7 @@ namespace BRTC
         }
 
         player.setOnGround(wasOnGround || standingOnCrate);
-
-        // Colisão com portas
-        for (const auto& door : doors) {
-            if (CheckCollision(player, door)) {
-                levelToLoad = door.getLevelToLoad();
-                break;
-            }
-        }
+        return false;
+       
     }
 } // namespace BRTC

@@ -11,12 +11,7 @@
 
 namespace BRTC
 {
-
-inline const int SCREEN_WIDTH = 800;
-inline const int SCREEN_HEIGHT = 600;
-extern SDL_Renderer* renderer = nullptr;
-
-
+inline SDL_Renderer* renderer = nullptr;
 }
 
 #endif // __BETTLE_RIDER_GLOBALS_HEADER_H__
