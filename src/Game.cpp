@@ -130,7 +130,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
         return;
     }
 
-    const int tileSize = 41;
+    const int tileSize = 30;
     const int rows = json_object_array_length(data);
     for (int i = 0; i < rows; ++i)
     {
@@ -157,13 +157,13 @@ void Game::loadLevelFromJSON(const std::string &filePath)
             case 0: // Espaço vazio
                 break;
             case 1: // Plataforma
-                mPlatforms.emplace_back(Vector(x, y), Vector(72, 20), mRenderer, mPlatformsTexturePath);
+                mPlatforms.emplace_back(Vector(x, y), Vector(30, 20), mRenderer, mPlatformsTexturePath);
                 break;
             case 2: // Plataforma sólida
-                mSolidPlatforms.emplace_back(Vector(x, y), Vector(52, 40), mRenderer, mPlatformsTexturePath);
+                mSolidPlatforms.emplace_back(Vector(x, y), Vector(30, 40), mRenderer, mPlatformsTexturePath);
                 break;
             case 3: // Parede
-                mWalls.emplace_back(Vector(x, y), Vector(20, 42), mRenderer, mPlatformsTexturePath);
+                mWalls.emplace_back(Vector(x, y), Vector(20, 40), mRenderer, mPlatformsTexturePath);
                 break;
             case 4: // Caixote
                 mCrates.emplace_back(Vector(x, y), mRenderer);
@@ -193,7 +193,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
             }
 
             std::string target = json_object_get_string(json_object_object_get(door, "target"));
-            mDoors.emplace_back(Vector(x, y), Vector(20, 45), target, mRenderer, mPlatformsTexturePath, Vector(spawnX, spawnY));
+            mDoors.emplace_back(Vector(x, y), Vector(20, 62), target, mRenderer, mPlatformsTexturePath, Vector(spawnX, spawnY));
         }
     }
 

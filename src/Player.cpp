@@ -6,7 +6,7 @@ namespace BRTC
 {
 
 Player::Player( Vector position, SDL_Renderer *renderer )
-    : DynamicObject( position, Vector( 29, 30) ), mFacingRight( true ),
+    : DynamicObject( position, Vector( 29, 29) ), mFacingRight( true ),
       mSprite( renderer, "../assets/bezourinha_sprites.png" )
 {
   // Configuração das animações
