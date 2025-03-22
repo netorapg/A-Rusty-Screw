@@ -9,7 +9,7 @@ Wall::Wall(const Vector position, const Vector size, SDL_Renderer* renderer, con
 {
     Animation wallAnim;
     wallAnim.addFrame({
-        { 84, 49, static_cast<int>(size.x), static_cast<int>(size.y) },
+        { 82, 49, static_cast<int>(size.x), static_cast<int>(size.y) },
         1.0f,
         { 0, 0 }
     });
