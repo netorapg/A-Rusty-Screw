@@ -36,8 +36,8 @@
         "x": 18,
         "y": 12,
         "target": "../map/level2.json",
-        "spawn_x": 1.5,
-        "spawn_y": 4.5
+        "spawn_x": 1.0,
+        "spawn_y": 4.0
       }
     ]
   }
