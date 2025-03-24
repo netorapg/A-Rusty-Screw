@@ -21,9 +21,6 @@ inline constexpr float MOVE_SPEED = 5.0f;
 inline const int SCREEN_WIDTH = 1024;
 inline const int SCREEN_HEIGHT = 680;
 
-inline const float LEVEL_WIDTH = 1280.0f;
-inline const float LEVEL_HEIGHT = 720.0f;
-
 
 }
 

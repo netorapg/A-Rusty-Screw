@@ -71,6 +71,9 @@ private:
 
     Vector mCAmeraPosition;
     Vector mCameraSize;
+
+    float mapWidth;
+    float mapHeight;
 };
 }
 

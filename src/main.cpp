@@ -29,7 +29,7 @@ int main( int argc, char *args[] )
     return -1;
   }
 
-  // Criar o renderizador
+
   SDL_Renderer *renderer = SDL_CreateRenderer(
     window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
   if( renderer == nullptr )
@@ -41,10 +41,10 @@ int main( int argc, char *args[] )
     return -1;
   }
 
-  // Criar o jogo
+
   BRTC::Game game( window, renderer );
 
-  // Loop principal do jogo
+
   while( game.isRunning() )
   {
     game.handleEvents();
@@ -52,7 +52,7 @@ int main( int argc, char *args[] )
     game.render();
   }
 
-  // Limpar recursos
+
   SDL_DestroyRenderer( renderer );
   SDL_DestroyWindow( window );
   SDL_Quit();
