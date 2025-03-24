@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include "Object.h" // Substitua Scenario.h
+#include "Globals.h" // Substitua Scenario.h
 #include <list>
 #include "SolidPlatform.h"
 #include "Platform.h"
@@ -23,9 +24,6 @@ public:
 
     void handleEvent(SDL_Event& e) override {}
     
-private:
-    const float mGravity = 0.3f;
-    const float mFriction = 0.85f;
 };
 
 } // namespace BRTC

@@ -29,11 +29,11 @@ namespace BRTC
         Vector position = getPosition();
 
         // Aplicar gravidade
-        velocity.y += mGravity * deltaTime;
+        velocity.y += BRTC::GRAVITY * deltaTime;
 
         // Aplicar fricção
-        velocity.x *= mFriction;
-        velocity.y *= mFriction;
+        velocity.x *= BRTC::FRICTION;
+        velocity.y *= BRTC::FRICTION;
 
         // Atualizar posição
         position += velocity * deltaTime;

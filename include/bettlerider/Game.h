@@ -8,7 +8,7 @@
 #include <list>
 #include <string>
 #include <iostream>
-#include "config.h"
+//#include "config.h"
 #include <unordered_map>
 #include <json-c/json.h>
 #include <SDL2/SDL_image.h>

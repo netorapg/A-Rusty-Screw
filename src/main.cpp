@@ -1,5 +1,5 @@
 #include "../include/bettlerider/Game.h"
-#include "../include/bettlerider/config.h"
+#include "../include/bettlerider/Globals.h"
 
 #include <SDL2/SDL.h>
 #include <iostream>
@@ -18,8 +18,8 @@ int main( int argc, char *args[] )
   SDL_Window *window = SDL_CreateWindow( "Platform 2D",
                                          SDL_WINDOWPOS_UNDEFINED,
                                          SDL_WINDOWPOS_UNDEFINED,
-                                         SCREEN_WIDTH,
-                                         SCREEN_HEIGHT,
+                                         BRTC::SCREEN_WIDTH,
+                                         BRTC::SCREEN_HEIGHT,
                                          SDL_WINDOW_SHOWN );
   if( window == nullptr )
   {
