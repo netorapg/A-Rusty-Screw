@@ -4,6 +4,7 @@
 #include "Object.h"
 #include "Sprite.h"
 #include <SDL2/SDL.h>
+#include "Globals.h"
 
 namespace BRTC {
 
@@ -28,9 +29,8 @@ private:
     bool mIspunching;
     bool mIspunchingHarder;
     
-    static constexpr float GRAVITY = 0.5f;
-    static constexpr float JUMP_FORCE = -10.0f;
-    static constexpr float MOVE_SPEED = 5.0f;
+    
+    
 };
 
 } // namespace BRTC

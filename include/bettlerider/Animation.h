@@ -8,9 +8,9 @@
 namespace BRTC
 {
 struct AnimationFrame {
-    SDL_Rect rect;      // Região do frame na textura
-    float duration;     // Duração deste frame em segundos
-    SDL_Point offset;   // Offset de desenho em relação à posição do objeto
+    SDL_Rect rect;     
+    float duration;    
+    SDL_Point offset; 
 };
 
 class Animation {

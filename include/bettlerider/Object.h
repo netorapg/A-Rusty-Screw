@@ -9,8 +9,6 @@
 namespace BRTC {
 
     using Vector = Mylib::Math::Vector<float, 2>;
-    using Point = Vector;
-   
 
     class Object
     {

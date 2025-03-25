@@ -10,6 +10,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     mPlatformsTexturePath = "../assets/scenario.png";
 
     SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+    SDL_RenderSetIntegerScale(mRenderer, SDL_TRUE);
     SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
 
     if (SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP) != 0)
@@ -131,11 +132,20 @@ void Game::loadLevelFromJSON(const std::string &filePath)
     }
 
     const int tileSize = 30;
-    const int rows = json_object_array_length(data);
+    int rows = json_object_array_length(data);
+    int cols = 0;
+
+    if (rows > 0) {
+        json_object *firstRow = json_object_array_get_idx(data, 0);
+        cols = json_object_array_length(firstRow);
+    }
+
+    mapWidth = cols * tileSize;
+    mapHeight = rows * tileSize;
     for (int i = 0; i < rows; ++i)
     {
         json_object *row = json_object_array_get_idx(data, i);
-        const int cols = json_object_array_length(row);
+        cols = json_object_array_length(row);
 
         for (int j = 0; j < cols; ++j)
         {
@@ -212,6 +222,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
             mPlayer.setPosition(Vector(0, 0));
         }
     }
+    
 
     json_object_put(root);
 }
@@ -278,8 +289,8 @@ void Game::update()
     // Atualize a posição da câmera
     mCamera.setPosition(Vector(playerCenterX - effectiveScreenWidth / 2, playerCenterY - effectiveScreenHeight / 2));
     Vector cameraPosition = mCamera.getPosition();
-    cameraPosition.x = std::max(0.0f, std::min(cameraPosition.x, static_cast<float>(LEVEL_WIDTH) - effectiveScreenWidth));
-    cameraPosition.y = std::max(0.0f, std::min(cameraPosition.y, static_cast<float>(LEVEL_HEIGHT) - effectiveScreenHeight));
+    cameraPosition.x = std::max(0.0f, std::min(cameraPosition.x, static_cast<float>(mapWidth) - effectiveScreenWidth));
+    cameraPosition.y = std::max(0.0f, std::min(cameraPosition.y, static_cast<float>(mapHeight) - effectiveScreenHeight));
     mCamera.setPosition(cameraPosition);
 
     if (playerCenterX < cameraPosition.x + cameraMarginX)

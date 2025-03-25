@@ -27,13 +27,10 @@ namespace BRTC
     void Crate::update(float deltaTime) {
         Vector velocity = getVelocity();
         Vector position = getPosition();
+        
+        velocity.y += BRTC::GRAVITY * deltaTime;
 
-        // Aplicar gravidade
-        velocity.y += mGravity * deltaTime;
-
-        // Aplicar fricção
-        velocity.x *= mFriction;
-        velocity.y *= mFriction;
+        velocity.x *= BRTC::FRICTION;
 
         // Atualizar posição
         position += velocity * deltaTime;

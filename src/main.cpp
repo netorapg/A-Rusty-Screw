@@ -1,5 +1,5 @@
 #include "../include/bettlerider/Game.h"
-#include "../include/bettlerider/config.h"
+#include "../include/bettlerider/Globals.h"
 
 #include <SDL2/SDL.h>
 #include <iostream>
@@ -18,8 +18,8 @@ int main( int argc, char *args[] )
   SDL_Window *window = SDL_CreateWindow( "Platform 2D",
                                          SDL_WINDOWPOS_UNDEFINED,
                                          SDL_WINDOWPOS_UNDEFINED,
-                                         SCREEN_WIDTH,
-                                         SCREEN_HEIGHT,
+                                         BRTC::SCREEN_WIDTH,
+                                         BRTC::SCREEN_HEIGHT,
                                          SDL_WINDOW_SHOWN );
   if( window == nullptr )
   {
@@ -29,7 +29,7 @@ int main( int argc, char *args[] )
     return -1;
   }
 
-  // Criar o renderizador
+
   SDL_Renderer *renderer = SDL_CreateRenderer(
     window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
   if( renderer == nullptr )
@@ -41,18 +41,27 @@ int main( int argc, char *args[] )
     return -1;
   }
 
-  // Criar o jogo
+  const int TARGET_FPS = 60;
+  const int FRAME_DELAY = 1000 / TARGET_FPS;
+
   BRTC::Game game( window, renderer );
 
-  // Loop principal do jogo
+
   while( game.isRunning() )
   {
+    Uint32 frameStart = SDL_GetTicks();
     game.handleEvents();
     game.update();
     game.render();
+
+    Uint32 frameTime = SDL_GetTicks() - frameStart;
+    if( frameTime < FRAME_DELAY )
+    {
+      SDL_Delay( FRAME_DELAY - frameTime );
+    }
   }
 
-  // Limpar recursos
+
   SDL_DestroyRenderer( renderer );
   SDL_DestroyWindow( window );
   SDL_Quit();
