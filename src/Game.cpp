@@ -10,6 +10,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     mPlatformsTexturePath = "../assets/scenario.png";
 
     SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+    SDL_RenderSetIntegerScale(mRenderer, SDL_TRUE);
     SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
 
     if (SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP) != 0)
