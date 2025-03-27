@@ -18,8 +18,8 @@ inline constexpr float FRICTION = 0.85f;
 inline constexpr float JUMP_FORCE = -10.0f;
 inline constexpr float MOVE_SPEED = 5.0f;
 
-inline const int SCREEN_WIDTH = 1024;
-inline const int SCREEN_HEIGHT = 680;
+inline const int SCREEN_WIDTH = 1366;
+inline const int SCREEN_HEIGHT = 768;
 
 
 }

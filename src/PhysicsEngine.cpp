@@ -53,7 +53,7 @@ namespace BRTC
                     position.y = platformPos.y - size.y;
                     velocity.y = 0;
                     dynamicObject.setOnGround(true);
-                    std::cout << "isOnGround: " << dynamicObject.isOnGround() << std::endl;
+                  //  std::cout << "isOnGround: " << dynamicObject.isOnGround() << std::endl;
                 } else if (velocity.y < 0) {
                     position.y = platformPos.y + platformSize.y;
                     velocity.y = 0;
@@ -72,7 +72,7 @@ namespace BRTC
                         position.y = platformPos.y - size.y;
                         velocity.y = 0;
                         dynamicObject.setOnGround(true);
-                        std::cout << "isOnGround: " << dynamicObject.isOnGround() << std::endl;
+                    //    std::cout << "isOnGround: " << dynamicObject.isOnGround() << std::endl;
                     } else if (velocity.y < 0) {
                         position.y = platformPos.y - platformSize.y;
                         velocity.y = 0;

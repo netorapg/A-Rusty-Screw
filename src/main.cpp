@@ -14,13 +14,17 @@ int main( int argc, char *args[] )
     return -1;
   }
 
+
+  SDL_DisplayMode displayMode;
+  SDL_GetCurrentDisplayMode( 0, &displayMode );
+
   // Criar a janela
-  SDL_Window *window = SDL_CreateWindow( "Platform 2D",
-                                         SDL_WINDOWPOS_UNDEFINED,
-                                         SDL_WINDOWPOS_UNDEFINED,
-                                         BRTC::SCREEN_WIDTH,
-                                         BRTC::SCREEN_HEIGHT,
-                                         SDL_WINDOW_SHOWN );
+ SDL_Window *window = SDL_CreateWindow( "Bettle Rider",
+                                         SDL_WINDOWPOS_CENTERED,
+                                         SDL_WINDOWPOS_CENTERED,
+                                         displayMode.w,
+                                          displayMode.h,
+                                        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE );
   if( window == nullptr )
   {
     std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError()
