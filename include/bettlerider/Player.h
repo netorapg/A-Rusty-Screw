@@ -13,7 +13,7 @@ public:
     Player(Vector position, SDL_Renderer* renderer);
     ~Player();
 
-    void update(float deltaTime) override;
+    void update() override;
     void render(SDL_Renderer* renderer, Vector cameraPosition) override;
     void handleEvent(SDL_Event& e) override;
     void setPassingThroughPlatform(bool enable);
@@ -26,8 +26,8 @@ private:
     Sprite mSprite;
     bool mFacingRight;
     bool mIsJumping;
-    bool mIspunching;
-    bool mIspunchingHarder;
+    bool mIspunching = false;
+    bool mIspunchingHarder = false;
     
     
     

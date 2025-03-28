@@ -24,7 +24,7 @@ namespace BRTC
         setVelocity(getVelocity() + force);
     }
 
-    void Crate::update(float deltaTime) {
+    void Crate::update() {
         Vector velocity = getVelocity();
         Vector position = getPosition();
         

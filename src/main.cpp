@@ -14,13 +14,17 @@ int main( int argc, char *args[] )
     return -1;
   }
 
+
+  SDL_DisplayMode displayMode;
+  SDL_GetCurrentDisplayMode( 0, &displayMode );
+
   // Criar a janela
-  SDL_Window *window = SDL_CreateWindow( "Platform 2D",
-                                         SDL_WINDOWPOS_UNDEFINED,
-                                         SDL_WINDOWPOS_UNDEFINED,
+ SDL_Window *window = SDL_CreateWindow( "Bettle Rider",
+                                         SDL_WINDOWPOS_CENTERED,
+                                         SDL_WINDOWPOS_CENTERED,
                                          BRTC::SCREEN_WIDTH,
-                                         BRTC::SCREEN_HEIGHT,
-                                         SDL_WINDOW_SHOWN );
+                                          BRTC::SCREEN_HEIGHT,
+                                        SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI );
   if( window == nullptr )
   {
     std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError()
@@ -31,7 +35,8 @@ int main( int argc, char *args[] )
 
 
   SDL_Renderer *renderer = SDL_CreateRenderer(
-    window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
+    window, -1, SDL_RENDERER_ACCELERATED);
+  SDL_RenderSetLogicalSize(renderer, BRTC::SCREEN_WIDTH, BRTC::SCREEN_HEIGHT);
   if( renderer == nullptr )
   {
     std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError()
@@ -41,24 +46,30 @@ int main( int argc, char *args[] )
     return -1;
   }
 
-  const int TARGET_FPS = 60;
-  const int FRAME_DELAY = 1000 / TARGET_FPS;
+Uint64 lastTime = SDL_GetPerformanceCounter();
+float accumulatedTime = 0.0f;
 
   BRTC::Game game( window, renderer );
 
 
   while( game.isRunning() )
   {
-    Uint32 frameStart = SDL_GetTicks();
-    game.handleEvents();
-    game.update();
-    game.render();
+    Uint64 currentTime = SDL_GetPerformanceCounter();
+    BRTC::deltaTime = (float)(currentTime - lastTime) / (float)SDL_GetPerformanceFrequency();
+    lastTime = currentTime;
+    std::cout << "[Frame Start] DeltaTime: " << BRTC::deltaTime << "s" << std::endl;
 
-    Uint32 frameTime = SDL_GetTicks() - frameStart;
-    if( frameTime < FRAME_DELAY )
-    {
-      SDL_Delay( FRAME_DELAY - frameTime );
-    }
+   game.handleEvents();
+
+   
+     game.update();
+ 
+   game.render();
+
+
+    
+std::cout << "DeltaTime: " << BRTC::deltaTime << "s | FPS: " << 1.0f / BRTC::deltaTime << std::endl;
+    
   }
 
 
