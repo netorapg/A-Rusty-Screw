@@ -78,7 +78,6 @@ Game::~Game()
 
 void Game::loadLevelFromJSON(const std::string &filePath)
 {
-    // Limpar listas ou variáveis antes de carregar o novo conteúdo
     mPlatforms.clear();
     mSolidPlatforms.clear();
     mWalls.clear();
@@ -255,7 +254,7 @@ void Game::handleEvents()
 
 void Game::update()
 {
-    mPlayer.update(0.8f);
+    mPlayer.update();
     std::string levelToLoad = "";
     Vector spawnPosition;
     PhysicsEngine::HandleCollisions(
@@ -273,11 +272,11 @@ void Game::update()
 
     Vector playerPosition = mPlayer.getPosition();
 
-    std::cout << "Player Position: (" << playerPosition.x << ", "
+    /*std::cout << "Player Position: (" << playerPosition.x << ", "
               << playerPosition.y << ")\n";
     std::cout << "Camera Position: (" << mCamera.getPosition().x << ", " << mCamera.getPosition().y << ")\n";
     std::cout << "mOnGround: " << mPlayer.isOnGround()
-              << ", mFalling: " << mPlayer.isFalling() << std::endl;
+              << ", mFalling: " << mPlayer.isFalling() << std::endl;*/
 
     float cameraMarginX = effectiveScreenWidth * 0.50f;
     float cameraMarginY = effectiveScreenHeight * 0.50f;
@@ -307,7 +306,7 @@ void Game::update()
 
     for (auto &crate : mCrates)
     {
-        crate.update(1.0f); // Passe um valor de tempo delta apropriado
+        crate.update(); // Passe um valor de tempo delta apropriado
         PhysicsEngine::HandleCollisions(
             crate, mWalls, mPlatforms, mSolidPlatforms);
     }
@@ -328,8 +327,8 @@ void Game::render()
         {
             platform.render(mRenderer, mCamera.getPosition());
             Vector platformPosition = platform.getPosition();
-            std::cout << "Rendering Platform at (" << platformPosition.x << ", "
-                      << platformPosition.y << ")\n";
+            /*std::cout << "Rendering Platform at (" << platformPosition.x << ", "
+                      << platformPosition.y << ")\n";*/
         }
     }
 
@@ -339,8 +338,8 @@ void Game::render()
         {
             solidPlatform.render(mRenderer, mCamera.getPosition());
             Vector solidPlatformPosition = solidPlatform.getPosition();
-            std::cout << "Rendering SolidPlatform at (" << solidPlatformPosition.x
-                      << ", " << solidPlatformPosition.y << ")\n";
+           /* std::cout << "Rendering SolidPlatform at (" << solidPlatformPosition.x
+                      << ", " << solidPlatformPosition.y << ")\n";*/
         }
     }
 
@@ -350,8 +349,8 @@ void Game::render()
         {
             wall.render(mRenderer, mCamera.getPosition());
             Vector wallPosition = wall.getPosition();
-            std::cout << "Rendering Wall at (" << wallPosition.x << ", " << wallPosition.y
-                      << ")\n";
+            /*std::cout << "Rendering Wall at (" << wallPosition.x << ", " << wallPosition.y
+                      << ")\n";*/
         }
     }
 
@@ -361,8 +360,8 @@ void Game::render()
         {
             crate.render(mRenderer, mCamera.getPosition());
             Vector cratePosition = crate.getPosition();
-            std::cout << "Rendering Crate at (" << cratePosition.x << ", "
-                      << cratePosition.y << ")\n";
+            /*std::cout << "Rendering Crate at (" << cratePosition.x << ", "
+                      << cratePosition.y << ")\n";*/
         }
     }
 
@@ -372,8 +371,8 @@ void Game::render()
         {
             door.render(mRenderer, mCamera.getPosition());
             Vector doorPosition = door.getPosition();
-            std::cout << "Rendering Door at (" << doorPosition.x << ", " << doorPosition.y
-                      << ")\n";
+          /*  std::cout << "Rendering Door at (" << doorPosition.x << ", " << doorPosition.y
+                      << ")\n";*/
         }
     }
 

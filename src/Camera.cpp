@@ -23,7 +23,7 @@ SDL_Rect Camera::getSDLRect() const {
     };
 }
 
-void Camera::setPosition(const Vector& position) { // Alterado para const Vector&
+void Camera::setPosition(const Vector& position) {
     mPosition = position;
     mPosition.x = std::max(0.0f, mPosition.x);
     mPosition.y = std::max(0.0f, mPosition.y);
