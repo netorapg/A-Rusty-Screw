@@ -6,20 +6,20 @@ namespace BRTC
 
 Door::Door(const Vector position, const Vector size, const std::string& levelToLoad, SDL_Renderer* renderer, const std::string& texturePath, Vector spawnPosition)
     : StaticObject(position, size),
-      mSprite(renderer, texturePath),
       mLevelToLoad(levelToLoad),
       mSpawnPosition(spawnPosition)
 {
-    Animation doorAnim;
-    doorAnim.addFrame({
-        { 160, 79, static_cast<int>(size.x), static_cast<int>(size.y) },
-        1.0f,
-        { 0, 0 }
-    });
-    doorAnim.setLoop(true);
+    SDL_Texture* texture = IMG_LoadTexture(renderer, texturePath.c_str());
+    if (!texture) {
+        SDL_Log("Falha ao carregar textura: %s", SDL_GetError());
+        return;
+    }
 
-    mSprite.addAnimation("default", std::move(doorAnim));
-    mSprite.play("default");
+    // Criamos um sprite manualmente e o passamos para a animação
+    SpritePtr doorSprite = std::make_shared<Sprite>(texture, SDL_Rect{160, 79, static_cast<int>(size.x), static_cast<int>(size.y)});
+
+    mAnimation.addFrame({doorSprite, 0.1f, {0, 0}});
+    mAnimation.setLoop(false);
 }
 
 std::string Door::getLevelToLoad() const {
@@ -32,7 +32,11 @@ Vector Door::getSpawnPosition() const {
 
 void Door::render(SDL_Renderer* renderer, Vector cameraPosition) {
     const Vector screenPosition = mPosition - cameraPosition;
-    mSprite.draw(renderer, screenPosition.x, screenPosition.y);
+    SpritePtr currentSprite = mAnimation.getCurrentSprite();
 
+    if (currentSprite) {
+        currentSprite->draw(renderer, screenPosition.x, screenPosition.y);
+    }
 }
+
 }

@@ -54,6 +54,7 @@ float accumulatedTime = 0.0f;
 
   while( game.isRunning() )
   {
+    SDL_Log("Rodando loop do jogo...");
     Uint64 currentTime = SDL_GetPerformanceCounter();
     BRTC::deltaTime = (float)(currentTime - lastTime) / (float)SDL_GetPerformanceFrequency();
     lastTime = currentTime;

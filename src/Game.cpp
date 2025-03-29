@@ -38,14 +38,14 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
         std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 
-    mMusic = Mix_LoadMUS("../../platfom2d/assets/8-bit-game-158815.mp");
+    mMusic = Mix_LoadMUS("../../platfom2d/assets/8-bit-game-158815.mp3");
     if (mMusic == nullptr)
     {
         std::cerr << "Failed to load music! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 
     mJumpSound = Mix_LoadWAV(
-        "../../platfom2d/assets/mixkit-player-jumping-in-a-video-game-2043.wa");
+        "../../platfom2d/assets/mixkit-player-jumping-in-a-video-game-2043.wav");
     if (mJumpSound == nullptr)
     {
         std::cerr << "Failed to load jump sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
@@ -254,6 +254,7 @@ void Game::handleEvents()
 
 void Game::update()
 {
+    SDL_Log("Game::update() - DeltaTime: %f", deltaTime);
     mPlayer.update();
     std::string levelToLoad = "";
     Vector spawnPosition;
@@ -314,6 +315,7 @@ void Game::update()
 
 void Game::render()
 {
+    SDL_Log("Game::render() chamado");
     SDL_SetRenderDrawColor(mRenderer, 0x00, 0x00, 0x00, 0x00);
     SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
     SDL_RenderClear(mRenderer);

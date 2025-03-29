@@ -2,33 +2,26 @@
 #define BETTLERIDER_SPRITE_H
 #include <SDL2/SDL.h>
 #include <memory>
-#include "Animation.h"
 
 namespace BRTC {
     class Sprite {
         public:
             Sprite(SDL_Renderer* renderer, const std::string& texturePath);
+            // Construtor para criar um sprite a partir de uma textura existente e de um retângulo (frame).
+            Sprite(SDL_Texture* texture, const SDL_Rect& srcRect);
 
-           // ~Sprite();
+            ~Sprite();
 
-            void addAnimation(const std::string& name, Animation&& animation);
-            void play(const std::string& animation, bool forceReset = false);
-            void update(float deltaTime);
             void draw(SDL_Renderer* renderer, int x, int y, bool flip = false) const;
-
-            SDL_Texture* getTexture() const;
             SDL_Point getSize() const;
-        
+            SDL_Texture* getTexture() const;
+            const SDL_Rect& getSrcRect() const;
         private:
-            struct AnimationData {
-                Animation animation;
-                std::string currentAnimation;
-            };
-
             SDL_Texture* texture = nullptr;
-            SDL_Point size;
-            std::unordered_map<std::string, Animation> animations;
-            std::string currentAnimation;
+            SDL_Rect srcRect;
+            bool ownsTexture = false;
     };
+
+    using SpritePtr = std::shared_ptr<Sprite>;
 }
 #endif

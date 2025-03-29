@@ -2,16 +2,25 @@
 #define PLAYER_H
 
 #include "Object.h"
+#include "Animation.h"
 #include "Sprite.h"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <unordered_map>
+
 #include "Globals.h"
 
 namespace BRTC {
 
 class Player : public DynamicObject {
+    SDL_Texture* spriteSheetTexture;
 public:
     Player(Vector position, SDL_Renderer* renderer);
-    ~Player();
+    ~Player() {
+        if (spriteSheetTexture) {
+            SDL_DestroyTexture(spriteSheetTexture);
+        }
+    }
 
     void update() override;
     void render(SDL_Renderer* renderer, Vector cameraPosition) override;
@@ -23,11 +32,12 @@ public:
     int getHeight() const { return static_cast<int>(mSize.y); }
 
 private:
-    Sprite mSprite;
     bool mFacingRight;
     bool mIsJumping;
     bool mIspunching = false;
     bool mIspunchingHarder = false;
+    std::unordered_map<std::string, Animation> animations;
+    std::string currentAnimation;
     
     
     

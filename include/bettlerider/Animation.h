@@ -1,14 +1,19 @@
 #ifndef BETTLERIDER_ANIMATION_H
 #define BETTLERIDER_ANIMATION_H
 #include <SDL2/SDL.h>
-#include <string>
 #include <vector>
-#include <unordered_map>
+#include <memory>
+#include "Sprite.h"
+#include "Globals.h"
+#include <iostream>
+
+
+
 
 namespace BRTC
 {
 struct AnimationFrame {
-    SDL_Rect rect;     
+    SpritePtr sprite;     
     float duration;    
     SDL_Point offset; 
 };
@@ -24,7 +29,7 @@ public:
     void update(float deltaTime);
     void reset();
     
-    const SDL_Rect* getCurrentFrameRect() const;
+    SpritePtr getCurrentSprite() const;
     const SDL_Point* getCurrentOffset() const;
     bool isFinished() const;
 
