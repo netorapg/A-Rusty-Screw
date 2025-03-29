@@ -13,7 +13,7 @@ Platform::Platform(const Vector position, const Vector size, SDL_Renderer* rende
     }
     SpritePtr platformSprite = std::make_shared<Sprite>(texture, SDL_Rect{127, 36, static_cast<int>(size.x), static_cast<int>(size.y)});
 
-    mAnimation.addFrame({platformSprite, 0.1f, {0, 0}});
+    mAnimation.addFrame({platformSprite, 0.0f, {0, 0}});
     mAnimation.setLoop(false);
 }
 

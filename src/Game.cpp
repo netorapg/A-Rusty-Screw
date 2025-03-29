@@ -67,14 +67,20 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
 
     loadLevelFromJSON("../map/level1.json");
 }
-
+static std::unordered_map<std::string, json_object*> levelCache;
 Game::~Game()
 {
+    for (auto& entry: levelCache) {
+        json_object_put(entry.second);
+    }
+    levelCache.clear();
     Mix_FreeChunk(mJumpSound);
     TTF_CloseFont(mFont);
     TTF_CloseFont(mSmallFont);
     TTF_Quit();
 }
+
+
 
 void Game::loadLevelFromJSON(const std::string &filePath)
 {
@@ -83,8 +89,20 @@ void Game::loadLevelFromJSON(const std::string &filePath)
     mWalls.clear();
     mCrates.clear();
     mDoors.clear();
+   
+    if(levelCache.find(filePath) == levelCache.end()) {
+       // levelCache[filePath] = json_object_from_file(filePath.c_str());
+       json_object *root = json_object_from_file(filePath.c_str());
+        if (!root) {
+            std::cerr << "Failed to load JSON file: " << filePath << std::endl;
+            return;
+        }
+        levelCache[filePath] = root;
+    }
+    json_object *root = levelCache[filePath];
+   
 
-    json_object *root = json_object_from_file(filePath.c_str());
+  //  json_object *root = json_object_from_file(filePath.c_str());
 
     if (!root)
     {
@@ -223,7 +241,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
     }
     
 
-    json_object_put(root);
+    //json_object_put(root);
 }
 
 void Game::handleEvents()
@@ -255,6 +273,14 @@ void Game::handleEvents()
 void Game::update()
 {
     SDL_Log("Game::update() - DeltaTime: %f", deltaTime);
+    if(isTransitioning) {
+        if (SDL_GetTicks() - transitionStartTime > 1000) {
+            loadLevelFromJSON(targetLevel);
+            mPlayer.setPosition(targetSpawn);
+            isTransitioning = false;
+        }
+        return;
+    }
     mPlayer.update();
     std::string levelToLoad = "";
     Vector spawnPosition;
@@ -263,12 +289,18 @@ void Game::update()
     if (PhysicsEngine::HandlePlayerCollisions(
         mPlayer, mCrates, mDoors, levelToLoad, spawnPosition))
     { 
-        Vector newSpawn = (spawnPosition.x >= 0 && spawnPosition.y >= 0) ? spawnPosition : Vector(-1, -1);
+        /*Vector newSpawn = (spawnPosition.x >= 0 && spawnPosition.y >= 0) ? spawnPosition : Vector(-1, -1);
 
         loadLevelFromJSON(levelToLoad);
         if (newSpawn.x >= 0 && newSpawn.y >= 0) {
             mPlayer.setPosition(newSpawn);
-        }
+        }*/
+       if(!isTransitioning) {
+            isTransitioning = true;
+            transitionStartTime = SDL_GetTicks();
+            targetLevel = levelToLoad;
+            targetSpawn = spawnPosition;
+       }
     }
 
     Vector playerPosition = mPlayer.getPosition();
@@ -316,6 +348,14 @@ void Game::update()
 void Game::render()
 {
     SDL_Log("Game::render() chamado");
+    if (isTransitioning) {
+        SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 255);
+        SDL_RenderClear(mRenderer);
+        SDL_RenderClear(mRenderer);
+        SDL_RenderPresent(mRenderer);
+        return;
+    }
+
     SDL_SetRenderDrawColor(mRenderer, 0x00, 0x00, 0x00, 0x00);
     SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
     SDL_RenderClear(mRenderer);

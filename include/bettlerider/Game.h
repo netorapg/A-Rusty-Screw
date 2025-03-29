@@ -13,6 +13,7 @@
 #include <json-c/json.h>
 #include <SDL2/SDL_image.h>
 #include <algorithm>
+#include <iostream>
 
 
 #include "Platform.h"
@@ -74,6 +75,11 @@ private:
 
     float mapWidth;
     float mapHeight;
+    bool isTransitioning = false;
+    Uint32 transitionStartTime = 0;
+    const Uint32 TRANSIITON_DELAY = 500;
+    std::string targetLevel;
+    Vector targetSpawn;
 };
 }
 
