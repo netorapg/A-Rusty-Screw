@@ -349,9 +349,22 @@ void Game::render()
 {
     SDL_Log("Game::render() chamado");
     if (isTransitioning) {
-        SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 255);
-        SDL_RenderClear(mRenderer);
-        SDL_RenderClear(mRenderer);
+        Uint32 elapsed = SDL_GetTicks() - transitionStartTime;
+        if (elapsed <= HALF_TRANSITION) {
+            float progress = static_cast<float>(elapsed) / HALF_TRANSITION;
+            alpha = static_cast<int>(255 * progress);
+        } else if (elapsed < TRANSITION_DELAY) {
+            float progress = static_cast<float>(elapsed - HALF_TRANSITION) / HALF_TRANSITION;
+            alpha = 255 - static_cast<int>(255 * progress);
+        } else {
+            alpha = 0;
+        }   
+
+        SDL_SetRenderDrawBlendMode(mRenderer, SDL_BLENDMODE_BLEND);
+        SDL_Rect fadeRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+        SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, alpha);
+        //SDL_RenderClear(mRenderer);
+        SDL_RenderFillRect(mRenderer, &fadeRect);
         SDL_RenderPresent(mRenderer);
         return;
     }

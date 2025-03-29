@@ -77,9 +77,12 @@ private:
     float mapHeight;
     bool isTransitioning = false;
     Uint32 transitionStartTime = 0;
-    const Uint32 TRANSIITON_DELAY = 500;
+    const Uint32 TRANSITION_DELAY = 1000;
+    const Uint32 HALF_TRANSITION = TRANSITION_DELAY / 2;
     std::string targetLevel;
     Vector targetSpawn;
+    int alpha = 0;
+    bool increasing = true;
 };
 }
 
