@@ -1,8 +1,6 @@
 # Tarefas a Fazer
-*  Ao invés de usar int, usar referência para as animações
-* Estude uma maneira de poder passar outros sprites para os objetos wall e solidplatform, pois seria interessante criar pilares que basicamente fossem a wall com a solidplatoform no topo.
-* Fazer melhorias no sistema para que o jogo funcione em qualquer tipo de tela
-* Ao invés de passar as dimensões da tela por padrão, permita que o jogador ajuste as dimensões
+* Ajustar a colisão com a plataforma vazada, ta meio estranha
+* Encontrar uma nova forma de passar o background através de tiles
 * Criar uma HUD
 * Criar um inimigo
 * Criar um sistema de combate

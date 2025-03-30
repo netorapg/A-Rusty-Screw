@@ -6,6 +6,9 @@
 
 int main( int argc, char *args[] )
 {
+
+  const int TARGET_FPS = 144;
+  const int FRAME_DELAY = 1000 / TARGET_FPS;
   // Inicializar SDL
   if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
   {
@@ -35,7 +38,10 @@ int main( int argc, char *args[] )
 
 
   SDL_Renderer *renderer = SDL_CreateRenderer(
-    window, -1, SDL_RENDERER_ACCELERATED);
+    window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE | SDL_RENDERER_PRESENTVSYNC);
+
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+
   SDL_RenderSetLogicalSize(renderer, BRTC::SCREEN_WIDTH, BRTC::SCREEN_HEIGHT);
   if( renderer == nullptr )
   {
@@ -54,6 +60,8 @@ float accumulatedTime = 0.0f;
 
   while( game.isRunning() )
   {
+    SDL_Log("Rodando loop do jogo...");
+    Uint32 frameStart = SDL_GetTicks();
     Uint64 currentTime = SDL_GetPerformanceCounter();
     BRTC::deltaTime = (float)(currentTime - lastTime) / (float)SDL_GetPerformanceFrequency();
     lastTime = currentTime;
@@ -66,6 +74,14 @@ float accumulatedTime = 0.0f;
  
    game.render();
 
+   Uint32 frameTime = SDL_GetTicks() - frameStart;
+   if (frameTime < FRAME_DELAY) {
+    SDL_Delay(FRAME_DELAY - frameTime);
+   }
+
+   #ifdef DEBUG_FPS
+   std::cout << "DeltaTime: " << BRTC::deltaTime << "s | FPS: " << 1.0f / BRTC::deltaTime << std::endl;
+   #endif
 
     
 std::cout << "DeltaTime: " << BRTC::deltaTime << "s | FPS: " << 1.0f / BRTC::deltaTime << std::endl;

@@ -4,12 +4,14 @@
 #include "Object.h"
 #include "Sprite.h"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include "Animation.h"
 
 namespace BRTC {
 
 class SolidPlatform : public StaticObject {
 private:
-    Sprite mSprite; // Sprite da plataforma sólida
+    Animation mAnimation;
 
 public:
     SolidPlatform(const Vector position, const Vector size, SDL_Renderer* renderer, const std::string& texturePath);

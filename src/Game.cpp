@@ -7,7 +7,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
 {
     std::cout << "Game constructor called" << std::endl;
 
-    mPlatformsTexturePath = "../assets/scenario.png";
+    mPlatformsTexturePath = "../assets/fulltile.png";
 
     SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     SDL_RenderSetIntegerScale(mRenderer, SDL_TRUE);
@@ -19,7 +19,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     }
 
     SDL_Surface *loadedBackground =
-        IMG_Load("/home/netorapg/projects/platfom2d/assets/166722.png");
+        IMG_Load("/home/netorapg/projects/platfom2d/assets/166722.p");
     if (loadedBackground == nullptr)
     {
         std::cerr << "Failed to load background image: " << IMG_GetError() << std::endl;
@@ -67,14 +67,20 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
 
     loadLevelFromJSON("../map/level1.json");
 }
-
+static std::unordered_map<std::string, json_object*> levelCache;
 Game::~Game()
 {
+    for (auto& entry: levelCache) {
+        json_object_put(entry.second);
+    }
+    levelCache.clear();
     Mix_FreeChunk(mJumpSound);
     TTF_CloseFont(mFont);
     TTF_CloseFont(mSmallFont);
     TTF_Quit();
 }
+
+
 
 void Game::loadLevelFromJSON(const std::string &filePath)
 {
@@ -83,8 +89,20 @@ void Game::loadLevelFromJSON(const std::string &filePath)
     mWalls.clear();
     mCrates.clear();
     mDoors.clear();
+   
+    if(levelCache.find(filePath) == levelCache.end()) {
+       // levelCache[filePath] = json_object_from_file(filePath.c_str());
+       json_object *root = json_object_from_file(filePath.c_str());
+        if (!root) {
+            std::cerr << "Failed to load JSON file: " << filePath << std::endl;
+            return;
+        }
+        levelCache[filePath] = root;
+    }
+    json_object *root = levelCache[filePath];
+   
 
-    json_object *root = json_object_from_file(filePath.c_str());
+  //  json_object *root = json_object_from_file(filePath.c_str());
 
     if (!root)
     {
@@ -130,7 +148,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
         return;
     }
 
-    const int tileSize = 30;
+    const int tileSize = 32;
     int rows = json_object_array_length(data);
     int cols = 0;
 
@@ -166,13 +184,13 @@ void Game::loadLevelFromJSON(const std::string &filePath)
             case 0: // Espaço vazio
                 break;
             case 1: // Plataforma
-                mPlatforms.emplace_back(Vector(x, y), Vector(30, 20), mRenderer, mPlatformsTexturePath);
+                mPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
                 break;
             case 2: // Plataforma sólida
-                mSolidPlatforms.emplace_back(Vector(x, y), Vector(30, 40), mRenderer, mPlatformsTexturePath);
+                mSolidPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
                 break;
             case 3: // Parede
-                mWalls.emplace_back(Vector(x, y), Vector(30, 40), mRenderer, mPlatformsTexturePath);
+                mWalls.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
                 break;
             case 4: // Caixote
                 mCrates.emplace_back(Vector(x, y), mRenderer);
@@ -223,7 +241,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
     }
     
 
-    json_object_put(root);
+    //json_object_put(root);
 }
 
 void Game::handleEvents()
@@ -254,6 +272,15 @@ void Game::handleEvents()
 
 void Game::update()
 {
+    SDL_Log("Game::update() - DeltaTime: %f", deltaTime);
+    if(isTransitioning) {
+        if (SDL_GetTicks() - transitionStartTime > 1000) {
+            loadLevelFromJSON(targetLevel);
+            mPlayer.setPosition(targetSpawn);
+            isTransitioning = false;
+        }
+        return;
+    }
     mPlayer.update();
     std::string levelToLoad = "";
     Vector spawnPosition;
@@ -262,12 +289,18 @@ void Game::update()
     if (PhysicsEngine::HandlePlayerCollisions(
         mPlayer, mCrates, mDoors, levelToLoad, spawnPosition))
     { 
-        Vector newSpawn = (spawnPosition.x >= 0 && spawnPosition.y >= 0) ? spawnPosition : Vector(-1, -1);
+        /*Vector newSpawn = (spawnPosition.x >= 0 && spawnPosition.y >= 0) ? spawnPosition : Vector(-1, -1);
 
         loadLevelFromJSON(levelToLoad);
         if (newSpawn.x >= 0 && newSpawn.y >= 0) {
             mPlayer.setPosition(newSpawn);
-        }
+        }*/
+       if(!isTransitioning) {
+            isTransitioning = true;
+            transitionStartTime = SDL_GetTicks();
+            targetLevel = levelToLoad;
+            targetSpawn = spawnPosition;
+       }
     }
 
     Vector playerPosition = mPlayer.getPosition();
@@ -314,6 +347,28 @@ void Game::update()
 
 void Game::render()
 {
+    SDL_Log("Game::render() chamado");
+    if (isTransitioning) {
+        Uint32 elapsed = SDL_GetTicks() - transitionStartTime;
+        if (elapsed <= HALF_TRANSITION) {
+            float progress = static_cast<float>(elapsed) / HALF_TRANSITION;
+            alpha = static_cast<int>(255 * progress);
+        } else if (elapsed < TRANSITION_DELAY) {
+            float progress = static_cast<float>(elapsed - HALF_TRANSITION) / HALF_TRANSITION;
+            alpha = 255 - static_cast<int>(255 * progress);
+        } else {
+            alpha = 0;
+        }   
+
+        SDL_SetRenderDrawBlendMode(mRenderer, SDL_BLENDMODE_BLEND);
+        SDL_Rect fadeRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+        SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, alpha);
+        //SDL_RenderClear(mRenderer);
+        SDL_RenderFillRect(mRenderer, &fadeRect);
+        SDL_RenderPresent(mRenderer);
+        return;
+    }
+
     SDL_SetRenderDrawColor(mRenderer, 0x00, 0x00, 0x00, 0x00);
     SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
     SDL_RenderClear(mRenderer);
