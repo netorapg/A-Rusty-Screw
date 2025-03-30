@@ -68,15 +68,10 @@ namespace BRTC
                     const Vector platformPos = platform.getPosition();
                     const Vector platformSize = platform.getSize();
                     
-                    if (velocity.y > 0) {
+                    if (velocity.y >= 0) {
                         position.y = platformPos.y - size.y;
                         velocity.y = 0;
                         dynamicObject.setOnGround(true);
-                    //    std::cout << "isOnGround: " << dynamicObject.isOnGround() << std::endl;
-                    } else if (velocity.y < 0) {
-                        position.y = platformPos.y - platformSize.y;
-                        velocity.y = 0;
-
                     }
                 }
             }
