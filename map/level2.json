@@ -39,8 +39,8 @@
         "x": 0,
         "y": 3,
         "target": "../map/level1.json",
-        "spawn_x": 17.0,
-        "spawn_y": 13.0
+        "spawn_x": 36.0,
+        "spawn_y": 17.0
       },
       {
         "x": 4,
