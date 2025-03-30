@@ -7,7 +7,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
 {
     std::cout << "Game constructor called" << std::endl;
 
-    mPlatformsTexturePath = "../assets/scenario.png";
+    mPlatformsTexturePath = "../assets/fulltile.png";
 
     SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     SDL_RenderSetIntegerScale(mRenderer, SDL_TRUE);
@@ -19,7 +19,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     }
 
     SDL_Surface *loadedBackground =
-        IMG_Load("/home/netorapg/projects/platfom2d/assets/166722.png");
+        IMG_Load("/home/netorapg/projects/platfom2d/assets/166722.p");
     if (loadedBackground == nullptr)
     {
         std::cerr << "Failed to load background image: " << IMG_GetError() << std::endl;
@@ -38,14 +38,14 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
         std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 
-    mMusic = Mix_LoadMUS("../../platfom2d/assets/8-bit-game-158815.mp3");
+    mMusic = Mix_LoadMUS("../../platfom2d/assets/8-bit-game-158815.mp");
     if (mMusic == nullptr)
     {
         std::cerr << "Failed to load music! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 
     mJumpSound = Mix_LoadWAV(
-        "../../platfom2d/assets/mixkit-player-jumping-in-a-video-game-2043.wav");
+        "../../platfom2d/assets/mixkit-player-jumping-in-a-video-game-2043.wa");
     if (mJumpSound == nullptr)
     {
         std::cerr << "Failed to load jump sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
@@ -148,7 +148,7 @@ void Game::loadLevelFromJSON(const std::string &filePath)
         return;
     }
 
-    const int tileSize = 30;
+    const int tileSize = 32;
     int rows = json_object_array_length(data);
     int cols = 0;
 
@@ -184,13 +184,13 @@ void Game::loadLevelFromJSON(const std::string &filePath)
             case 0: // Espaço vazio
                 break;
             case 1: // Plataforma
-                mPlatforms.emplace_back(Vector(x, y), Vector(30, 20), mRenderer, mPlatformsTexturePath);
+                mPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
                 break;
             case 2: // Plataforma sólida
-                mSolidPlatforms.emplace_back(Vector(x, y), Vector(30, 40), mRenderer, mPlatformsTexturePath);
+                mSolidPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
                 break;
             case 3: // Parede
-                mWalls.emplace_back(Vector(x, y), Vector(30, 40), mRenderer, mPlatformsTexturePath);
+                mWalls.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
                 break;
             case 4: // Caixote
                 mCrates.emplace_back(Vector(x, y), mRenderer);

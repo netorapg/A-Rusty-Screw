@@ -16,7 +16,7 @@ Door::Door(const Vector position, const Vector size, const std::string& levelToL
     }
 
     // Criamos um sprite manualmente e o passamos para a animação
-    SpritePtr doorSprite = std::make_shared<Sprite>(texture, SDL_Rect{160, 79, static_cast<int>(size.x), static_cast<int>(size.y)});
+    SpritePtr doorSprite = std::make_shared<Sprite>(texture, SDL_Rect{97, 257, static_cast<int>(size.x), static_cast<int>(size.y)});
 
     mAnimation.addFrame({doorSprite, 0.0f, {0, 0}});
     mAnimation.setLoop(false);

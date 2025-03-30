@@ -11,7 +11,7 @@ Wall::Wall(const Vector position, const Vector size, SDL_Renderer* renderer, con
         SDL_Log("Failed to load texture: %s", SDL_GetError());
         return;
     }
-    SpritePtr wallSprite = std::make_shared<Sprite>(texture, SDL_Rect{82, 49, static_cast<int>(size.x), static_cast<int>(size.y)});
+    SpritePtr wallSprite = std::make_shared<Sprite>(texture, SDL_Rect{97, 129, static_cast<int>(size.x), static_cast<int>(size.y)});
 
     mAnimation.addFrame({wallSprite, 0.0f, {0, 0}});
     mAnimation.setLoop(false);

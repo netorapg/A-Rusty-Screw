@@ -11,7 +11,7 @@ SolidPlatform::SolidPlatform(const Vector position, const Vector size, SDL_Rende
         SDL_Log("Failed to load texture: %s", SDL_GetError());
         return;
     }
-    SpritePtr platformSprite = std::make_shared<Sprite>(texture, SDL_Rect{8, 29, static_cast<int>(size.x), static_cast<int>(size.y)});
+    SpritePtr platformSprite = std::make_shared<Sprite>(texture, SDL_Rect{128, 0, static_cast<int>(size.x), static_cast<int>(size.y)});
 
     mAnimation.addFrame({platformSprite, 0.0f, {0, 0}});
     mAnimation.setLoop(false);
