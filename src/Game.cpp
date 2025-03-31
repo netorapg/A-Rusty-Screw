@@ -66,6 +66,8 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     }
 
     loadLevelFromJSON("../map/level1.json");
+    Vector playerPos = mPlayer.getPosition();
+    mCamera.setPosition(Vector(playerPos.x - SCREEN_WIDTH / 2, playerPos.y - SCREEN_HEIGHT / 2));
 }
 static std::unordered_map<std::string, json_object*> levelCache;
 Game::~Game()
@@ -82,17 +84,15 @@ Game::~Game()
 
 
 
-void Game::loadLevelFromJSON(const std::string &filePath)
-{
+void Game::loadLevelFromJSON(const std::string &filePath) {
     mPlatforms.clear();
     mSolidPlatforms.clear();
     mWalls.clear();
     mCrates.clear();
     mDoors.clear();
-   
+
     if(levelCache.find(filePath) == levelCache.end()) {
-       // levelCache[filePath] = json_object_from_file(filePath.c_str());
-       json_object *root = json_object_from_file(filePath.c_str());
+        json_object *root = json_object_from_file(filePath.c_str());
         if (!root) {
             std::cerr << "Failed to load JSON file: " << filePath << std::endl;
             return;
@@ -100,150 +100,114 @@ void Game::loadLevelFromJSON(const std::string &filePath)
         levelCache[filePath] = root;
     }
     json_object *root = levelCache[filePath];
-   
 
-  //  json_object *root = json_object_from_file(filePath.c_str());
+    // Obter informações do mapa
+    int tileWidth = json_object_get_int(json_object_object_get(root, "tilewidth"));
+    int tileHeight = json_object_get_int(json_object_object_get(root, "tileheight"));
+    const int tileSize = tileWidth; // Assumindo tiles quadrados
 
-    if (!root)
-    {
-        std::cerr << "Failed to load JSON file: " << filePath << std::endl;
-        return;
-    }
+    // Mapeamento de GID para tipos de tile (ajuste conforme seu tileset)
+    std::unordered_map<int, int> tileTypeMap = {
+        {5, 2}, // Plataforma sólida
+        {18, 1}, // Plataforma
+        {64, 3}, // Parede
+        {65, 4}  // Caixote
+    };
 
-    json_object *tiles;
-    if (!json_object_object_get_ex(root, "tiles", &tiles))
-    {
-        std::cerr << "Invalid JSON: missing 'tiles'" << std::endl;
-        json_object_put(root);
-        return;
-    }
-
-    std::unordered_map<std::string, int> tileMap;
-    json_object_object_foreach(tiles, key, val)
-    {
-        tileMap[key] = json_object_get_int(val);
-    }
-
+    // Processar camadas
     json_object *layers;
-    if (!json_object_object_get_ex(root, "layers", &layers))
-    {
-        std::cerr << "Invalid JSON: missing 'layers'" << std::endl;
-        json_object_put(root);
-        return;
-    }
+    json_object_object_get_ex(root, "layers", &layers);
+    int numLayers = json_object_array_length(layers);
 
-    json_object *first_layer = json_object_array_get_idx(layers, 0);
-    if (!first_layer)
-    {
-        std::cerr << "Invalid JSON: no layers found" << std::endl;
-        json_object_put(root);
-        return;
-    }
+    for (int l = 0; l < numLayers; ++l) {
+        json_object *layer = json_object_array_get_idx(layers, l);
+        const char *layerType;
+        json_object *typeObj;
+        json_object_object_get_ex(layer, "type", &typeObj);
+        layerType = json_object_get_string(typeObj);
 
-    json_object *data;
-    if (!json_object_object_get_ex(first_layer, "data", &data))
-    {
-        std::cerr << "Invalid JSON: missing 'data'" << std::endl;
-        json_object_put(root);
-        return;
-    }
+        // Camada de tiles
+        if (strcmp(layerType, "tilelayer") == 0) {
+            json_object *data;
+            json_object_object_get_ex(layer, "data", &data);
+            int layerWidth = json_object_get_int(json_object_object_get(layer, "width"));
+            int layerHeight = json_object_get_int(json_object_object_get(layer, "height"));
 
-    const int tileSize = 32;
-    int rows = json_object_array_length(data);
-    int cols = 0;
+            for (int i = 0; i < json_object_array_length(data); ++i) {
+                int tileId = json_object_get_int(json_object_array_get_idx(data, i));
+                if (tileId == 0) continue; // Tile vazio
 
-    if (rows > 0) {
-        json_object *firstRow = json_object_array_get_idx(data, 0);
-        cols = json_object_array_length(firstRow);
-    }
+                int tileType = tileTypeMap[tileId];
+                int x = (i % layerWidth) * tileSize;
+                int y = (i / layerWidth) * tileSize;
 
-    mapWidth = cols * tileSize;
-    mapHeight = rows * tileSize;
-    for (int i = 0; i < rows; ++i)
-    {
-        json_object *row = json_object_array_get_idx(data, i);
-        cols = json_object_array_length(row);
-
-        for (int j = 0; j < cols; ++j)
-        {
-            json_object *tile = json_object_array_get_idx(row, j);
-            const char *tileName = json_object_get_string(tile);
-
-            if (tileMap.find(tileName) == tileMap.end())
-            {
-                std::cerr << "Unknown tile name: " << tileName << std::endl;
-                continue;
+                switch (tileType) {
+                    case 1:
+                        mPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
+                        break;
+                    case 2:
+                        mSolidPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
+                        break;
+                    case 3:
+                        mWalls.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
+                        break;
+                    case 4:
+                        mCrates.emplace_back(Vector(x, y), mRenderer);
+                        break;
+                }
             }
+        }
 
-            int tileType = tileMap[tileName];
-            int x = j * tileSize;
-            int y = i * tileSize;
+        // Camada de objetos
+        if (strcmp(layerType, "objectgroup") == 0) {
+            json_object *objects;
+            json_object_object_get_ex(layer, "objects", &objects);
 
-            switch (tileType)
-            {
-            case 0: // Espaço vazio
-                break;
-            case 1: // Plataforma
-                mPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
-                break;
-            case 2: // Plataforma sólida
-                mSolidPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
-                break;
-            case 3: // Parede
-                mWalls.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
-                break;
-            case 4: // Caixote
-                mCrates.emplace_back(Vector(x, y), mRenderer);
-                break;
-            default:
-                std::cerr << "Unknown tile type: " << tileType << std::endl;
+            for (int i = 0; i < json_object_array_length(objects); ++i) {
+                json_object *obj = json_object_array_get_idx(objects, i);
+                const char *objType = "";
+                json_object *typeObj;
+                if (json_object_object_get_ex(obj, "type", &typeObj)) {
+                    objType = json_object_get_string(typeObj);
+                }
+
+                // Player Spawn
+                if (strcmp(objType, "player_spawn") == 0) {
+                    float x = json_object_get_double(json_object_object_get(obj, "x"));
+                    float y = json_object_get_double(json_object_object_get(obj, "y"));
+                    mPlayer.setPosition(Vector(x, y));
+                }
+
+                // Portas
+                if (strcmp(objType, "door") == 0) {
+                    float x = json_object_get_double(json_object_object_get(obj, "x"));
+                    float y = json_object_get_double(json_object_object_get(obj, "y"));
+                    std::string target;
+                    float spawnX = -1, spawnY = -1;
+
+                    json_object *props;
+                    if (json_object_object_get_ex(obj, "properties", &props)) {
+                        for (int p = 0; p < json_object_array_length(props); ++p) {
+                            json_object *prop = json_object_array_get_idx(props, p);
+                            const char *name = json_object_get_string(json_object_object_get(prop, "name"));
+                            if (strcmp(name, "target") == 0) {
+                                target = json_object_get_string(json_object_object_get(prop, "value"));
+                            } else if (strcmp(name, "spawn_x") == 0) {
+                                spawnX = json_object_get_double(json_object_object_get(prop, "value")) * tileSize;
+                            } else if (strcmp(name, "spawn_y") == 0) {
+                                spawnY = json_object_get_double(json_object_object_get(prop, "value")) * tileSize;
+                            }
+                        }
+                    }
+                    mDoors.emplace_back(Vector(x, y), Vector(20, 62), target, mRenderer, mPlatformsTexturePath, Vector(spawnX, spawnY));
+                }
+
+                mapWidth = json_object_get_int(json_object_object_get(root, "width")) * tileSize;
+                mapHeight = json_object_get_int(json_object_object_get(root, "height")) * tileSize;
             }
         }
     }
-    json_object *doors;
-    if (json_object_object_get_ex(root, "doors", &doors))
-    {
-        for (int i = 0; i < json_object_array_length(doors); ++i)
-        {
-            json_object *door = json_object_array_get_idx(doors, i);
-            float x = json_object_get_double(json_object_object_get(door, "x")) * tileSize;
-            float y = json_object_get_double(json_object_object_get(door, "y")) * tileSize;
-            float spawnX = -1.0f;
-            float spawnY = -1.0f;
-            json_object* spawnXObj;
-            if (json_object_object_get_ex(door, "spawn_x", &spawnXObj)) {
-                spawnX = json_object_get_double(spawnXObj) * tileSize;
-            }
-            json_object* spawnYObj;
-            if (json_object_object_get_ex(door, "spawn_y", &spawnYObj)) {
-                spawnY = json_object_get_double(spawnYObj) * tileSize;
-            }
-
-            std::string target = json_object_get_string(json_object_object_get(door, "target"));
-            mDoors.emplace_back(Vector(x, y), Vector(20, 62), target, mRenderer, mPlatformsTexturePath, Vector(spawnX, spawnY));
-        }
-    }
-
-    
-
-    json_object *player_spawn;
-    if (json_object_object_get_ex(root, "player_spawn", &player_spawn)) {
-        float spawnX = json_object_get_int(json_object_object_get(player_spawn, "x")) * tileSize;
-        float spawnY = json_object_get_int(json_object_object_get(player_spawn, "y")) * tileSize;
-        
-        if (mPlayer.getPosition() == Vector(0, 0)) {
-            mPlayer.setPosition(Vector(spawnX, spawnY));
-        }
-    } else {
-        if (mPlayer.getPosition() == Vector(0, 0)) {
-            mPlayer.setPosition(Vector(0, 0));
-        }
-    }
-    
-
-    //json_object_put(root);
 }
-
 void Game::handleEvents()
 {
     SDL_Event e;
