@@ -47,6 +47,8 @@ namespace BRTC
             if (CheckCollision(dynamicObject, platform)) {
                 const Vector platformPos = platform.getPosition();
                 const Vector platformSize = platform.getSize();
+
+              
                 
                 // Resolve colisão vertical
                 if (velocity.y > 0) {

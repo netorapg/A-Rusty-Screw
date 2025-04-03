@@ -46,7 +46,7 @@
                         {
                          "name":"spawn_y",
                          "type":"float",
-                         "value":18
+                         "value":16
                         }, 
                         {
                          "name":"target",
@@ -68,17 +68,17 @@
                         {
                          "name":"spawn_x",
                          "type":"float",
-                         "value":0
+                         "value":1
                         }, 
                         {
                          "name":"spawn_y",
                          "type":"float",
-                         "value":0
+                         "value":8
                         }, 
                         {
                          "name":"target",
                          "type":"string",
-                         "value":""
+                         "value":"..\/map\/level3.json"
                         }],
                  "rotation":0,
                  "type":"door",
@@ -95,20 +95,20 @@
                         {
                          "name":"spawn_x",
                          "type":"float",
-                         "value":0
+                         "value":2
                         }, 
                         {
                          "name":"spawn_y",
                          "type":"float",
-                         "value":0
+                         "value":7
                         }, 
                         {
                          "name":"target",
                          "type":"string",
-                         "value":""
+                         "value":"..\/map\/level4.json"
                         }],
                  "rotation":0,
-                 "type":"",
+                 "type":"door",
                  "visible":true,
                  "width":0,
                  "x":640,

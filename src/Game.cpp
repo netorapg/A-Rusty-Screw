@@ -3,7 +3,7 @@
 namespace BRTC
 {
 Game::Game(SDL_Window *window, SDL_Renderer *renderer)
-    : mWindow(window), mRenderer(renderer), mQuit(false), mPlayer(Vector(0, 0), renderer), mCamera(SCREEN_WIDTH, SCREEN_HEIGHT)
+    : mWindow(window), mRenderer(renderer), mQuit(false), mPlayer(Vector(0, 0), renderer), mCamera(SCREEN_WIDTH, SCREEN_HEIGHT), mPlayerActivated(true), mActivationTime(0)
 {
     std::cout << "Game constructor called" << std::endl;
 
@@ -121,10 +121,32 @@ void Game::loadLevelFromJSON(const std::string &filePath) {
 
     for (int l = 0; l < numLayers; ++l) {
         json_object *layer = json_object_array_get_idx(layers, l);
+        const char *layerName = json_object_get_string(json_object_object_get(layer, "name"));
+
+        if (strcmp(layerName, "Decorations") == 0) {
+            json_object *data;
+            json_object_object_get_ex(layer, "data", &data);
+
+            for (int i = 0; i < json_object_array_length(data); ++i) {
+                int tileId = json_object_get_int(json_object_array_get_idx(data, i));
+                if (tileId == 0) continue;
+
+                int x = (i % tileWidth) * tileSize;
+                int y = (i / tileWidth) * tileSize;
+
+                mDecorations.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
+            }
+            continue;
+        }
+    }
+
+    for (int l = 0; l < numLayers; ++l) {
+        json_object *layer = json_object_array_get_idx(layers, l);
         const char *layerType;
         json_object *typeObj;
         json_object_object_get_ex(layer, "type", &typeObj);
         layerType = json_object_get_string(typeObj);
+        
 
         // Camada de tiles
         if (strcmp(layerType, "tilelayer") == 0) {
@@ -238,16 +260,26 @@ void Game::update()
 {
     SDL_Log("Game::update() - DeltaTime: %f", deltaTime);
     if(isTransitioning) {
-        if (SDL_GetTicks() - transitionStartTime > 1000) {
+        
+        if (SDL_GetTicks() - transitionStartTime > TRANSITION_DELAY) {
             loadLevelFromJSON(targetLevel);
             mPlayer.setPosition(targetSpawn);
+            mPlayerActivated = false;
+            mActivationTime = SDL_GetTicks();
             isTransitioning = false;
         }
         return;
     }
-    mPlayer.update();
+   
     std::string levelToLoad = "";
     Vector spawnPosition;
+    //mPlayer.update();
+    if (!mPlayerActivated && SDL_GetTicks() > mActivationTime) {
+        mPlayerActivated = true;
+    }
+    if (mPlayerActivated) {
+        mPlayer.update(deltaTime);
+    }
     PhysicsEngine::HandleCollisions(
         mPlayer, mWalls, mPlatforms, mSolidPlatforms);
     if (PhysicsEngine::HandlePlayerCollisions(
@@ -303,7 +335,7 @@ void Game::update()
 
     for (auto &crate : mCrates)
     {
-        crate.update(); // Passe um valor de tempo delta apropriado
+        crate.update(deltaTime); // Passe um valor de tempo delta apropriado
         PhysicsEngine::HandleCollisions(
             crate, mWalls, mPlatforms, mSolidPlatforms);
     }
@@ -323,11 +355,10 @@ void Game::render()
         } else {
             alpha = 0;
         }   
-
+    
         SDL_SetRenderDrawBlendMode(mRenderer, SDL_BLENDMODE_BLEND);
         SDL_Rect fadeRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
         SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, alpha);
-        //SDL_RenderClear(mRenderer);
         SDL_RenderFillRect(mRenderer, &fadeRect);
         SDL_RenderPresent(mRenderer);
         return;
@@ -340,14 +371,23 @@ void Game::render()
     SDL_Rect bgRect = {0, 0, static_cast<int>(effectiveScreenWidth), static_cast<int>(effectiveScreenHeight)};
     SDL_RenderCopy(mRenderer, mBackgroundTexture, nullptr, &bgRect);
 
+    bool WeHaveDecorations, WeHavePlatforms, WeHaveSolidPlatforms, WeHaveWalls, WeHaveCrates, WeHaveDoors;
+
+    for (auto &decoration : mDecorations)
+    {
+        if (decoration.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
+        {
+            decoration.render(mRenderer, mCamera.getPosition());
+            WeHaveDecorations = true;
+        }
+    }
+
     for (auto &platform : mPlatforms)
     {
         if (platform.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             platform.render(mRenderer, mCamera.getPosition());
-            Vector platformPosition = platform.getPosition();
-            /*std::cout << "Rendering Platform at (" << platformPosition.x << ", "
-                      << platformPosition.y << ")\n";*/
+            WeHavePlatforms = true;
         }
     }
 
@@ -356,9 +396,7 @@ void Game::render()
         if (solidPlatform.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             solidPlatform.render(mRenderer, mCamera.getPosition());
-            Vector solidPlatformPosition = solidPlatform.getPosition();
-           /* std::cout << "Rendering SolidPlatform at (" << solidPlatformPosition.x
-                      << ", " << solidPlatformPosition.y << ")\n";*/
+            WeHaveSolidPlatforms = true;
         }
     }
 
@@ -367,20 +405,18 @@ void Game::render()
         if (wall.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             wall.render(mRenderer, mCamera.getPosition());
-            Vector wallPosition = wall.getPosition();
-            /*std::cout << "Rendering Wall at (" << wallPosition.x << ", " << wallPosition.y
-                      << ")\n";*/
+            WeHaveWalls = true;
         }
     }
+
+ 
 
     for (auto &crate : mCrates)
     {
         if (crate.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             crate.render(mRenderer, mCamera.getPosition());
-            Vector cratePosition = crate.getPosition();
-            /*std::cout << "Rendering Crate at (" << cratePosition.x << ", "
-                      << cratePosition.y << ")\n";*/
+            WeHaveCrates = true;
         }
     }
 
@@ -389,13 +425,15 @@ void Game::render()
         if (door.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             door.render(mRenderer, mCamera.getPosition());
-            Vector doorPosition = door.getPosition();
-          /*  std::cout << "Rendering Door at (" << doorPosition.x << ", " << doorPosition.y
-                      << ")\n";*/
+            WeHaveDoors = true;
         }
     }
 
-    mPlayer.render(mRenderer, mCamera.getPosition());
+    if (WeHaveDecorations == true && WeHavePlatforms == true && WeHaveSolidPlatforms == true && WeHaveWalls == true && WeHaveCrates == true && WeHaveDoors == true)
+    {
+        std::cout << "We have all objects" << std::endl;
+        mPlayer.render(mRenderer, mCamera.getPosition());
+    }
     SDL_RenderPresent(mRenderer);
 }
 
