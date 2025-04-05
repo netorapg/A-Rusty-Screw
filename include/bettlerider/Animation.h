@@ -7,9 +7,6 @@
 #include "Globals.h"
 #include <iostream>
 
-
-
-
 namespace BRTC
 {
 struct AnimationFrame {

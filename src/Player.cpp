@@ -125,7 +125,7 @@ void Player::handleEvent( SDL_Event &e )
   setVelocity( velocity );
 }
 
-void Player::update()
+void Player::update(float deltaTime)
 {
   // Atualização da física
   Vector velocity = getVelocity();

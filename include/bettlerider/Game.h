@@ -21,6 +21,7 @@
 #include "Wall.h"
 #include "Crate.h"
 #include "Door.h"
+#include "Decoration.h"
 #include "Player.h"
 #include "PhysicsEngine.h"
 #include "Camera.h"
@@ -52,6 +53,7 @@ private:
     std::list<Wall> mWalls;
     std::list<Crate> mCrates;
     std::list<Door> mDoors;
+    std::list<Decoration> mDecorations;
     std::string mPlatformsTexturePath;
     const float PLAYER_ZOOM_FACTOR = 2.5f;
     float effectiveScreenWidth = SCREEN_WIDTH / PLAYER_ZOOM_FACTOR;
@@ -68,7 +70,7 @@ private:
     SDL_Texture* mBackgroundTexture;
 
     void renderText(const char* text, int x, int y, TTF_Font* font);
-    void loadLevelFromJSON(const std::string& filePath);
+    void loadGameLevelFromTMX(const std::string& filePath);
 
     Vector mCAmeraPosition;
     Vector mCameraSize;
@@ -77,12 +79,14 @@ private:
     float mapHeight;
     bool isTransitioning = false;
     Uint32 transitionStartTime = 0;
-    const Uint32 TRANSITION_DELAY = 1000;
+    const Uint32 TRANSITION_DELAY = 500;
     const Uint32 HALF_TRANSITION = TRANSITION_DELAY / 2;
     std::string targetLevel;
     Vector targetSpawn;
     int alpha = 0;
     bool increasing = true;
+    bool mPlayerActivated;
+    Uint32 mActivationTime;
 };
 }
 

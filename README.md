@@ -1,5 +1,4 @@
 # Tarefas a Fazer
-* Ajustar a colisão com a plataforma vazada, ta meio estranha
 * Encontrar uma nova forma de passar o background através de tiles
 * Criar uma HUD
 * Criar um inimigo

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="20" height="15" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="7">
+ <editorsettings>
+  <export target="level2.json" format="json"/>
+ </editorsettings>
+ <tileset firstgid="1" name="fulltile" tilewidth="32" tileheight="32" tilecount="225" columns="15">
+  <image source="../assets/fulltile.png" width="490" height="503"/>
+ </tileset>
+ <objectgroup id="2" name="spawns">
+  <object id="4" type="door" x="0" y="160">
+   <properties>
+    <property name="spawn_x" type="float" value="38"/>
+    <property name="spawn_y" type="float" value="17"/>
+    <property name="target" value="../map/level1.tmx"/>
+   </properties>
+  </object>
+  <object id="5" type="door" x="640" y="160">
+   <properties>
+    <property name="spawn_x" type="float" value="1"/>
+    <property name="spawn_y" type="float" value="7"/>
+    <property name="target" value="../map/level3.tmx"/>
+   </properties>
+  </object>
+  <object id="6" type="door" x="640" y="384">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/level4.tmx"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <layer id="1" name="blocks" width="20" height="15">
+  <data encoding="csv">
+64,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,64,
+64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,
+64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,
+64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+5,5,5,5,5,5,5,18,18,18,5,5,5,5,5,5,5,5,5,5,
+64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,
+64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,
+64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,
+64,0,0,0,0,0,0,18,18,18,0,0,0,0,0,0,0,0,0,64,
+64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0
+</data>
+ </layer>
+</map>

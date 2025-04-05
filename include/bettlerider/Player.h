@@ -22,7 +22,7 @@ public:
         }
     }
 
-    void update() override;
+    void update(float deltaTime) override;
     void render(SDL_Renderer* renderer, Vector cameraPosition) override;
     void handleEvent(SDL_Event& e) override;
     void setPassingThroughPlatform(bool enable);

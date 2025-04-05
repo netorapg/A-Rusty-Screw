@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="3">
+ <editorsettings>
+  <export target="level3.json" format="json"/>
+ </editorsettings>
+ <tileset firstgid="1" name="fulltile" tilewidth="32" tileheight="32" tilecount="225" columns="15">
+  <image source="../assets/fulltile.png" width="490" height="503"/>
+ </tileset>
+ <objectgroup id="2" name="spawns">
+  <object id="1" type="door" x="0" y="256">
+   <properties>
+    <property name="spawn_x" type="float" value="18"/>
+    <property name="spawn_y" type="float" value="4"/>
+    <property name="target" value="../map/level2.tmx"/>
+   </properties>
+  </object>
+  <object id="2" type="door" x="192" y="320">
+   <properties>
+    <property name="spawn_x" type="float" value="20"/>
+    <property name="spawn_y" type="float" value="1"/>
+    <property name="target" value="../map/level4.tmx"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <layer id="1" name="blocks" width="10" height="10">
+  <data encoding="csv">
+64,5,5,5,5,5,5,5,5,64,
+64,0,0,0,0,0,0,0,0,64,
+64,0,0,0,0,0,0,0,0,64,
+64,0,0,0,0,0,0,0,0,64,
+64,0,0,0,0,0,0,0,0,64,
+64,0,0,0,0,0,0,0,0,64,
+64,0,0,0,0,0,0,0,0,64,
+0,0,0,0,0,0,0,0,0,64,
+0,0,0,0,5,18,18,5,5,64,
+5,5,5,5,0,0,0,0,5,5
+</data>
+ </layer>
+</map>

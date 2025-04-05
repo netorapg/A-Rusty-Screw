@@ -54,7 +54,7 @@ namespace BRTC
 
    SpritePtr Animation::getCurrentSprite() const {
        try {
-           SDL_Log("Frame atual: %d", currentFrame);
+          // SDL_Log("Frame atual: %d", currentFrame);
            return frames.at(currentFrame).sprite;  // Alterado para `at()`
        } catch (const std::out_of_range& e) {
            SDL_Log("Erro: Índice fora do intervalo em getCurrentSprite()!");

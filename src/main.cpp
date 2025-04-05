@@ -60,12 +60,12 @@ float accumulatedTime = 0.0f;
 
   while( game.isRunning() )
   {
-    SDL_Log("Rodando loop do jogo...");
+   // SDL_Log("Rodando loop do jogo...");
     Uint32 frameStart = SDL_GetTicks();
     Uint64 currentTime = SDL_GetPerformanceCounter();
     BRTC::deltaTime = (float)(currentTime - lastTime) / (float)SDL_GetPerformanceFrequency();
     lastTime = currentTime;
-    std::cout << "[Frame Start] DeltaTime: " << BRTC::deltaTime << "s" << std::endl;
+    //std::cout << "[Frame Start] DeltaTime: " << BRTC::deltaTime << "s" << std::endl;
 
    game.handleEvents();
 
@@ -80,11 +80,11 @@ float accumulatedTime = 0.0f;
    }
 
    #ifdef DEBUG_FPS
-   std::cout << "DeltaTime: " << BRTC::deltaTime << "s | FPS: " << 1.0f / BRTC::deltaTime << std::endl;
+  // std::cout << "DeltaTime: " << BRTC::deltaTime << "s | FPS: " << 1.0f / BRTC::deltaTime << std::endl;
    #endif
 
     
-std::cout << "DeltaTime: " << BRTC::deltaTime << "s | FPS: " << 1.0f / BRTC::deltaTime << std::endl;
+//std::cout << "DeltaTime: " << BRTC::deltaTime << "s | FPS: " << 1.0f / BRTC::deltaTime << std::endl;
     
   }
 
