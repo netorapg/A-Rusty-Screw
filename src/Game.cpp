@@ -41,20 +41,20 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
         std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 
-    mMusic = Mix_LoadMUS("../assets/8-bit-game-158815.mp3");
+  /*  mMusic = Mix_LoadMUS("../assets/8-bit-game-158815.mp3");
     if (mMusic == nullptr)
     {
         std::cerr << "Failed to load music! SDL_mixer Error: " << Mix_GetError() << std::endl;
-    }
+    }*/
 
-    mJumpSound = Mix_LoadWAV(
+   /* mJumpSound = Mix_LoadWAV(
         "../assets/mixkit-player-jumping-in-a-video-game-2043.wav");
     if (mJumpSound == nullptr)
     {
         std::cerr << "Failed to load jump sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
-    }
+    }*/
 
-    Mix_PlayMusic(mMusic, -1);
+   // Mix_PlayMusic(mMusic, -1);
 
     mFont = TTF_OpenFont("../../platfom2d/assets/All Star Resort.ttf", 100);
     if (mFont == nullptr)
@@ -243,10 +243,12 @@ void Game::update()
 {
    // SDL_Log("Game::update() - DeltaTime: %f", deltaTime);
     if(isTransitioning) {
-        
+        Vector currentVelocity = mPlayer.getVelocity();
+        mPlayer.setVelocity(Vector(0, 0));
         if (SDL_GetTicks() - transitionStartTime > TRANSITION_DELAY) {
             loadGameLevelFromTMX(targetLevel);
             mPlayer.setPosition(targetSpawn);
+            mPlayer.setVelocity(currentVelocity);
             mPlayerActivated = false;
             mActivationTime = SDL_GetTicks();
             isTransitioning = false;

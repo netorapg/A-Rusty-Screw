@@ -6,7 +6,7 @@ namespace BRTC
 {
 
 Player::Player( Vector position, SDL_Renderer *renderer )
-    : DynamicObject( position, Vector( 39, 39) ), mFacingRight( true )
+    : DynamicObject( position, Vector( 29, 29) ), mFacingRight( true )
 {
 
   SDL_Surface* surface = IMG_Load("../assets/bezourinha_sprites.png");

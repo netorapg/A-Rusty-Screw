@@ -11,7 +11,7 @@
    <properties>
     <property name="spawn_x" type="float" value="18"/>
     <property name="spawn_y" type="float" value="4"/>
-    <property name="target" value="../map/level2.json"/>
+    <property name="target" value="../map/level2.tmx"/>
    </properties>
   </object>
   <object id="2" type="door" x="192" y="320">

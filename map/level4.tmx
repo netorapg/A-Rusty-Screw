@@ -10,14 +10,14 @@
   <object id="1" type="door" x="640" y="0">
    <properties>
     <property name="spawn_x" type="float" value="6"/>
-    <property name="spawn_y" type="float" value="9"/>
+    <property name="spawn_y" type="float" value="6"/>
     <property name="target" value="../map/level3.tmx"/>
    </properties>
   </object>
   <object id="3" type="door" x="0" y="256">
    <properties>
     <property name="spawn_x" type="float" value="18"/>
-    <property name="spawn_y" type="float" value="10"/>
+    <property name="spawn_y" type="float" value="11"/>
     <property name="target" value="../map/level2.tmx"/>
    </properties>
   </object>
