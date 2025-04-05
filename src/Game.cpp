@@ -1,4 +1,7 @@
 #include "../include/bettlerider/Game.h"
+#include <tinyxml2.h>
+
+using namespace tinyxml2;
 
 namespace BRTC
 {
@@ -11,7 +14,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
 
     SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     SDL_RenderSetIntegerScale(mRenderer, SDL_TRUE);
-    SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
+    
 
     if (SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP) != 0)
     {
@@ -19,7 +22,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     }
 
     SDL_Surface *loadedBackground =
-        IMG_Load("/home/netorapg/projects/platfom2d/assets/166722.p");
+        IMG_Load("../assets/Background.png");
     if (loadedBackground == nullptr)
     {
         std::cerr << "Failed to load background image: " << IMG_GetError() << std::endl;
@@ -38,14 +41,14 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
         std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 
-    mMusic = Mix_LoadMUS("../../platfom2d/assets/8-bit-game-158815.mp");
+    mMusic = Mix_LoadMUS("../assets/8-bit-game-158815.mp3");
     if (mMusic == nullptr)
     {
         std::cerr << "Failed to load music! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 
     mJumpSound = Mix_LoadWAV(
-        "../../platfom2d/assets/mixkit-player-jumping-in-a-video-game-2043.wa");
+        "../assets/mixkit-player-jumping-in-a-video-game-2043.wav");
     if (mJumpSound == nullptr)
     {
         std::cerr << "Failed to load jump sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
@@ -65,17 +68,17 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
         std::cerr << "Failed to load small font! SDL_ttf Error: " << TTF_GetError() << std::endl;
     }
 
-    loadLevelFromJSON("../map/level1.json");
+    loadGameLevelFromTMX("../map/level1.tmx");
     Vector playerPos = mPlayer.getPosition();
-    mCamera.setPosition(Vector(playerPos.x - SCREEN_WIDTH / 2, playerPos.y - SCREEN_HEIGHT / 2));
+    mCamera.setPosition(Vector(playerPos.x - (SCREEN_WIDTH/(2*PLAYER_ZOOM_FACTOR)), playerPos.y - (SCREEN_HEIGHT/(2*PLAYER_ZOOM_FACTOR))));
 }
 static std::unordered_map<std::string, json_object*> levelCache;
 Game::~Game()
 {
-    for (auto& entry: levelCache) {
+   /* for (auto& entry: levelCache) {
         json_object_put(entry.second);
     }
-    levelCache.clear();
+    levelCache.clear();*/
     Mix_FreeChunk(mJumpSound);
     TTF_CloseFont(mFont);
     TTF_CloseFont(mSmallFont);
@@ -83,153 +86,122 @@ Game::~Game()
 }
 
 
-
-void Game::loadLevelFromJSON(const std::string &filePath) {
+void Game::loadGameLevelFromTMX(const std::string &filePath){
     mPlatforms.clear();
-    mSolidPlatforms.clear();
     mWalls.clear();
+    mSolidPlatforms.clear();
     mCrates.clear();
     mDoors.clear();
+    mDecorations.clear();
 
-    if(levelCache.find(filePath) == levelCache.end()) {
-        json_object *root = json_object_from_file(filePath.c_str());
-        if (!root) {
-            std::cerr << "Failed to load JSON file: " << filePath << std::endl;
-            return;
-        }
-        levelCache[filePath] = root;
+    XMLDocument doc;
+    if (doc.LoadFile(filePath.c_str())) {
+        std::cerr << "Failed to load TMX file: " << filePath << std::endl;
+        return;
     }
-    json_object *root = levelCache[filePath];
 
-    // Obter informações do mapa
-    int tileWidth = json_object_get_int(json_object_object_get(root, "tilewidth"));
-    int tileHeight = json_object_get_int(json_object_object_get(root, "tileheight"));
-    const int tileSize = tileWidth; // Assumindo tiles quadrados
+    XMLElement* map = doc.FirstChildElement("map");
+    int tileWidth = map->IntAttribute("tilewidth");
+    int tileHeight = map->IntAttribute("tileheight");
+    const int tileSize = tileWidth;
 
-    // Mapeamento de GID para tipos de tile (ajuste conforme seu tileset)
+    mapWidth = map->IntAttribute("width") * tileWidth;
+    mapHeight = map->IntAttribute("height") * tileHeight;
+
     std::unordered_map<int, int> tileTypeMap = {
-        {5, 2}, // Plataforma sólida
-        {18, 1}, // Plataforma
+        {5, 2}, // Plataforma Sólida
+        {18, 1}, // Plataforma vazada
         {64, 3}, // Parede
-        {65, 4}  // Caixote
+        {65, 4} // Caixote
     };
 
-    // Processar camadas
-    json_object *layers;
-    json_object_object_get_ex(root, "layers", &layers);
-    int numLayers = json_object_array_length(layers);
+    XMLElement* layer = map->FirstChildElement("layer");
+    while (layer) {
+        const char* layerName = layer->Attribute("name");
+        XMLElement* data = layer->FirstChildElement("data");
 
-    for (int l = 0; l < numLayers; ++l) {
-        json_object *layer = json_object_array_get_idx(layers, l);
-        const char *layerName = json_object_get_string(json_object_object_get(layer, "name"));
+        if (data && strcmp(layerName, "decorations") == 0) {
+            std::string csvData = data->GetText();
+            std::istringstream ss(csvData);
+            std::string token;
 
-        if (strcmp(layerName, "Decorations") == 0) {
-            json_object *data;
-            json_object_object_get_ex(layer, "data", &data);
+            int index = 0;
+            int layerWidth = layer->IntAttribute("width");
 
-            for (int i = 0; i < json_object_array_length(data); ++i) {
-                int tileId = json_object_get_int(json_object_array_get_idx(data, i));
-                if (tileId == 0) continue;
+            while (std::getline(ss, token, ',')) {
+                int tileId = std::stoi(token);
+                if (tileId != 0) {
+                    auto it = tileTypeMap.find(tileId);
+                    if (it != tileTypeMap.end()) {
+                        int x = (index % layerWidth) * tileSize;
+                        int y = (index / layerWidth) * tileSize;
 
-                int x = (i % tileWidth) * tileSize;
-                int y = (i / tileWidth) * tileSize;
-
-                mDecorations.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
-            }
-            continue;
-        }
-    }
-
-    for (int l = 0; l < numLayers; ++l) {
-        json_object *layer = json_object_array_get_idx(layers, l);
-        const char *layerType;
-        json_object *typeObj;
-        json_object_object_get_ex(layer, "type", &typeObj);
-        layerType = json_object_get_string(typeObj);
-        
-
-        // Camada de tiles
-        if (strcmp(layerType, "tilelayer") == 0) {
-            json_object *data;
-            json_object_object_get_ex(layer, "data", &data);
-            int layerWidth = json_object_get_int(json_object_object_get(layer, "width"));
-            int layerHeight = json_object_get_int(json_object_object_get(layer, "height"));
-
-            for (int i = 0; i < json_object_array_length(data); ++i) {
-                int tileId = json_object_get_int(json_object_array_get_idx(data, i));
-                if (tileId == 0) continue; // Tile vazio
-
-                int tileType = tileTypeMap[tileId];
-                int x = (i % layerWidth) * tileSize;
-                int y = (i / layerWidth) * tileSize;
-
-                switch (tileType) {
-                    case 1:
-                        mPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
-                        break;
-                    case 2:
-                        mSolidPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
-                        break;
-                    case 3:
-                        mWalls.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
-                        break;
-                    case 4:
-                        mCrates.emplace_back(Vector(x, y), mRenderer);
-                        break;
-                }
-            }
-        }
-
-        // Camada de objetos
-        if (strcmp(layerType, "objectgroup") == 0) {
-            json_object *objects;
-            json_object_object_get_ex(layer, "objects", &objects);
-
-            for (int i = 0; i < json_object_array_length(objects); ++i) {
-                json_object *obj = json_object_array_get_idx(objects, i);
-                const char *objType = "";
-                json_object *typeObj;
-                if (json_object_object_get_ex(obj, "type", &typeObj)) {
-                    objType = json_object_get_string(typeObj);
-                }
-
-                // Player Spawn
-                if (strcmp(objType, "player_spawn") == 0) {
-                    float x = json_object_get_double(json_object_object_get(obj, "x"));
-                    float y = json_object_get_double(json_object_object_get(obj, "y"));
-                    mPlayer.setPosition(Vector(x, y));
-                }
-
-                // Portas
-                if (strcmp(objType, "door") == 0) {
-                    float x = json_object_get_double(json_object_object_get(obj, "x"));
-                    float y = json_object_get_double(json_object_object_get(obj, "y"));
-                    std::string target;
-                    float spawnX = -1, spawnY = -1;
-
-                    json_object *props;
-                    if (json_object_object_get_ex(obj, "properties", &props)) {
-                        for (int p = 0; p < json_object_array_length(props); ++p) {
-                            json_object *prop = json_object_array_get_idx(props, p);
-                            const char *name = json_object_get_string(json_object_object_get(prop, "name"));
-                            if (strcmp(name, "target") == 0) {
-                                target = json_object_get_string(json_object_object_get(prop, "value"));
-                            } else if (strcmp(name, "spawn_x") == 0) {
-                                spawnX = json_object_get_double(json_object_object_get(prop, "value")) * tileSize;
-                            } else if (strcmp(name, "spawn_y") == 0) {
-                                spawnY = json_object_get_double(json_object_object_get(prop, "value")) * tileSize;
-                            }
+                        switch(it->second) {
+                            case 1 : // Plataforma vazada
+                                mPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
+                                break;
+                            case 2 : // Plataforma sólida
+                                mSolidPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
+                                break;
+                            case 3 : // Parede
+                                mWalls.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
+                                break;
+                            case 4 : // Caixote
+                                mCrates.emplace_back(Vector(x, y),  mRenderer);
+                                break;
                         }
                     }
-                    mDoors.emplace_back(Vector(x, y), Vector(20, 62), target, mRenderer, mPlatformsTexturePath, Vector(spawnX, spawnY));
                 }
-
-                mapWidth = json_object_get_int(json_object_object_get(root, "width")) * tileSize;
-                mapHeight = json_object_get_int(json_object_object_get(root, "height")) * tileSize;
+                index++;
             }
         }
+        layer = layer->NextSiblingElement("layer");
     }
+
+    XMLElement* objectGroup = map->FirstChildElement("objectgroup");
+    while (objectGroup) {
+        XMLElement* obj = objectGroup->FirstChildElement("object");
+        while (obj) {
+            const char* type = obj->Attribute("type");
+            float x = obj->FloatAttribute("x");
+            float y = obj->FloatAttribute("y");
+    
+            if (type && strcmp(type, "player_spawn") == 0) {
+                mPlayer.setPosition(Vector(x, y));
+            }
+            else if (type && strcmp(type, "door") == 0) {
+                std::string target;
+                float spawnX = 1, spawnY = 1;
+    
+                XMLElement* properties = obj->FirstChildElement("properties");
+                if (properties) {
+                    XMLElement* prop = properties->FirstChildElement("property");
+                    while (prop) {
+                        const char* name = prop->Attribute("name");
+                        if (strcmp(name, "target") == 0) {
+                            target = prop->Attribute("value");
+                        }
+                        else if (strcmp(name, "spawn_x") == 0) {
+                            spawnX = prop->FloatAttribute("value") * tileSize;
+                        }
+                        else if (strcmp(name, "spawn_y") == 0) {
+                            spawnY = prop->FloatAttribute("value") * tileSize;
+                        }
+                        prop = prop->NextSiblingElement("property");
+                    }
+                    mDoors.emplace_back(Vector(x, y), Vector(tileSize, tileSize), target, mRenderer, mPlatformsTexturePath, Vector(spawnX, spawnY));                
+                }
+            }
+            // Avança para o próximo objeto dentro do grupo
+            obj = obj->NextSiblingElement("object");
+        }
+        // Avança para o próximo grupo de objetos
+        objectGroup = objectGroup->NextSiblingElement("objectgroup");
+    }
+    
 }
+
+
 void Game::handleEvents()
 {
     SDL_Event e;
@@ -262,7 +234,7 @@ void Game::update()
     if(isTransitioning) {
         
         if (SDL_GetTicks() - transitionStartTime > TRANSITION_DELAY) {
-            loadLevelFromJSON(targetLevel);
+            loadGameLevelFromTMX(targetLevel);
             mPlayer.setPosition(targetSpawn);
             mPlayerActivated = false;
             mActivationTime = SDL_GetTicks();
@@ -344,6 +316,7 @@ void Game::update()
 void Game::render()
 {
     SDL_Log("Game::render() chamado");
+    
     if (isTransitioning) {
         Uint32 elapsed = SDL_GetTicks() - transitionStartTime;
         if (elapsed <= HALF_TRANSITION) {
@@ -371,14 +344,15 @@ void Game::render()
     SDL_Rect bgRect = {0, 0, static_cast<int>(effectiveScreenWidth), static_cast<int>(effectiveScreenHeight)};
     SDL_RenderCopy(mRenderer, mBackgroundTexture, nullptr, &bgRect);
 
-    bool WeHaveDecorations, WeHavePlatforms, WeHaveSolidPlatforms, WeHaveWalls, WeHaveCrates, WeHaveDoors;
+  //  bool WeHaveDecorations, WeHavePlatforms, WeHaveSolidPlatforms, WeHaveWalls, WeHaveCrates, WeHaveDoors;
 
     for (auto &decoration : mDecorations)
     {
         if (decoration.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             decoration.render(mRenderer, mCamera.getPosition());
-            WeHaveDecorations = true;
+          //  WeHaveDecorations = true;
+            std::cout << "We have decorations" << std::endl;
         }
     }
 
@@ -387,7 +361,8 @@ void Game::render()
         if (platform.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             platform.render(mRenderer, mCamera.getPosition());
-            WeHavePlatforms = true;
+          //  WeHavePlatforms = true;
+            std::cout << "We have platforms" << std::endl;
         }
     }
 
@@ -396,7 +371,8 @@ void Game::render()
         if (solidPlatform.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             solidPlatform.render(mRenderer, mCamera.getPosition());
-            WeHaveSolidPlatforms = true;
+           // WeHaveSolidPlatforms = true;
+           std::cout << "We have solid platforms" << std::endl;
         }
     }
 
@@ -405,7 +381,8 @@ void Game::render()
         if (wall.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             wall.render(mRenderer, mCamera.getPosition());
-            WeHaveWalls = true;
+           // WeHaveWalls = true;
+            std::cout << "We have walls" << std::endl;
         }
     }
 
@@ -416,7 +393,8 @@ void Game::render()
         if (crate.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             crate.render(mRenderer, mCamera.getPosition());
-            WeHaveCrates = true;
+          //  WeHaveCrates = true;
+            std::cout << "We have crates" << std::endl;
         }
     }
 
@@ -425,15 +403,14 @@ void Game::render()
         if (door.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             door.render(mRenderer, mCamera.getPosition());
-            WeHaveDoors = true;
+         //   WeHaveDoors = true;
+            std::cout << "We have doors" << std::endl;
         }
     }
 
-    if (WeHaveDecorations == true && WeHavePlatforms == true && WeHaveSolidPlatforms == true && WeHaveWalls == true && WeHaveCrates == true && WeHaveDoors == true)
-    {
-        std::cout << "We have all objects" << std::endl;
-        mPlayer.render(mRenderer, mCamera.getPosition());
-    }
+   
+        //std::cout << "We have all objects" << std::endl;
+    mPlayer.render(mRenderer, mCamera.getPosition());
     SDL_RenderPresent(mRenderer);
 }
 

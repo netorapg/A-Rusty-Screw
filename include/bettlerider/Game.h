@@ -70,7 +70,7 @@ private:
     SDL_Texture* mBackgroundTexture;
 
     void renderText(const char* text, int x, int y, TTF_Font* font);
-    void loadLevelFromJSON(const std::string& filePath);
+    void loadGameLevelFromTMX(const std::string& filePath);
 
     Vector mCAmeraPosition;
     Vector mCameraSize;
