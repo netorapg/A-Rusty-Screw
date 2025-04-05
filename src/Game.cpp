@@ -87,6 +87,7 @@ Game::~Game()
 
 
 void Game::loadGameLevelFromTMX(const std::string &filePath){
+    std::cout << "Loading TMX file: " << filePath << std::endl;
     mPlatforms.clear();
     mWalls.clear();
     mSolidPlatforms.clear();
@@ -120,7 +121,7 @@ void Game::loadGameLevelFromTMX(const std::string &filePath){
         const char* layerName = layer->Attribute("name");
         XMLElement* data = layer->FirstChildElement("data");
 
-        if (data && strcmp(layerName, "decorations") == 0) {
+        if (data && strcmp(layerName, "blocks") == 0 || strcmp(layerName, "decorations") == 0) {
             std::string csvData = data->GetText();
             std::istringstream ss(csvData);
             std::string token;
@@ -129,14 +130,23 @@ void Game::loadGameLevelFromTMX(const std::string &filePath){
             int layerWidth = layer->IntAttribute("width");
 
             while (std::getline(ss, token, ',')) {
+             //   token.erase(std::remove_if(token.begin(), token.end(), ::isspace), token.end());
+              //  std::cout << "Token: \"" << token << "\"" << std::endl;
                 int tileId = std::stoi(token);
                 if (tileId != 0) {
+                    int x = (index % layerWidth) * tileSize;
+                    int y = (index / layerWidth) * tileSize;
+
+                    if (strcmp(layerName, "decorations") == 0) {
+                        mDecorations.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
+                        std::cout << "Decoration criada em: " << x << "," << y 
+                             << " com tileId: " << tileId << std::endl;
+                    }
                     auto it = tileTypeMap.find(tileId);
                     if (it != tileTypeMap.end()) {
-                        int x = (index % layerWidth) * tileSize;
-                        int y = (index / layerWidth) * tileSize;
-
-                        switch(it->second) {
+                       
+                        if (strcmp(layerName, "blocks") == 0) {
+                              switch(it->second) {
                             case 1 : // Plataforma vazada
                                 mPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
                                 break;
@@ -149,6 +159,7 @@ void Game::loadGameLevelFromTMX(const std::string &filePath){
                             case 4 : // Caixote
                                 mCrates.emplace_back(Vector(x, y),  mRenderer);
                                 break;
+                        }
                         }
                     }
                 }
@@ -230,7 +241,7 @@ void Game::handleEvents()
 
 void Game::update()
 {
-    SDL_Log("Game::update() - DeltaTime: %f", deltaTime);
+   // SDL_Log("Game::update() - DeltaTime: %f", deltaTime);
     if(isTransitioning) {
         
         if (SDL_GetTicks() - transitionStartTime > TRANSITION_DELAY) {
@@ -315,7 +326,7 @@ void Game::update()
 
 void Game::render()
 {
-    SDL_Log("Game::render() chamado");
+  //  SDL_Log("Game::render() chamado");
     
     if (isTransitioning) {
         Uint32 elapsed = SDL_GetTicks() - transitionStartTime;
@@ -328,7 +339,7 @@ void Game::render()
         } else {
             alpha = 0;
         }   
-    
+        
         SDL_SetRenderDrawBlendMode(mRenderer, SDL_BLENDMODE_BLEND);
         SDL_Rect fadeRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
         SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, alpha);
@@ -352,7 +363,7 @@ void Game::render()
         {
             decoration.render(mRenderer, mCamera.getPosition());
           //  WeHaveDecorations = true;
-            std::cout << "We have decorations" << std::endl;
+       //     std::cout << "We have decorations" << std::endl;
         }
     }
 
@@ -362,7 +373,7 @@ void Game::render()
         {
             platform.render(mRenderer, mCamera.getPosition());
           //  WeHavePlatforms = true;
-            std::cout << "We have platforms" << std::endl;
+          //  std::cout << "We have platforms" << std::endl;
         }
     }
 
@@ -372,7 +383,7 @@ void Game::render()
         {
             solidPlatform.render(mRenderer, mCamera.getPosition());
            // WeHaveSolidPlatforms = true;
-           std::cout << "We have solid platforms" << std::endl;
+       //    std::cout << "We have solid platforms" << std::endl;
         }
     }
 
@@ -382,7 +393,7 @@ void Game::render()
         {
             wall.render(mRenderer, mCamera.getPosition());
            // WeHaveWalls = true;
-            std::cout << "We have walls" << std::endl;
+         //   std::cout << "We have walls" << std::endl;
         }
     }
 
@@ -394,7 +405,7 @@ void Game::render()
         {
             crate.render(mRenderer, mCamera.getPosition());
           //  WeHaveCrates = true;
-            std::cout << "We have crates" << std::endl;
+       //     std::cout << "We have crates" << std::endl;
         }
     }
 
@@ -404,7 +415,7 @@ void Game::render()
         {
             door.render(mRenderer, mCamera.getPosition());
          //   WeHaveDoors = true;
-            std::cout << "We have doors" << std::endl;
+        //    std::cout << "We have doors" << std::endl;
         }
     }
 

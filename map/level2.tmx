@@ -6,7 +6,30 @@
  <tileset firstgid="1" name="fulltile" tilewidth="32" tileheight="32" tilecount="225" columns="15">
   <image source="../assets/fulltile.png" width="490" height="503"/>
  </tileset>
- <layer id="1" name="Tile Layer 1" width="20" height="15">
+ <objectgroup id="2" name="spawns">
+  <object id="4" type="door" x="0" y="160">
+   <properties>
+    <property name="spawn_x" type="float" value="36"/>
+    <property name="spawn_y" type="float" value="16"/>
+    <property name="target" value="../map/level1.tmx"/>
+   </properties>
+  </object>
+  <object id="5" type="door" x="640" y="160">
+   <properties>
+    <property name="spawn_x" type="float" value="1"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/level3.tmx"/>
+   </properties>
+  </object>
+  <object id="6" type="door" x="640" y="384">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="7"/>
+    <property name="target" value="../map/level4.tmx"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <layer id="1" name="blocks" width="20" height="15">
   <data encoding="csv">
 64,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,64,
 64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,
@@ -25,27 +48,4 @@
 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0
 </data>
  </layer>
- <objectgroup id="2" name="spawns">
-  <object id="4" type="door" x="0" y="160">
-   <properties>
-    <property name="spawn_x" type="float" value="36"/>
-    <property name="spawn_y" type="float" value="16"/>
-    <property name="target" value="../map/level1.json"/>
-   </properties>
-  </object>
-  <object id="5" type="door" x="640" y="160">
-   <properties>
-    <property name="spawn_x" type="float" value="1"/>
-    <property name="spawn_y" type="float" value="8"/>
-    <property name="target" value="../map/level3.json"/>
-   </properties>
-  </object>
-  <object id="6" type="door" x="640" y="384">
-   <properties>
-    <property name="spawn_x" type="float" value="2"/>
-    <property name="spawn_y" type="float" value="7"/>
-    <property name="target" value="../map/level4.json"/>
-   </properties>
-  </object>
- </objectgroup>
 </map>
