@@ -69,6 +69,8 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     }
 
     loadGameLevelFromTMX("../map/level1.tmx");
+    mPlayerActivated = false;
+    mActivationTime = SDL_GetTicks() + 500;
     Vector playerPos = mPlayer.getPosition();
     mCamera.setPosition(Vector(playerPos.x - (SCREEN_WIDTH/(2*PLAYER_ZOOM_FACTOR)), playerPos.y - (SCREEN_HEIGHT/(2*PLAYER_ZOOM_FACTOR))));
 }
@@ -136,12 +138,6 @@ void Game::loadGameLevelFromTMX(const std::string &filePath){
                 if (tileId != 0) {
                     int x = (index % layerWidth) * tileSize;
                     int y = (index / layerWidth) * tileSize;
-
-                    if (strcmp(layerName, "decorations") == 0) {
-                        mDecorations.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
-                        std::cout << "Decoration criada em: " << x << "," << y 
-                             << " com tileId: " << tileId << std::endl;
-                    }
                     auto it = tileTypeMap.find(tileId);
                     if (it != tileTypeMap.end()) {
                        
@@ -162,6 +158,12 @@ void Game::loadGameLevelFromTMX(const std::string &filePath){
                         }
                         }
                     }
+                    if (strcmp(layerName, "decorations") == 0) {
+                        mDecorations.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
+                        std::cout << "Decoration criada em: " << x << "," << y 
+                             << " com tileId: " << tileId << std::endl;
+                    }
+                   
                 }
                 index++;
             }
@@ -250,7 +252,7 @@ void Game::update()
             mPlayer.setPosition(targetSpawn);
             mPlayer.setVelocity(currentVelocity);
             mPlayerActivated = false;
-            mActivationTime = SDL_GetTicks();
+            mActivationTime = SDL_GetTicks() + 500;
             isTransitioning = false;
         }
         return;
@@ -259,11 +261,13 @@ void Game::update()
     std::string levelToLoad = "";
     Vector spawnPosition;
     //mPlayer.update();
-    if (!mPlayerActivated && SDL_GetTicks() > mActivationTime) {
+    
+    if (SDL_GetTicks() > mActivationTime) {
         mPlayerActivated = true;
     }
     if (mPlayerActivated) {
         mPlayer.update(deltaTime);
+     //   std::cout << "Player ativado após " << (SDL_GetTicks() - mActivationTime) << "ms" << std::endl;
     }
     PhysicsEngine::HandleCollisions(
         mPlayer, mWalls, mPlatforms, mSolidPlatforms);
@@ -283,7 +287,7 @@ void Game::update()
             targetSpawn = spawnPosition;
        }
     }
-
+  
     Vector playerPosition = mPlayer.getPosition();
 
     /*std::cout << "Player Position: (" << playerPosition.x << ", "
