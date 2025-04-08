@@ -1,3 +1,4 @@
+// Decoration.h
 #ifndef DECORATION_H
 #define DECORATION_H
 
@@ -12,10 +13,10 @@ class Decoration : public StaticObject {
 private:
     Animation mAnimation;
 public:
-    Decoration(const Vector position, const Vector size, SDL_Renderer* renderer, const std::string& texturePath);
+    Decoration(const Vector position, const Vector size, SDL_Texture* texture, int tileId);
     void render(SDL_Renderer* renderer, Vector cameraPosition) override;
-}; //
- 
-}
+};
+
+} // namespace BRTC
 
 #endif // DECORATION_H

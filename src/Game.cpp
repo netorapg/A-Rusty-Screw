@@ -10,7 +10,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
 {
     std::cout << "Game constructor called" << std::endl;
 
-    mPlatformsTexturePath = "../assets/fulltile.png";
+   mPlatformsTexturePath = "../assets/fulltile.png";
 
     SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     SDL_RenderSetIntegerScale(mRenderer, SDL_TRUE);
@@ -27,6 +27,13 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     {
         std::cerr << "Failed to load background image: " << IMG_GetError() << std::endl;
     }
+
+    mPlatformsTexture = IMG_LoadTexture(renderer, mPlatformsTexturePath.c_str());
+    if (!mPlatformsTexture)
+    {
+        std::cerr << "Failed to load platforms texture: " << IMG_GetError() << std::endl;
+    }
+
     mBackgroundTexture =
         SDL_CreateTextureFromSurface(renderer, loadedBackground);
     SDL_FreeSurface(loadedBackground);
@@ -144,13 +151,13 @@ void Game::loadGameLevelFromTMX(const std::string &filePath){
                         if (strcmp(layerName, "blocks") == 0) {
                               switch(it->second) {
                             case 1 : // Plataforma vazada
-                                mPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
+                                mPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mPlatformsTexture, tileId);
                                 break;
                             case 2 : // Plataforma sólida
-                                mSolidPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
+                                mSolidPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mPlatformsTexture, tileId);
                                 break;
                             case 3 : // Parede
-                                mWalls.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
+                                mWalls.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mPlatformsTexture, tileId);
                                 break;
                             case 4 : // Caixote
                                 mCrates.emplace_back(Vector(x, y),  mRenderer);
@@ -159,9 +166,8 @@ void Game::loadGameLevelFromTMX(const std::string &filePath){
                         }
                     }
                     if (strcmp(layerName, "decorations") == 0) {
-                        mDecorations.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mRenderer, mPlatformsTexturePath);
-                        std::cout << "Decoration criada em: " << x << "," << y 
-                             << " com tileId: " << tileId << std::endl;
+                        mDecorations.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mPlatformsTexture, tileId);
+                       
                     }
                    
                 }
@@ -228,7 +234,7 @@ void Game::handleEvents()
             resetGame();
 
         if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE)
-            Mix_PlayChannel(-1, mJumpSound, 0);
+     //       Mix_PlayChannel(-1, mJumpSound, 0);
 
         if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_F11)
         {
