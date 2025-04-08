@@ -14,7 +14,7 @@ namespace BRTC
 private:
     Animation mAnimation;
 public:
-Wall(const Vector position, const Vector size, SDL_Renderer* renderer, const std::string& texturePath);
+Wall(const Vector position, const Vector size, SDL_Texture* texture, int tileId);
 
 void render(SDL_Renderer* renderer, Vector cameraPosition) override;
 };

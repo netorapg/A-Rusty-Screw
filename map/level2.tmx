@@ -1,11 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="20" height="15" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="7">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="20" height="15" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="7">
  <editorsettings>
   <export target="level2.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" name="fulltile" tilewidth="32" tileheight="32" tilecount="225" columns="15">
   <image source="../assets/fulltile.png" width="490" height="503"/>
  </tileset>
+ <layer id="3" name="decorations" width="20" height="15">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,0,
+0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,0,
+0,3,47,47,47,47,3,3,3,3,3,3,3,3,3,3,3,3,3,0,
+3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+0,0,0,0,0,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,
+0,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,0,
+0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,0,
+0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,0,
+0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,0,
+0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3,
+0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3,
+0,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,48,48,48
+</data>
+ </layer>
  <objectgroup id="2" name="spawns">
   <object id="4" type="door" x="0" y="160">
    <properties>
