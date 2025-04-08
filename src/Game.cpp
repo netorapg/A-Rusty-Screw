@@ -120,8 +120,12 @@ void Game::loadGameLevelFromTMX(const std::string &filePath){
 
     std::unordered_map<int, int> tileTypeMap = {
         {5, 2}, // Plataforma Sólida
+        {58, 2},
+        {16, 2},
         {18, 1}, // Plataforma vazada
         {64, 3}, // Parede
+        {15, 3},
+        {41, 3},
         {65, 4} // Caixote
     };
 

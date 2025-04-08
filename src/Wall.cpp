@@ -18,7 +18,10 @@ Wall::Wall(const Vector position, const Vector size, SDL_Texture* texture, int t
       int tilesetX = (relativeId % tilesetColumns) * tileWidth;
       int tilesetY = (relativeId / tilesetColumns) * tileHeight;
       
-    SpritePtr wallSprite = std::make_shared<Sprite>(texture, SDL_Rect{97, 129, static_cast<int>(size.x), static_cast<int>(size.y)});
+    SpritePtr wallSprite =  std::make_shared<Sprite>(
+        texture, 
+        SDL_Rect{tilesetX, tilesetY, static_cast<int>(size.x), static_cast<int>(size.y)}
+    );
 
     mAnimation.addFrame({wallSprite, 0.0f, {0, 0}});
     mAnimation.setLoop(false);
