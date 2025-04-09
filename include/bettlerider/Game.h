@@ -69,6 +69,9 @@ private:
 
     SDL_Texture* mBackgroundTexture;
     SDL_Texture* mPlatformsTexture;
+    SDL_Texture* mParallaxLayers[5];
+    float mParallaxFactors[5];
+    
 
     void renderText(const char* text, int x, int y, TTF_Font* font);
     void loadGameLevelFromTMX(const std::string& filePath);
