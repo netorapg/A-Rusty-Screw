@@ -8,6 +8,10 @@ namespace BRTC
 Player::Player( Vector position, SDL_Renderer *renderer )
     : DynamicObject( position, Vector( 29, 29) ), mFacingRight( true )
 {
+  mPunchOffsetRight = Vector(0, 0);      
+  mPunchOffsetLeft = Vector(-8.9, 0);       
+  mStrongPunchOffsetRight = Vector(0, 0); 
+  mStrongPunchOffsetLeft = Vector(-13.5, 0); 
 
   SDL_Surface* surface = IMG_Load("../assets/bezourinha_sprites.png");
   if (!surface) {
@@ -165,9 +169,25 @@ void Player::render( SDL_Renderer *renderer, Vector cameraPosition )
   Vector screenPos = getPosition() - cameraPosition;
   SpritePtr currentSprite = animations[currentAnimation].getCurrentSprite();
   if(currentSprite) {
-    SDL_Point offset = *animations[currentAnimation].getCurrentOffset();
-    currentSprite->draw(renderer, static_cast<int>(screenPos.x + offset.x), static_cast<int>(screenPos.y + offset.y), !mFacingRight);
-  }
+    SDL_Point baseOffset = *animations[currentAnimation].getCurrentOffset();
+    Vector additionalOffset(0, 0);
+    
+    // Aplica offset adicional baseado na direção e animação
+    if (!mFacingRight) {
+        if (currentAnimation == "punch") {
+            additionalOffset = mPunchOffsetLeft;
+        } else if (currentAnimation == "strongPunch") {
+            additionalOffset = mStrongPunchOffsetLeft;
+        }
+    }
+    
+    currentSprite->draw(
+        renderer, 
+        static_cast<int>(screenPos.x + baseOffset.x + additionalOffset.x),
+        static_cast<int>(screenPos.y + baseOffset.y + additionalOffset.y),
+        !mFacingRight
+    );
+}
 }
 
 void Player::setPassingThroughPlatform( bool enable )

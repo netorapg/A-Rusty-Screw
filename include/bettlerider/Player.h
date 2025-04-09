@@ -39,6 +39,10 @@ private:
     bool mIsFalling = false;
     std::unordered_map<std::string, Animation> animations;
     std::string currentAnimation;
+    Vector mPunchOffsetRight;
+    Vector mPunchOffsetLeft;
+    Vector mStrongPunchOffsetRight;
+    Vector mStrongPunchOffsetLeft;
     
     
     
