@@ -85,13 +85,14 @@ void Player::handleEvent( SDL_Event &e )
         if(isOnGround() )
         {
           setOnGround( false );
-          mIsJumping = true;
+         
           velocity.y = JUMP_FORCE;
         }
         break;
       case SDLK_s:
         if( isOnGround() )
           setPassingThroughPlatform( true );
+          setOnGround( false );
         break;
       case SDLK_j:
         mIspunching = true;
@@ -139,11 +140,13 @@ void Player::update(float deltaTime)
 
   std::string previousAnimation = currentAnimation; 
 
-  if( isOnGround() ) 
+  if( isOnGround() )
     mIsJumping = false;
+    if( !isOnGround() )
+    mIsJumping = true;
   if( isOnGround() && velocity.x != 0.0f )
     currentAnimation = "run";
-  else if( mIsJumping )
+  else if( mIsJumping)
     currentAnimation = "jump";
   else if( mIspunching )
     currentAnimation = "punch";

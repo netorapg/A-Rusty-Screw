@@ -36,6 +36,7 @@ private:
     bool mIsJumping;
     bool mIspunching = false;
     bool mIspunchingHarder = false;
+    bool mIsFalling = false;
     std::unordered_map<std::string, Animation> animations;
     std::string currentAnimation;
     
