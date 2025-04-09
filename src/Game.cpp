@@ -11,32 +11,74 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     std::cout << "Game constructor called" << std::endl;
 
    mPlatformsTexturePath = "../assets/fulltile.png";
+   mPlatformsTexture = IMG_LoadTexture(renderer, mPlatformsTexturePath.c_str());
+   if (!mPlatformsTexture)
+   {
+       std::cerr << "Failed to load platforms texture: " << IMG_GetError() << std::endl;
+   }
+
 
     SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     SDL_RenderSetIntegerScale(mRenderer, SDL_TRUE);
     
-
+/*
     if (SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP) != 0)
     {
         std::cerr << "Failed to set fullscreen mode: " << SDL_GetError() << std::endl;
-    }
+    }*/
 
-    SDL_Surface *loadedBackground =
-        IMG_Load("../assets/Background.png");
+   /* SDL_Surface *loadedBackground = IMG_Load("../assets/Background.png");
     if (loadedBackground == nullptr)
     {
         std::cerr << "Failed to load background image: " << IMG_GetError() << std::endl;
     }
-
-    mPlatformsTexture = IMG_LoadTexture(renderer, mPlatformsTexturePath.c_str());
-    if (!mPlatformsTexture)
-    {
-        std::cerr << "Failed to load platforms texture: " << IMG_GetError() << std::endl;
-    }
-
-    mBackgroundTexture =
+     mBackgroundTexture =
         SDL_CreateTextureFromSurface(renderer, loadedBackground);
-    SDL_FreeSurface(loadedBackground);
+    SDL_FreeSurface(loadedBackground);   
+     // Carregar fundo distante
+   SDL_Surface *loadedFarBackground = IMG_Load("../assets/parallax/1.png");
+   if (!loadedFarBackground) {
+       std::cerr << "Erro ao carregar BackgroundFar: " << IMG_GetError() << std::endl;
+   }
+   mFarBackgroundTexture = SDL_CreateTextureFromSurface(renderer, loadedFarBackground);
+   SDL_FreeSurface(loadedFarBackground);
+
+   // Carregar fundo médio
+   SDL_Surface *loadedMidBackground = IMG_Load("../assets/parallax/2.png");
+   if (!loadedMidBackground) {
+       std::cerr << "Erro ao carregar BackgroundMid: " << IMG_GetError() << std::endl;
+   }
+   mMidBackgroundTexture = SDL_CreateTextureFromSurface(renderer, loadedMidBackground);
+   SDL_FreeSurface(loadedMidBackground); 
+    */
+
+    const char* layerFiles[5] = {
+        "../assets/parallax/1.png",
+        "../assets/parallax/2.png",
+        "../assets/parallax/3.png",
+        "../assets/parallax/4.png",
+        "../assets/parallax/5.png"
+    };
+
+    mParallaxFactors[0] = 0.1f;
+    mParallaxFactors[1] = 0.3f;
+    mParallaxFactors[2] = 0.5f;
+    mParallaxFactors[3] = 0.7f;
+    mParallaxFactors[4] = 0.9f;
+
+    for (int i = 0; i < 5; i++) {
+        SDL_Surface *loadedSurface = IMG_Load(layerFiles[i]);
+        if (!loadedSurface) {
+            std::cerr << "Erro ao carregar  " << layerFiles[i] << ": " << IMG_GetError() << std::endl;
+            continue;
+        }
+        mParallaxLayers[i] = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+        SDL_FreeSurface(loadedSurface);
+    }
+  
+
+  
+   
 
     if (TTF_Init() == -1)
     {
@@ -84,10 +126,11 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
 static std::unordered_map<std::string, json_object*> levelCache;
 Game::~Game()
 {
-   /* for (auto& entry: levelCache) {
-        json_object_put(entry.second);
+   for (int i = 0; i < 5; i++) {
+        if (mParallaxLayers[i]) {
+            SDL_DestroyTexture(mParallaxLayers[i]);
+        }
     }
-    levelCache.clear();*/
     Mix_FreeChunk(mJumpSound);
     TTF_CloseFont(mFont);
     TTF_CloseFont(mSmallFont);
@@ -119,13 +162,9 @@ void Game::loadGameLevelFromTMX(const std::string &filePath){
     mapHeight = map->IntAttribute("height") * tileHeight;
 
     std::unordered_map<int, int> tileTypeMap = {
-        {5, 2}, // Plataforma Sólida
-        {58, 2},
-        {16, 2},
+        {5, 2},{9, 2},{16, 2}, {31, 2},  // Plataforma Sólida
         {18, 1}, // Plataforma vazada
-        {64, 3}, // Parede
-        {15, 3},
-        {41, 3},
+        {64, 3},{15, 3},{41, 3}, {87, 3}, // Parede
         {65, 4} // Caixote
     };
 
@@ -368,8 +407,45 @@ void Game::render()
     SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
     SDL_RenderClear(mRenderer);
 
-    SDL_Rect bgRect = {0, 0, static_cast<int>(effectiveScreenWidth), static_cast<int>(effectiveScreenHeight)};
-    SDL_RenderCopy(mRenderer, mBackgroundTexture, nullptr, &bgRect);
+    Vector cameraPos = mCamera.getPosition();
+    
+    for (int i = 0; i < 5; i++) {
+        if (mParallaxLayers[i]) {
+            int texWidth, texHeight;
+            SDL_QueryTexture(mParallaxLayers[i], nullptr, nullptr, &texWidth, &texHeight);
+
+            float factor = mParallaxFactors[i];
+            float parallaxOffsetX = cameraPos.x * factor;
+            float parallaxOffsetY = cameraPos.y * factor * 0.5f;
+
+            // Calcula a posição base para repetição
+            float baseX = -parallaxOffsetX;
+            float baseY = -parallaxOffsetY;
+
+            // Calcula quantas vezes a textura precisa se repetir
+            int repeatX = static_cast<int>(effectiveScreenWidth / texWidth) + 2;
+            int repeatY = static_cast<int>(effectiveScreenHeight / texHeight) + 2;
+
+            // Ajusta o ponto inicial para preencher toda a tela
+            int startX = static_cast<int>(baseX) % texWidth;
+            int startY = static_cast<int>(baseY) % texHeight;
+            if (startX > 0) startX -= texWidth;
+            if (startY > 0) startY -= texHeight;
+
+            // Renderiza as repetições da textura
+            for (int x = 0; x < repeatX; x++) {
+                for (int y = 0; y < repeatY; y++) {
+                    SDL_Rect layerRect = {
+                        startX + x * texWidth,
+                        startY + y * texHeight,
+                        texWidth,
+                        texHeight
+                    };
+                    SDL_RenderCopy(mRenderer, mParallaxLayers[i], nullptr, &layerRect);
+                }
+            }
+        }
+    }
 
   //  bool WeHaveDecorations, WeHavePlatforms, WeHaveSolidPlatforms, WeHaveWalls, WeHaveCrates, WeHaveDoors;
 
