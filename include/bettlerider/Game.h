@@ -14,6 +14,7 @@
 #include <SDL2/SDL_image.h>
 #include <algorithm>
 #include <iostream>
+#include <array>
 
 
 #include "Platform.h"
@@ -69,8 +70,8 @@ private:
 
     SDL_Texture* mBackgroundTexture;
     SDL_Texture* mPlatformsTexture;
-    SDL_Texture* mParallaxLayers[5];
-    float mParallaxFactors[5];
+    std::array<SDL_Texture*, 5> mParallaxLayers;
+    std::array<float, 5> mParallaxFactors;
     
 
     void renderText(const char* text, int x, int y, TTF_Font* font);

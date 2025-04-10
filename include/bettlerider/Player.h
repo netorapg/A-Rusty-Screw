@@ -43,6 +43,11 @@ private:
     Vector mPunchOffsetLeft;
     Vector mStrongPunchOffsetRight;
     Vector mStrongPunchOffsetLeft;
+
+    void DrawDebugRect(SDL_Renderer* renderer, int x, int y, int w, int h, Uint8 r, Uint8 g, Uint8 b);
+    bool mShowDebugRects = false; 
+
+    
     
     
     

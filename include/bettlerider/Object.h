@@ -1,14 +1,11 @@
 #ifndef __BETTLE_RIDER_OBJECT_HEADER_H__
 #define __BETTLE_RIDER_OBJECT_HEADER_H__
 
-//#include <SDL2/SDL.h>
-#include "../../my-lib-master/include/my-lib/math-vector.h"
 #include "Globals.h"
 
 
 namespace BRTC {
 
-    using Vector = Mylib::Math::Vector<float, 2>;
 
     class Object
     {

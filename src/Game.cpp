@@ -21,36 +21,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     SDL_RenderSetIntegerScale(mRenderer, SDL_TRUE);
     
-/*
-    if (SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP) != 0)
-    {
-        std::cerr << "Failed to set fullscreen mode: " << SDL_GetError() << std::endl;
-    }*/
 
-   /* SDL_Surface *loadedBackground = IMG_Load("../assets/Background.png");
-    if (loadedBackground == nullptr)
-    {
-        std::cerr << "Failed to load background image: " << IMG_GetError() << std::endl;
-    }
-     mBackgroundTexture =
-        SDL_CreateTextureFromSurface(renderer, loadedBackground);
-    SDL_FreeSurface(loadedBackground);   
-     // Carregar fundo distante
-   SDL_Surface *loadedFarBackground = IMG_Load("../assets/parallax/1.png");
-   if (!loadedFarBackground) {
-       std::cerr << "Erro ao carregar BackgroundFar: " << IMG_GetError() << std::endl;
-   }
-   mFarBackgroundTexture = SDL_CreateTextureFromSurface(renderer, loadedFarBackground);
-   SDL_FreeSurface(loadedFarBackground);
-
-   // Carregar fundo médio
-   SDL_Surface *loadedMidBackground = IMG_Load("../assets/parallax/2.png");
-   if (!loadedMidBackground) {
-       std::cerr << "Erro ao carregar BackgroundMid: " << IMG_GetError() << std::endl;
-   }
-   mMidBackgroundTexture = SDL_CreateTextureFromSurface(renderer, loadedMidBackground);
-   SDL_FreeSurface(loadedMidBackground); 
-    */
 
     const char* layerFiles[5] = {
         "../assets/parallax/1.png",
@@ -89,6 +60,7 @@ Game::Game(SDL_Window *window, SDL_Renderer *renderer)
     {
         std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
+    // Deixei comentada a musica e o som de pulo, elas funcionam, mas não tem necessidade de ficarem ligadas sempre
 
   /*  mMusic = Mix_LoadMUS("../assets/8-bit-game-158815.mp3");
     if (mMusic == nullptr)
@@ -309,26 +281,18 @@ void Game::update()
    
     std::string levelToLoad = "";
     Vector spawnPosition;
-    //mPlayer.update();
     
     if (SDL_GetTicks() > mActivationTime) {
         mPlayerActivated = true;
     }
     if (mPlayerActivated) {
         mPlayer.update(deltaTime);
-     //   std::cout << "Player ativado após " << (SDL_GetTicks() - mActivationTime) << "ms" << std::endl;
     }
     PhysicsEngine::HandleCollisions(
         mPlayer, mWalls, mPlatforms, mSolidPlatforms);
     if (PhysicsEngine::HandlePlayerCollisions(
         mPlayer, mCrates, mDoors, levelToLoad, spawnPosition))
     { 
-        /*Vector newSpawn = (spawnPosition.x >= 0 && spawnPosition.y >= 0) ? spawnPosition : Vector(-1, -1);
-
-        loadLevelFromJSON(levelToLoad);
-        if (newSpawn.x >= 0 && newSpawn.y >= 0) {
-            mPlayer.setPosition(newSpawn);
-        }*/
        if(!isTransitioning) {
             isTransitioning = true;
             transitionStartTime = SDL_GetTicks();
@@ -339,11 +303,6 @@ void Game::update()
   
     Vector playerPosition = mPlayer.getPosition();
 
-    /*std::cout << "Player Position: (" << playerPosition.x << ", "
-              << playerPosition.y << ")\n";
-    std::cout << "Camera Position: (" << mCamera.getPosition().x << ", " << mCamera.getPosition().y << ")\n";
-    std::cout << "mOnGround: " << mPlayer.isOnGround()
-              << ", mFalling: " << mPlayer.isFalling() << std::endl;*/
 
     float cameraMarginX = effectiveScreenWidth * 0.50f;
     float cameraMarginY = effectiveScreenHeight * 0.50f;
@@ -415,29 +374,33 @@ void Game::render()
             SDL_QueryTexture(mParallaxLayers[i], nullptr, nullptr, &texWidth, &texHeight);
 
             float factor = mParallaxFactors[i];
-            float parallaxOffsetX = cameraPos.x * factor;
-            float parallaxOffsetY = cameraPos.y * factor * 0.5f;
+            Vector parallaxOffset;
+            parallaxOffset.x = cameraPos.x * factor;
+            parallaxOffset.y = cameraPos.y * factor * 0.5f;
 
             // Calcula a posição base para repetição
-            float baseX = -parallaxOffsetX;
-            float baseY = -parallaxOffsetY;
+            Vector base;
+            base.x = -parallaxOffset.x;
+            base.y = -parallaxOffset.y;
 
             // Calcula quantas vezes a textura precisa se repetir
-            int repeatX = static_cast<int>(effectiveScreenWidth / texWidth) + 2;
-            int repeatY = static_cast<int>(effectiveScreenHeight / texHeight) + 2;
+            Vector repeat;
+            repeat.x = static_cast<int>(effectiveScreenWidth / texWidth) + 2;
+            repeat.y = static_cast<int>(effectiveScreenHeight / texHeight) + 2;
 
             // Ajusta o ponto inicial para preencher toda a tela
-            int startX = static_cast<int>(baseX) % texWidth;
-            int startY = static_cast<int>(baseY) % texHeight;
-            if (startX > 0) startX -= texWidth;
-            if (startY > 0) startY -= texHeight;
+            Vector start;
+            start.x = static_cast<int>(base.x) % texWidth;
+            start.y = static_cast<int>(base.y) % texHeight;
+            if (start.x > 0) start.x -= texWidth;
+            if (start.y > 0) start.y -= texHeight;
 
             // Renderiza as repetições da textura
-            for (int x = 0; x < repeatX; x++) {
-                for (int y = 0; y < repeatY; y++) {
+            for (int x = 0; x < repeat.x; x++) {
+                for (int y = 0; y < repeat.y; y++) {
                     SDL_Rect layerRect = {
-                        startX + x * texWidth,
-                        startY + y * texHeight,
+                        static_cast<int>(start.x + x * texWidth),
+                        static_cast<int>(start.y + y * texHeight),
                         texWidth,
                         texHeight
                     };
@@ -446,8 +409,6 @@ void Game::render()
             }
         }
     }
-
-  //  bool WeHaveDecorations, WeHavePlatforms, WeHaveSolidPlatforms, WeHaveWalls, WeHaveCrates, WeHaveDoors;
 
     for (auto &decoration : mDecorations)
     {
@@ -464,8 +425,6 @@ void Game::render()
         if (platform.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             platform.render(mRenderer, mCamera.getPosition());
-          //  WeHavePlatforms = true;
-          //  std::cout << "We have platforms" << std::endl;
         }
     }
 
@@ -474,8 +433,6 @@ void Game::render()
         if (solidPlatform.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             solidPlatform.render(mRenderer, mCamera.getPosition());
-           // WeHaveSolidPlatforms = true;
-       //    std::cout << "We have solid platforms" << std::endl;
         }
     }
 
@@ -484,8 +441,6 @@ void Game::render()
         if (wall.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             wall.render(mRenderer, mCamera.getPosition());
-           // WeHaveWalls = true;
-         //   std::cout << "We have walls" << std::endl;
         }
     }
 
@@ -496,8 +451,6 @@ void Game::render()
         if (crate.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             crate.render(mRenderer, mCamera.getPosition());
-          //  WeHaveCrates = true;
-       //     std::cout << "We have crates" << std::endl;
         }
     }
 
@@ -506,13 +459,10 @@ void Game::render()
         if (door.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
         {
             door.render(mRenderer, mCamera.getPosition());
-         //   WeHaveDoors = true;
-        //    std::cout << "We have doors" << std::endl;
         }
     }
 
-   
-        //std::cout << "We have all objects" << std::endl;
+
     mPlayer.render(mRenderer, mCamera.getPosition());
     SDL_RenderPresent(mRenderer);
 }

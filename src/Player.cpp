@@ -4,15 +4,16 @@
 
 namespace BRTC
 {
-
+  int sizeX = 29;
+  int sizeY = 29;
 Player::Player( Vector position, SDL_Renderer *renderer )
-    : DynamicObject( position, Vector( 29, 29) ), mFacingRight( true )
+    : DynamicObject( position, Vector( 28, 42) ), mFacingRight( true )
 {
-  mPunchOffsetRight = Vector(0, 0);      
-  mPunchOffsetLeft = Vector(-8.9, 0);       
-  mStrongPunchOffsetRight = Vector(0, 0); 
-  mStrongPunchOffsetLeft = Vector(-13.5, 0); 
-
+  const float idleOffsetX = (25.5 - 28) / 2.0f;
+  const float punchWidth = 37;
+  mPunchOffsetLeft = Vector(-(punchWidth - 29) + idleOffsetX, 0);
+  const float strongPunchWidth = 40;
+  mStrongPunchOffsetLeft = Vector(-(strongPunchWidth - 29) + idleOffsetX, 0);
   SDL_Surface* surface = IMG_Load("../assets/bezourinha_sprites.png");
   if (!surface) {
     throw std::runtime_error("Failed to load sprite sheet: " + std::string(IMG_GetError()));
@@ -164,30 +165,56 @@ void Player::update(float deltaTime)
   animations[currentAnimation].update(deltaTime);
 }
 
-void Player::render( SDL_Renderer *renderer, Vector cameraPosition )
-{
+void Player::DrawDebugRect(SDL_Renderer* renderer, int x, int y, int w, int h, Uint8 r, Uint8 g, Uint8 b) {
+  SDL_Rect rect = {x, y, w, h};
+  SDL_SetRenderDrawColor(renderer, r, g, b, 128); // Semi-transparente
+  SDL_RenderFillRect(renderer, &rect);
+  SDL_SetRenderDrawColor(renderer, r, g, b, 255); // Borda sólida
+  SDL_RenderDrawRect(renderer, &rect);
+}
+
+void Player::render(SDL_Renderer* renderer, Vector cameraPosition) {
   Vector screenPos = getPosition() - cameraPosition;
   SpritePtr currentSprite = animations[currentAnimation].getCurrentSprite();
+  
   if(currentSprite) {
-    SDL_Point baseOffset = *animations[currentAnimation].getCurrentOffset();
-    Vector additionalOffset(0, 0);
-    
-    // Aplica offset adicional baseado na direção e animação
-    if (!mFacingRight) {
-        if (currentAnimation == "punch") {
-            additionalOffset = mPunchOffsetLeft;
-        } else if (currentAnimation == "strongPunch") {
-            additionalOffset = mStrongPunchOffsetLeft;
+        SDL_Point baseOffset = *animations[currentAnimation].getCurrentOffset();
+        Vector additionalOffset(0, 0);
+        
+        // Aplica offset apenas para socos na esquerda
+        if (!mFacingRight) {
+            if (currentAnimation == "punch") {
+                additionalOffset = mPunchOffsetLeft;
+            } else if (currentAnimation == "strongPunch") {
+                additionalOffset = mStrongPunchOffsetLeft;
+            }
         }
+        
+        // Posição final com compensação
+        int renderX = static_cast<int>(screenPos.x + baseOffset.x + additionalOffset.x);
+        int renderY = static_cast<int>(screenPos.y + baseOffset.y);
+        
+        // Desenha debug (quadrado 29x29 fixo)
+        if (mShowDebugRects) {
+            // Quadro vermelho (posição real do jogador)
+            DrawDebugRect(renderer, 
+                        static_cast<int>(screenPos.x), 
+                        static_cast<int>(screenPos.y), 
+                        28, 42, 
+                        255, 0, 0);
+            
+            // Linha do centro para visualização
+            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+            SDL_RenderDrawLine(renderer, 
+                            static_cast<int>(screenPos.x) + 14, 
+                            static_cast<int>(screenPos.y) + 14, 
+                            renderX + 14, 
+                            renderY + 14);
+        }
+        
+        // Desenha a sprite com flip correto
+        currentSprite->draw(renderer, renderX, renderY, !mFacingRight);
     }
-    
-    currentSprite->draw(
-        renderer, 
-        static_cast<int>(screenPos.x + baseOffset.x + additionalOffset.x),
-        static_cast<int>(screenPos.y + baseOffset.y + additionalOffset.y),
-        !mFacingRight
-    );
-}
 }
 
 void Player::setPassingThroughPlatform( bool enable )

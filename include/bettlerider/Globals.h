@@ -7,11 +7,14 @@
 #include <json-c/json.h>
 #include <list>
 #include <string>
+#include "../../my-lib-master/include/my-lib/math-vector.h"
+
 
 
 namespace BRTC
 {
 inline SDL_Renderer* renderer;
+using Vector = Mylib::Math::Vector<float, 2>;
 
 inline constexpr float GRAVITY = 580.0f; 
 inline constexpr float FRICTION = 0.85f;

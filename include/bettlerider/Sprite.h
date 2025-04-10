@@ -2,7 +2,7 @@
 #define BETTLERIDER_SPRITE_H
 #include <SDL2/SDL.h>
 #include <memory>
-
+#include <array>
 namespace BRTC {
     class Sprite {
         public:
