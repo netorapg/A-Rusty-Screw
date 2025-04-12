@@ -81,7 +81,9 @@ namespace BRTC
             Vector mCAmeraPosition;
             Vector mCameraSize;
             Vector targetSpawn;
-
+            Vector getPlayerCenter() const;
+            Vector calculateCameraPosition(const Vector& playerCenter) const;
+            
             void renderText(const char* text, int x, int y, TTF_Font* font);
             void loadGameLevelFromTMX(const std::string& filePath);
             void clearLevelData();
@@ -92,7 +94,16 @@ namespace BRTC
             void processLayers(tinyxml2::XMLElement* layer, int tileSize, const std::unordered_map<int, int>& tileTypeMap);
             void processBlockTile(int tileId, int x, int y, int tileSize, const std::unordered_map<int, int>& tileTypeMap);
             void processDoorObject(tinyxml2::XMLElement* obj, float x, float y, int tileSize);
-
+            void handleTransition();
+            void completeTransition(const Vector& currentVelocity);
+            void updateGameState();
+            void checkPlayerActivation();
+            void updatePlayer();
+            void checkLevelTransitions();
+            void startTransition(const std::string& level, const Vector& spawn);
+            void updateCamera();
+            void applyCameraMargins(const Vector& playerCenter, Vector& cameraPosition);
+            void updateCrates();
     };
 }
 #endif

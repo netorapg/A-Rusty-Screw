@@ -327,11 +327,11 @@ namespace BRTC
     }
 
 
-void Game::handleEvents()
-{
-    SDL_Event e;
-    while (SDL_PollEvent(&e) != 0)
+    void Game::handleEvents()
     {
+        SDL_Event e;
+        while (SDL_PollEvent(&e) != 0)
+        {
         if (e.type == SDL_QUIT)
             mQuit = true;
         mPlayer.handleEvent(e);
@@ -351,84 +351,165 @@ void Game::handleEvents()
                 SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
         }
     }
-}
+    }
 
-void Game::update()
-{
-   // SDL_Log("Game::update() - DeltaTime: %f", deltaTime);
-    if(isTransitioning) {
-        Vector currentVelocity = mPlayer.getVelocity();
-        mPlayer.setVelocity(Vector(0, 0));
-        if (SDL_GetTicks() - transitionStartTime > TRANSITION_DELAY) {
-            loadGameLevelFromTMX(targetLevel);
-            std::cout << "Spawning at: " << targetSpawn.x << ", " << targetSpawn.y << std::endl;
-            mPlayer.setPosition(targetSpawn);
-            mPlayer.setVelocity(currentVelocity);
-            mPlayerActivated = false;
-            mActivationTime = SDL_GetTicks() + 500;
-            isTransitioning = false;
+    void Game::update()
+    {
+        handleTransition();
+        if (!isTransitioning) 
+        {
+            updateGameState();
+            updateCamera();
+            updateCrates();
         }
-        return;
     }
-   
-    std::string levelToLoad = "";
-    Vector spawnPosition;
+
+    void Game::handleTransition()
+    {
+        if (!isTransitioning) return;
+
+    Vector currentVelocity = mPlayer.getVelocity();
+    mPlayer.setVelocity(Vector(0, 0));
     
-    if (SDL_GetTicks() > mActivationTime) {
-        mPlayerActivated = true;
+    if (SDL_GetTicks() - transitionStartTime > TRANSITION_DELAY) 
+    {
+        completeTransition(currentVelocity);
     }
-    if (mPlayerActivated) {
+    }
+
+    void Game::completeTransition(const Vector& currentVelocity) 
+    {
+        loadGameLevelFromTMX(targetLevel);
+        mPlayer.setPosition(targetSpawn);
+        mPlayer.setVelocity(currentVelocity);
+        mPlayerActivated = false;
+        mActivationTime = SDL_GetTicks() + 500;
+        isTransitioning = false;
+    }
+
+    void Game::updateGameState()
+    {
+        checkPlayerActivation();
+        updatePlayer();
+        checkLevelTransitions();
+    }
+
+    void Game::checkPlayerActivation()
+    {
+        if (SDL_GetTicks() > mActivationTime) { mPlayerActivated = true; }
+    }
+
+    void Game::updatePlayer() 
+    {
+        if (mPlayerActivated) 
+        {
         mPlayer.update(deltaTime);
+        PhysicsEngine::HandleCollisions(mPlayer, mWalls, mPlatforms, mSolidPlatforms);
+        }
     }
-    PhysicsEngine::HandleCollisions(
-        mPlayer, mWalls, mPlatforms, mSolidPlatforms);
-    if (PhysicsEngine::HandlePlayerCollisions(
-        mPlayer, spawnPosition, mDoors, mCrates, levelToLoad))
-    { 
-       if(!isTransitioning) {
+
+    void Game::checkLevelTransitions()
+    {
+        std::string levelToLoad;
+        Vector spawnPosition;
+        if 
+        (
+            PhysicsEngine::HandlePlayerCollisions
+            (
+                mPlayer, 
+                spawnPosition, 
+                mDoors, 
+                mCrates, 
+                levelToLoad)
+            ) 
+            {
+            startTransition(levelToLoad, spawnPosition);
+            }
+        }
+
+    void Game::startTransition(const std::string& level, const Vector& spawn) 
+    {
+        if (!isTransitioning) 
+        {
             isTransitioning = true;
             transitionStartTime = SDL_GetTicks();
-            targetLevel = levelToLoad;
-            targetSpawn = spawnPosition;
-       }
+            targetLevel = level;
+            targetSpawn = spawn;
+        }
     }
-  
-    Vector playerPosition = mPlayer.getPosition();
 
-
-    float cameraMarginX = effectiveScreenWidth * 0.50f;
-    float cameraMarginY = effectiveScreenHeight * 0.50f;
-
-    // Mantenha o jogador centralizado na área visível reduzida
-    float playerCenterX = playerPosition.x + mPlayer.getWidth() / 2;
-    float playerCenterY = playerPosition.y + mPlayer.getHeight() / 2;
-
-    // Atualize a posição da câmera
-    mCamera.setPosition(Vector(playerCenterX - effectiveScreenWidth / 2, playerCenterY - effectiveScreenHeight / 2));
-    Vector cameraPosition = mCamera.getPosition();
-    cameraPosition.x = std::max(0.0f, std::min(cameraPosition.x, static_cast<float>(mapWidth) - effectiveScreenWidth));
-    cameraPosition.y = std::max(0.0f, std::min(cameraPosition.y, static_cast<float>(mapHeight) - effectiveScreenHeight));
-    mCamera.setPosition(cameraPosition);
-
-    if (playerCenterX < cameraPosition.x + cameraMarginX)
-        cameraPosition.x = playerCenterX - cameraMarginX;
-    else if (playerCenterX > cameraPosition.x + SCREEN_WIDTH - cameraMarginX)
-        cameraPosition.x = playerCenterX - (SCREEN_WIDTH - cameraMarginX);
-
-    if (playerCenterY < cameraPosition.y + cameraMarginY)
-        cameraPosition.y = playerCenterY - cameraMarginY;
-    else if (playerCenterY > cameraPosition.y + SCREEN_HEIGHT - cameraMarginY)
-        cameraPosition.y = playerCenterY - (SCREEN_HEIGHT - cameraMarginY);
-
-    mCamera.setPosition(cameraPosition);
-
-    for (auto &crate : mCrates)
+    void Game::updateCamera() 
     {
-        crate.update(deltaTime); // Passe um valor de tempo delta apropriado
-        PhysicsEngine::HandleCollisions(
-            crate, mWalls, mPlatforms, mSolidPlatforms);
+        Vector playerCenter = getPlayerCenter();
+        Vector cameraPosition = calculateCameraPosition(playerCenter);
+        cameraPosition.x = 
+            std::max(0.0f, std::min(cameraPosition.x, 
+            static_cast<float>(mapWidth) - effectiveScreenWidth));
+        cameraPosition.y = 
+            std::max(0.0f, std::min(cameraPosition.y, 
+            static_cast<float>(mapHeight) - effectiveScreenHeight));
+        applyCameraMargins(playerCenter, cameraPosition);
+        mCamera.setPosition(cameraPosition);
     }
-}
+
+    Vector Game::getPlayerCenter() const 
+    {
+        Vector playerPosition = mPlayer.getPosition();
+        return Vector
+        (
+        playerPosition.x + mPlayer.getSize().x / 2, 
+        playerPosition.y + mPlayer.getSize().y / 2
+        );
+    }
+
+    Vector Game::calculateCameraPosition(const Vector& playerCenter) const 
+    {
+        return Vector
+        (
+        playerCenter.x - effectiveScreenWidth / 2,
+        playerCenter.y - effectiveScreenHeight / 2
+        );
+    }
+
+    void Game::applyCameraMargins(const Vector& playerCenter, Vector& cameraPosition) 
+    {
+        const float cameraMarginX = effectiveScreenWidth * 0.50f;
+        const float cameraMarginY = effectiveScreenHeight * 0.50f;
+
+        if (playerCenter.x < cameraPosition.x + cameraMarginX) 
+        {
+        cameraPosition.x = playerCenter.x - cameraMarginX;
+        } 
+        else if (playerCenter.x > cameraPosition.x + SCREEN_WIDTH - cameraMarginX) 
+        {
+        cameraPosition.x = playerCenter.x - (SCREEN_WIDTH - cameraMarginX);
+        }
+        if (playerCenter.y < cameraPosition.y + cameraMarginY) 
+        {
+        cameraPosition.y = playerCenter.y - cameraMarginY;
+        }
+        else if (playerCenter.y > cameraPosition.y + SCREEN_HEIGHT - cameraMarginY) 
+        {
+        cameraPosition.y = playerCenter.y - (SCREEN_HEIGHT - cameraMarginY);
+        }
+    }
+
+    void Game::updateCrates() 
+    {
+        for (auto &crate : mCrates) 
+        {
+        crate.update(deltaTime);
+        PhysicsEngine::HandleCollisions
+        (
+            crate, 
+            mWalls, 
+            mPlatforms, 
+            mSolidPlatforms
+        );
+        }
+    }
+
+
 
 void Game::render()
 {
