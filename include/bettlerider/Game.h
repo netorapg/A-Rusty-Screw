@@ -104,6 +104,15 @@ namespace BRTC
             void updateCamera();
             void applyCameraMargins(const Vector& playerCenter, Vector& cameraPosition);
             void updateCrates();
+            void renderTransitionEffect();
+            void prepareRender();
+            void renderBackground();
+            void renderParallaxLayers(int layerIndex, const Vector& cameraPos);
+            void renderGameObjects();
+            template<typename T>
+            void renderObjects(const std::list<T>& objects, const Vector& cameraPos, const Vector& viewSize);
+            void finalizeRender();
+            void renderParallaxLayer(int layerIndex, const Vector& cameraPos);
     };
 }
 #endif

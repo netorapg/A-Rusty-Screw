@@ -117,7 +117,13 @@ namespace BRTC
         TTF_Quit();
     }
 
-
+/*
+-------------------------------------------------------------------------------
+    Função para carregar o arquivo TMX e processar os dados do mapa.
+    Ela carrega o arquivo, processa as camadas e os objetos, e armazena os dados
+    em listas apropriadas.
+-------------------------------------------------------------------------------
+*/
     void Game::loadGameLevelFromTMX(const std::string &filePath)
     {
         std::cout << "Loading TMX file: " << filePath << std::endl;
@@ -353,6 +359,15 @@ namespace BRTC
     }
     }
 
+/*
+-------------------------------------------------------------------------------
+Função de atualização do jogo,
+Aqui é onde a lógica do jogo é atualizada, incluindo a movimentação do jogador,
+detecção de colisões e a atualização da câmera.
+A função também lida com a transição entre os níveis.
+-------------------------------------------------------------------------------
+
+*/
     void Game::update()
     {
         handleTransition();
@@ -508,137 +523,124 @@ namespace BRTC
         );
         }
     }
+/*
+-------------------------------------------------------------------------------
+    Função de renderização do jogo,
+    Aqui é onde todos os objetos do jogo são desenhados na tela, incluindo o fundo,
+    os objetos do jogo e o jogador.
+-------------------------------------------------------------------------------
+*/
+    void Game::render()
+    {
+        if (isTransitioning) 
+        {
+            renderTransitionEffect();
+            return;
+        }
+        prepareRender();
+        renderBackground();
+        renderGameObjects();
+        finalizeRender();
+    }
 
-
-
-void Game::render()
-{
-  //  SDL_Log("Game::render() chamado");
-    
-    if (isTransitioning) {
+    void Game::renderTransitionEffect() 
+    {
         Uint32 elapsed = SDL_GetTicks() - transitionStartTime;
-        if (elapsed <= HALF_TRANSITION) {
-            float progress = static_cast<float>(elapsed) / HALF_TRANSITION;
-            alpha = static_cast<int>(255 * progress);
-        } else if (elapsed < TRANSITION_DELAY) {
-            float progress = static_cast<float>(elapsed - HALF_TRANSITION) / HALF_TRANSITION;
-            alpha = 255 - static_cast<int>(255 * progress);
-        } else {
-            alpha = 0;
-        }   
-        
+        if (elapsed <= HALF_TRANSITION) 
+        {
+        alpha = static_cast<int>(255 * (static_cast<float>(elapsed - HALF_TRANSITION) / HALF_TRANSITION));
+        }
+        else { alpha = 0; }
         SDL_SetRenderDrawBlendMode(mRenderer, SDL_BLENDMODE_BLEND);
-        SDL_Rect fadeRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+        SDL_Rect fadeRect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
         SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, alpha);
         SDL_RenderFillRect(mRenderer, &fadeRect);
         SDL_RenderPresent(mRenderer);
-        return;
     }
 
-    SDL_SetRenderDrawColor(mRenderer, 0x00, 0x00, 0x00, 0x00);
-    SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
-    SDL_RenderClear(mRenderer);
+    void Game::prepareRender()
+    {
+        SDL_SetRenderDrawColor(mRenderer, 0x00, 0x00, 0x00, 0x00);
+        SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
+        SDL_RenderClear(mRenderer);
+    }
 
-    Vector cameraPos = mCamera.getPosition();
-    
-    for (int i = 0; i < 5; i++) {
-        if (mParallaxLayers[i]) {
-            int texWidth, texHeight;
-            SDL_QueryTexture(mParallaxLayers[i], nullptr, nullptr, &texWidth, &texHeight);
-
-            float factor = mParallaxFactors[i];
-            Vector parallaxOffset;
-            parallaxOffset.x = cameraPos.x * factor;
-            parallaxOffset.y = cameraPos.y * factor * 0.5f;
-
-            // Calcula a posição base para repetição
-            Vector base;
-            base.x = -parallaxOffset.x;
-            base.y = -parallaxOffset.y;
-
-            // Calcula quantas vezes a textura precisa se repetir
-            Vector repeat;
-            repeat.x = static_cast<int>(effectiveScreenWidth / texWidth) + 2;
-            repeat.y = static_cast<int>(effectiveScreenHeight / texHeight) + 2;
-
-            // Ajusta o ponto inicial para preencher toda a tela
-            Vector start;
-            start.x = static_cast<int>(base.x) % texWidth;
-            start.y = static_cast<int>(base.y) % texHeight;
-            if (start.x > 0) start.x -= texWidth;
-            if (start.y > 0) start.y -= texHeight;
-
-            // Renderiza as repetições da textura
-            for (int x = 0; x < repeat.x; x++) {
-                for (int y = 0; y < repeat.y; y++) {
-                    SDL_Rect layerRect = {
-                        static_cast<int>(start.x + x * texWidth),
-                        static_cast<int>(start.y + y * texHeight),
-                        texWidth,
-                        texHeight
-                    };
-                    SDL_RenderCopy(mRenderer, mParallaxLayers[i], nullptr, &layerRect);
-                }
+    void Game::renderBackground()
+    {
+        Vector cameraPos = mCamera.getPosition();
+        for (int i = 0; i < 5; i++) 
+        {
+            if (mParallaxLayers[i]) 
+            {
+                renderParallaxLayer(i, cameraPos);
             }
         }
     }
 
-    for (auto &decoration : mDecorations)
+    void Game::renderParallaxLayer(int layerIndex, const Vector& cameraPos) 
     {
-        if (decoration.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
+        int texWidth, texHeight;
+        SDL_QueryTexture(mParallaxLayers[layerIndex], nullptr, nullptr, &texWidth, &texHeight);
+        float factor = mParallaxFactors[layerIndex];
+        Vector parallaxOffset(cameraPos.x * factor, cameraPos.y * factor * 0.5f);
+        Vector base(-parallaxOffset.x, -parallaxOffset.y);
+        Vector repeat
+        (
+            static_cast<int>(effectiveScreenWidth / texWidth) + 2,
+            static_cast<int>(effectiveScreenHeight / texHeight) + 2
+        );
+        Vector start
+        (
+        static_cast<int>(base.x) % texWidth,
+        static_cast<int>(base.y) % texHeight
+        );    
+        if (start.x > 0) start.x -= texWidth;
+        if (start.y > 0) start.y -= texHeight;
+        for (int x = 0; x < repeat.x; x++) 
         {
-            decoration.render(mRenderer, mCamera.getPosition());
-          //  WeHaveDecorations = true;
-       //     std::cout << "We have decorations" << std::endl;
-        }
+            for (int y = 0; y < repeat.y; y++) 
+            {
+                SDL_Rect layerRect = 
+                {
+                    static_cast<int>(start.x + x * texWidth),
+                    static_cast<int>(start.y + y * texHeight),
+                    texWidth,
+                    texHeight
+                };
+                SDL_RenderCopy(mRenderer, mParallaxLayers[layerIndex], nullptr, &layerRect);
+            }
+        }   
     }
 
-    for (auto &platform : mPlatforms)
+    void Game::renderGameObjects() 
     {
-        if (platform.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
-        {
-            platform.render(mRenderer, mCamera.getPosition());
-        }
+        Vector cameraPos = mCamera.getPosition();
+        Vector viewSize(effectiveScreenWidth, effectiveScreenHeight);
+        renderObjects(mDecorations, cameraPos, viewSize);
+        renderObjects(mPlatforms, cameraPos, viewSize);
+        renderObjects(mSolidPlatforms, cameraPos, viewSize);
+        renderObjects(mWalls, cameraPos, viewSize);
+        renderObjects(mCrates, cameraPos, viewSize);
+        renderObjects(mDoors, cameraPos, viewSize); 
+        mPlayer.render(mRenderer, cameraPos);
     }
 
-    for (auto &solidPlatform : mSolidPlatforms)
+    template<typename T>
+
+    void Game::renderObjects
+    (
+        const std::list<T>& objects, 
+        const Vector& cameraPos, 
+        const Vector& viewSize
+    ) 
     {
-        if (solidPlatform.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
+        for (const auto& obj : objects) 
         {
-            solidPlatform.render(mRenderer, mCamera.getPosition());
+            if (obj.isVisible(cameraPos, viewSize)) 
+            { obj.render(mRenderer, cameraPos); }
         }
     }
-
-    for (auto &wall : mWalls)
-    {
-        if (wall.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
-        {
-            wall.render(mRenderer, mCamera.getPosition());
-        }
-    }
-
- 
-
-    for (auto &crate : mCrates)
-    {
-        if (crate.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
-        {
-            crate.render(mRenderer, mCamera.getPosition());
-        }
-    }
-
-    for (auto &door : mDoors)
-    {
-        if (door.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
-        {
-            door.render(mRenderer, mCamera.getPosition());
-        }
-    }
-
-
-    mPlayer.render(mRenderer, mCamera.getPosition());
-    SDL_RenderPresent(mRenderer);
-}
+    void Game::finalizeRender() { SDL_RenderPresent(mRenderer); }
 
 void Game::resetGame()
 {
