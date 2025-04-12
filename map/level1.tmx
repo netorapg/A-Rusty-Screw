@@ -39,8 +39,8 @@
   <object id="20" type="player_spawn" x="160" y="736"/>
   <object id="22" type="door" x="1280" y="576">
    <properties>
-    <property name="spawn_x" type="float" value="1"/>
-    <property name="spawn_y" type="float" value="5"/>
+    <property name="spawn_x" type="float" value="3"/>
+    <property name="spawn_y" type="float" value="3"/>
     <property name="target" value="../map/level2.tmx"/>
    </properties>
   </object>
