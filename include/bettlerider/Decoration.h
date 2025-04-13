@@ -15,8 +15,19 @@ namespace BRTC
         private:
             Animation mAnimation;   
         public:
-            Decoration(const Vector position, const Vector size, SDL_Texture* texture, int tileId);
-            void render(SDL_Renderer* renderer, Vector cameraPosition) override;
+            Decoration
+            (
+                const Vector position, 
+                const Vector size, 
+                SDL_Texture* texture, 
+                int tileId
+            );
+            void render
+            (
+                SDL_Renderer* renderer, 
+                Vector cameraPosition
+            ) 
+            override;
     };
 }
 #endif

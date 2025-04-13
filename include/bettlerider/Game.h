@@ -83,6 +83,11 @@ namespace BRTC
             Vector targetSpawn;
             Vector getPlayerCenter() const;
             Vector calculateCameraPosition(const Vector& playerCenter) const;
+            Vector mTilePosition;
+            Vector mAttributeSpawn;
+            Vector mSpawnPosition;
+
+
             
             void renderText(const char* text, int x, int y, TTF_Font* font);
             void loadGameLevelFromTMX(const std::string& filePath);
@@ -92,8 +97,8 @@ namespace BRTC
             void processObjectGroup(tinyxml2::XMLElement* objectGroup, int tileSize);
             void processObject(tinyxml2::XMLElement* obj, int tileSize);
             void processLayers(tinyxml2::XMLElement* layer, int tileSize, const std::unordered_map<int, int>& tileTypeMap);
-            void processBlockTile(int tileId, int x, int y, int tileSize, const std::unordered_map<int, int>& tileTypeMap);
-            void processDoorObject(tinyxml2::XMLElement* obj, float x, float y, int tileSize);
+            void processBlockTile(int tileId, Vector& tilePosition, int tileSize, const std::unordered_map<int, int>& tileTypeMap);
+            void processDoorObject(tinyxml2::XMLElement* obj, Vector& AttributeSpawn, int tileSize);
             void handleTransition();
             void completeTransition(const Vector& currentVelocity);
             void updateGameState();
@@ -110,7 +115,7 @@ namespace BRTC
             void renderParallaxLayers(int layerIndex, const Vector& cameraPos);
             void renderGameObjects();
             template<typename T>
-            void renderObjects(const std::list<T>& objects, const Vector& cameraPos, const Vector& viewSize);
+            void renderObjects(std::list<T>& objects, Vector& cameraPos, Vector& viewSize);
             void finalizeRender();
             void renderParallaxLayer(int layerIndex, const Vector& cameraPos);
     };

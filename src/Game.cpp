@@ -199,17 +199,17 @@ namespace BRTC
                 index++;
                 continue;
             }
-            int x = (index % layerWidth) * tileSize;
-            int y = (index / layerWidth) * tileSize;
+            mTilePosition.x = (index % layerWidth) * tileSize;
+            mTilePosition.y = (index / layerWidth) * tileSize;
             if (strcmp(layerName, "blocks") == 0) 
             {
-                processBlockTile(tileId, x, y, tileSize, tileTypeMap);
+                processBlockTile(tileId, mTilePosition, tileSize, tileTypeMap);
             } 
             else if (strcmp(layerName, "decorations") == 0) 
             {
                 mDecorations.emplace_back
                 (
-                    Vector(x, y), 
+                    Vector(mTilePosition), 
                     Vector(tileSize, tileSize), 
                     mPlatformsTexture, 
                     tileId
@@ -222,8 +222,7 @@ namespace BRTC
     void Game::processBlockTile
     (
         int tileId, 
-        int x, 
-        int y, 
+        Vector& tilePosition,
         int tileSize, 
         const std::unordered_map<int, int>& tileTypeMap
     ) 
@@ -235,7 +234,7 @@ namespace BRTC
             case 1: // Plataforma vazada
             mPlatforms.emplace_back
             (
-                Vector(x, y), 
+                Vector(mTilePosition), 
                 Vector(tileSize, tileSize), 
                 mPlatformsTexture, 
                 tileId
@@ -244,7 +243,7 @@ namespace BRTC
             case 2: // Plataforma sólida
             mSolidPlatforms.emplace_back
             (
-                Vector(x, y), 
+                Vector(mTilePosition), 
                 Vector(tileSize, tileSize), 
                 mPlatformsTexture, 
                 tileId
@@ -253,7 +252,7 @@ namespace BRTC
             case 3: // Parede
             mWalls.emplace_back
             (
-                Vector(x, y), 
+                Vector(mTilePosition), 
                 Vector(tileSize, tileSize), 
                 mPlatformsTexture, 
                 tileId
@@ -262,7 +261,7 @@ namespace BRTC
             case 4: // Caixote
             mCrates.emplace_back
             (
-                Vector(x, y),  
+                Vector(mTilePosition),  
                 mRenderer
             );
             break;
@@ -292,23 +291,21 @@ namespace BRTC
     void Game::processObject(XMLElement* obj, int tileSize) 
     {
         const char* type = obj->Attribute("type");
-        float x = obj->FloatAttribute("x");
-        float y = obj->FloatAttribute("y");
+        mAttributeSpawn.x = obj->FloatAttribute("x");
+        mAttributeSpawn.y = obj->FloatAttribute("y");
         if (!type) return;
-        if (strcmp(type, "player_spawn") == 0) { mPlayer.setPosition(Vector(x, y)); } 
-        else if(strcmp(type, "door") == 0) { processDoorObject(obj, x, y, tileSize); }
+        if (strcmp(type, "player_spawn") == 0) { mPlayer.setPosition(Vector(mAttributeSpawn)); } 
+        else if(strcmp(type, "door") == 0) { processDoorObject(obj, mAttributeSpawn, tileSize); }
     }
 
     void Game::processDoorObject
     (
         XMLElement* obj, 
-        float x, 
-        float y, 
+        Vector& AttributeSpawn,
         int tileSize
     ) 
     {
         std::string target;
-        float spawnX = 1, spawnY = 1;
         XMLElement* properties = obj->FirstChildElement("properties");
         if (!properties) return;
         XMLElement* prop = properties->FirstChildElement("property");
@@ -317,18 +314,18 @@ namespace BRTC
             const char* name = prop->Attribute("name");
             if (!name) continue;
             if (strcmp(name, "target") == 0) { target = prop->Attribute("value"); } 
-            else if (strcmp(name, "spawn_x") == 0) { spawnX = prop->FloatAttribute("value") * tileSize; } 
-            else if (strcmp(name, "spawn_y") == 0) { spawnY = prop->FloatAttribute("value") * tileSize; }
+            else if (strcmp(name, "spawn_x") == 0) { mSpawnPosition.x = prop->FloatAttribute("value") * tileSize; } 
+            else if (strcmp(name, "spawn_y") == 0) { mSpawnPosition.y = prop->FloatAttribute("value") * tileSize; }
             prop = prop->NextSiblingElement("property");
         }
         mDoors.emplace_back
         (
-            Vector(x, y), 
+            Vector(mAttributeSpawn), 
             Vector(tileSize, tileSize), 
             target, 
             mRenderer, 
             mPlatformsTexturePath, 
-            Vector(spawnX, spawnY)
+            Vector(mSpawnPosition)
         );
     }
 
@@ -548,7 +545,7 @@ A função também lida com a transição entre os níveis.
         Uint32 elapsed = SDL_GetTicks() - transitionStartTime;
         if (elapsed <= HALF_TRANSITION) 
         {
-        alpha = static_cast<int>(255 * (static_cast<float>(elapsed - HALF_TRANSITION) / HALF_TRANSITION));
+        alpha = static_cast<int>(255 * (static_cast<float>(elapsed) / HALF_TRANSITION));
         }
         else { alpha = 0; }
         SDL_SetRenderDrawBlendMode(mRenderer, SDL_BLENDMODE_BLEND);
@@ -629,12 +626,12 @@ A função também lida com a transição entre os níveis.
 
     void Game::renderObjects
     (
-        const std::list<T>& objects, 
-        const Vector& cameraPos, 
-        const Vector& viewSize
+        std::list<T>& objects, 
+        Vector& cameraPos, 
+        Vector& viewSize
     ) 
     {
-        for (const auto& obj : objects) 
+        for (auto& obj : objects) 
         {
             if (obj.isVisible(cameraPos, viewSize)) 
             { obj.render(mRenderer, cameraPos); }
