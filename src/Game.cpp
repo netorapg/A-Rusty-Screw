@@ -1,7 +1,7 @@
 #include "../include/bettlerider/Game.h"
 #include <tinyxml2.h>
 
-using namespace tinyxml2;
+
 
 namespace BRTC
 {

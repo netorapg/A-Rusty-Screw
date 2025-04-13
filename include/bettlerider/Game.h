@@ -25,6 +25,8 @@
 #include "Camera.h"
 #include "Globals.h"
 
+using namespace tinyxml2;
+
 namespace BRTC
 {
     class Game
@@ -124,6 +126,8 @@ namespace BRTC
             void loadParallaxLayers();
             void loadInitialLevel();
             void centerCameraOnPlayer();
+
+            
 
     };
 }
