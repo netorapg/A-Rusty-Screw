@@ -5,6 +5,13 @@ using namespace tinyxml2;
 
 namespace BRTC
 {
+/*
+-------------------------------------------------------------------------------
+    Construtor da classe Game.
+    Inicializa a janela, o renderizador, e carrega os recursos necessários.
+    Configura o sistema de áudio e carrega a textura de fundo.
+-------------------------------------------------------------------------------
+*/
     Game::Game
     (
         SDL_Window *window, 
@@ -17,20 +24,64 @@ namespace BRTC
     mPlayer(Vector(0, 0), renderer), 
     mCamera(SCREEN_WIDTH, SCREEN_HEIGHT), 
     mPlayerActivated(true), 
-    mActivationTime(0)
+    mActivationTime(0),
+    mPlatformsTexture(nullptr),
+    mMusic(nullptr),
+    mJumpSound(nullptr),
+    mFont(nullptr),
+    mSmallFont(nullptr),
+    isTransitioning(false),
+    increasing(true),
+    alpha(0)
     {
-
         std::cout << "Game constructor called" << std::endl;
-        mPlatformsTexturePath = "../assets/fulltile.png";
-        mPlatformsTexture = IMG_LoadTexture(renderer, mPlatformsTexturePath.c_str());
+        initializeRenderSettings();
+        loadTextures();
+        initializeAudioSystem();
+        loadInitialLevel();
+        mPlayerActivated = false;
+        mActivationTime = SDL_GetTicks() + 500;
+        centerCameraOnPlayer();
+    }
+
+    void Game::initializeRenderSettings()
+    {
+        SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+        SDL_RenderSetIntegerScale(mRenderer, SDL_TRUE);
+    }
+
+    void Game::loadTextures()
+    {
+        mPlatformsTexturePath = "assets/fulltile.png";
+        mPlatformsTexture = IMG_LoadTexture(mRenderer, mPlatformsTexturePath.c_str());
         if (!mPlatformsTexture)
         {
             std::cerr << "Failed to load platforms texture: " << IMG_GetError() << std::endl;
         }
-        SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
-        SDL_RenderSetIntegerScale(mRenderer, SDL_TRUE);
-    
-        const char* layerFiles[5] = 
+    }
+
+    void Game::initializeAudioSystem() 
+    {
+        if (TTF_Init() == -1) 
+        {
+            std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        }
+        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) 
+        {
+            std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
+        }
+        // Audio loading commented out as per original code
+        /*
+        mMusic = Mix_LoadMUS("../assets/8-bit-game-158815.mp3");
+        if (!mMusic) {
+            std::cerr << "Failed to load music! SDL_mixer Error: " << Mix_GetError() << std::endl;
+        }
+        */
+    }
+
+    void Game::loadParallaxLayers() 
+    {
+        const std::array<const char*, 5> layerFiles = 
         {
             "../assets/parallax/1.png",
             "../assets/parallax/2.png",
@@ -38,73 +89,48 @@ namespace BRTC
             "../assets/parallax/4.png",
             "../assets/parallax/5.png"
         };
-
-        mParallaxFactors[0] = 0.1f;
-        mParallaxFactors[1] = 0.3f;
-        mParallaxFactors[2] = 0.5f;
-        mParallaxFactors[3] = 0.7f;
-        mParallaxFactors[4] = 0.9f;
-
+        const std::array<float, 5> factors = {0.1f, 0.3f, 0.5f, 0.7f, 0.9f};
+        mParallaxFactors = factors;
         for (int i = 0; i < 5; i++) 
         {
-            SDL_Surface *loadedSurface = IMG_Load(layerFiles[i]);
+            SDL_Surface* loadedSurface = IMG_Load(layerFiles[i]);
             if (!loadedSurface) 
             {
-            std::cerr << "Erro ao carregar  " << layerFiles[i] << ": " << IMG_GetError() << std::endl;
-            continue;
+                std::cerr << "Error loading " << layerFiles[i] << ": " << IMG_GetError() << std::endl;
+                continue;
             }
-            mParallaxLayers[i] = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+            mParallaxLayers[i] = SDL_CreateTextureFromSurface(mRenderer, loadedSurface);
             SDL_FreeSurface(loadedSurface);
+            if (!mParallaxLayers[i]) 
+            {
+                std::cerr << "Error creating texture for layer " << i << std::endl;
+            }
         }
-  
-        if (TTF_Init() == -1)
-        {
-        std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
-        }
-        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
-        {
-        std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
-        }
-        // Deixei comentada a musica e o som de pulo, elas funcionam, mas não tem necessidade de ficarem ligadas sempre
-
-        /*  mMusic = Mix_LoadMUS("../assets/8-bit-game-158815.mp3");
-        if (mMusic == nullptr)
-        {
-            std::cerr << "Failed to load music! SDL_mixer Error: " << Mix_GetError() << std::endl;
-        }*/
-
-        /* mJumpSound = Mix_LoadWAV(
-            "../assets/mixkit-player-jumping-in-a-video-game-2043.wav");
-        if (mJumpSound == nullptr)
-        {
-            std::cerr << "Failed to load jump sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
-        }*/
-
-        // Mix_PlayMusic(mMusic, -1);
-        /*        mFont = TTF_OpenFont("../../platfom2d/assets/All Star Resort.ttf", 100);
-        if (mFont == nullptr)
-        {
-            std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;
-        }
-
-        mSmallFont = TTF_OpenFont("../../platfom2d/assets/Type Machine.ttf", 24);
-        if (mSmallFont == nullptr)
-        {
-            std::cerr << "Failed to load small font! SDL_ttf Error: " << TTF_GetError() << std::endl;
-        }*/
+    }
+    
+    void Game::loadInitialLevel() 
+    {
         loadGameLevelFromTMX("../map/level1.tmx");
-        mPlayerActivated = false;
-        mActivationTime = SDL_GetTicks() + 500;
+    }
+    
+    void Game::centerCameraOnPlayer() 
+    {
         Vector playerPos = mPlayer.getPosition();
         mCamera.setPosition
         (
             Vector
             (
-                playerPos.x - (SCREEN_WIDTH/(2*PLAYER_ZOOM_FACTOR)), 
-                playerPos.y - (SCREEN_HEIGHT/(2*PLAYER_ZOOM_FACTOR))
+            playerPos.x - (SCREEN_WIDTH / (2 * PLAYER_ZOOM_FACTOR)),
+            playerPos.y - (SCREEN_HEIGHT / (2 * PLAYER_ZOOM_FACTOR))
             )
         );
     }
+/*
+-------------------------------------------------------------------------------
+    Destrutor da classe Game.
+    Libera os recursos alocados, como texturas, fontes e áudio.
+-------------------------------------------------------------------------------
+*/
     Game::~Game()
     {
         for (int i = 0; i < 5; i++) 
@@ -116,7 +142,6 @@ namespace BRTC
         TTF_CloseFont(mSmallFont);
         TTF_Quit();
     }
-
 /*
 -------------------------------------------------------------------------------
     Função para carregar o arquivo TMX e processar os dados do mapa.
@@ -265,7 +290,7 @@ namespace BRTC
                 mRenderer
             );
             break;
-            }
+        }
     }
 
     void Game::processObjectGroups(XMLElement* map, int tileSize) 
@@ -328,8 +353,13 @@ namespace BRTC
             Vector(mSpawnPosition)
         );
     }
-
-
+/*
+-------------------------------------------------------------------------------
+    Função de manipulação de eventos.
+    Aqui é onde os eventos do teclado e do mouse são tratados.
+    A função também lida com a alternância entre o modo de tela cheia e janela.
+-------------------------------------------------------------------------------
+*/
     void Game::handleEvents()
     {
         SDL_Event e;
@@ -355,7 +385,6 @@ namespace BRTC
         }
     }
     }
-
 /*
 -------------------------------------------------------------------------------
 Função de atualização do jogo,
@@ -363,7 +392,6 @@ Aqui é onde a lógica do jogo é atualizada, incluindo a movimentação do joga
 detecção de colisões e a atualização da câmera.
 A função também lida com a transição entre os níveis.
 -------------------------------------------------------------------------------
-
 */
     void Game::update()
     {
@@ -487,23 +515,18 @@ A função também lida com a transição entre os níveis.
     {
         const float cameraMarginX = effectiveScreenWidth * 0.50f;
         const float cameraMarginY = effectiveScreenHeight * 0.50f;
-
-        if (playerCenter.x < cameraPosition.x + cameraMarginX) 
-        {
-        cameraPosition.x = playerCenter.x - cameraMarginX;
-        } 
-        else if (playerCenter.x > cameraPosition.x + SCREEN_WIDTH - cameraMarginX) 
-        {
-        cameraPosition.x = playerCenter.x - (SCREEN_WIDTH - cameraMarginX);
-        }
-        if (playerCenter.y < cameraPosition.y + cameraMarginY) 
-        {
-        cameraPosition.y = playerCenter.y - cameraMarginY;
-        }
-        else if (playerCenter.y > cameraPosition.y + SCREEN_HEIGHT - cameraMarginY) 
-        {
-        cameraPosition.y = playerCenter.y - (SCREEN_HEIGHT - cameraMarginY);
-        }
+        if 
+        (playerCenter.x < cameraPosition.x + cameraMarginX) 
+        {cameraPosition.x = playerCenter.x - cameraMarginX;} 
+        else if 
+        (playerCenter.x > cameraPosition.x + SCREEN_WIDTH - cameraMarginX) 
+        {cameraPosition.x = playerCenter.x - (SCREEN_WIDTH - cameraMarginX);}
+        if 
+        (playerCenter.y < cameraPosition.y + cameraMarginY) 
+        {cameraPosition.y = playerCenter.y - cameraMarginY;}
+        else if 
+        (playerCenter.y > cameraPosition.y + SCREEN_HEIGHT - cameraMarginY) 
+        {cameraPosition.y = playerCenter.y - (SCREEN_HEIGHT - cameraMarginY);}
     }
 
     void Game::updateCrates() 
@@ -639,17 +662,13 @@ A função também lida com a transição entre os níveis.
     }
     void Game::finalizeRender() { SDL_RenderPresent(mRenderer); }
 
-void Game::resetGame()
-{
-    mPlayer.setVelocity(Vector(0, 0));   // Velocidade inicial
-    mCamera.setPosition(Vector(0, 0));
+    void Game::resetGame()
+    {
+        mPlayer.setVelocity(Vector(0, 0));   // Velocidade inicial
+        mCamera.setPosition(Vector(0, 0));
+        std::cout << "Resetting game..." << std::endl;
+    }
 
-    std::cout << "Resetting game..." << std::endl;
-}
-
-bool Game::isRunning()
-{
-    return !mQuit;
-}
+    bool Game::isRunning(){return !mQuit;}
 
 } // namespace BRTC

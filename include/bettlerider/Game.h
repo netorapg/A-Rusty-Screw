@@ -118,6 +118,13 @@ namespace BRTC
             void renderObjects(std::list<T>& objects, Vector& cameraPos, Vector& viewSize);
             void finalizeRender();
             void renderParallaxLayer(int layerIndex, const Vector& cameraPos);
+            void initializeRenderSettings();
+            void loadTextures();
+            void initializeAudioSystem();
+            void loadParallaxLayers();
+            void loadInitialLevel();
+            void centerCameraOnPlayer();
+
     };
 }
 #endif
