@@ -16,6 +16,7 @@ namespace BRTC
             dynamicPos.y + dynamicSize.y > staticPos.y
         );
     }
+    
     void PhysicsEngine::HandleCollisions
     (
         DynamicObject &dynamicObject,
