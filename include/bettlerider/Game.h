@@ -88,8 +88,6 @@ namespace BRTC
             Vector mTilePosition;
             Vector mAttributeSpawn;
             Vector mSpawnPosition;
-
-
             
             void renderText(const char* text, int x, int y, TTF_Font* font);
             void loadGameLevelFromTMX(const std::string& filePath);
@@ -126,8 +124,6 @@ namespace BRTC
             void loadParallaxLayers();
             void loadInitialLevel();
             void centerCameraOnPlayer();
-
-            
 
     };
 }

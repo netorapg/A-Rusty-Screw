@@ -16,14 +16,16 @@ namespace BRTC
   class PhysicsEngine
   {
     public:
-      static void HandleCollisions
+    static  bool CheckCollision(const Object& staticObj, const Object& dynamicObj);
+    static  void HandleCollisions
       (
-        DynamicObject &DynamicObject,
-        const std::list<Wall> &walls,
-        const std::list<Platform> &platforms,
-        const std::list<SolidPlatform> &solidPlatforms 
+        DynamicObject& dynamicObject,
+        const std::list<Wall>& walls,
+        const std::list<Platform>& platforms,
+        const std::list<SolidPlatform>& solidPlatforms
       );
-      static bool HandlePlayerCollisions
+
+    static  bool HandlePlayerCollisions
       ( 
         Player  &player,
         Vector &spawnPosition,
@@ -31,8 +33,71 @@ namespace BRTC
         std::list<Crate> &crates,
         std::string &levelToLoad
       );
-    private:
-      static bool CheckCollision( const Object& obj1, const Object& obj2 );
+
+      private:
+
+      static bool handleWallCollisions
+      (
+        DynamicObject& dynamicObject, 
+        const std::list<Wall>& walls,                    
+        Vector& position, 
+        Vector& velocity
+      );
+      
+      static bool handleSolidPlatformCollisions
+      (
+        DynamicObject& dynamicObject,                                
+        const std::list<SolidPlatform>& solidPlatforms,
+        Vector& position, Vector& velocity
+      );
+
+      static bool handlePlatformCollisions
+      (
+        DynamicObject& dynamicObject, 
+        const std::list<Platform>& platforms,
+        Vector& position, 
+        Vector& velocity
+      );
+
+      static void updateGroundState
+      (
+        DynamicObject& dynamicObject, 
+        bool hasPlatformCollision
+      );
+      
+      static bool checkDoorCollisions
+      (
+        const Player& player, 
+        const std::list<Door>& doors,
+        Vector& spawnPosition, 
+        std::string& levelToLoad
+      );
+
+      static void handleCrateCollisions
+      (
+        Player& player, 
+        std::list<Crate>& crates
+      );
+
+      static void handleVerticalCrateCollision
+      (
+        Player& player, 
+        const Vector& cratePos,
+        const Vector& playerPos, 
+        const Vector& playerSize,
+        bool& standingOnCrate, 
+        bool& wasOnGround
+      );
+
+      static void handleHorizontalCrateCollision
+      (
+        Player& player, 
+        Crate& crate,
+        float crateLeft, 
+        float crateRight,
+        const Vector& playerPos, 
+        const Vector& playerSize
+      );
   };
 }
 #endif

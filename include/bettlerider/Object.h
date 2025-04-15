@@ -29,6 +29,7 @@ namespace BRTC
             Vector mPosition;
             Vector mSize;
     };
+
     class StaticObject : public Object
     {
         public:
@@ -36,6 +37,7 @@ namespace BRTC
             Object(position, size) {}
             virtual ~StaticObject() = default;
     }; 
+    
     class DynamicObject : public Object
     {   
         public:

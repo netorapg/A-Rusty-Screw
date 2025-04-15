@@ -1,5 +1,4 @@
 #include "../include/bettlerider/Game.h"
-#include <tinyxml2.h>
 
 namespace BRTC
 {
@@ -35,6 +34,7 @@ namespace BRTC
         std::cout << "Game constructor called" << std::endl;
         initializeRenderSettings();
         loadTextures();
+        loadParallaxLayers();
         initializeAudioSystem();
         loadInitialLevel();
         mPlayerActivated = false;
@@ -50,7 +50,7 @@ namespace BRTC
 
     void Game::loadTextures()
     {
-        mPlatformsTexturePath = "assets/fulltile.png";
+        mPlatformsTexturePath = "../assets/fulltile.png";
         mPlatformsTexture = IMG_LoadTexture(mRenderer, mPlatformsTexturePath.c_str());
         if (!mPlatformsTexture)
         {
