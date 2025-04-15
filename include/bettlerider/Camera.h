@@ -2,27 +2,22 @@
 #define CAMERA_H
 
 #include <SDL.h>
-#include "../../my-lib-master/include/my-lib/math-vector.h"
-
+#include "Globals.h"
 
 namespace BRTC
 {
-
-using Vector = Mylib::Math::Vector<float, 2>;
-
-class Camera
-{
-public:
-    Camera(float width, float height);
-    void move(Vector& offset);
-    SDL_Rect getSDLRect() const;
-    void setPosition(const Vector& position);
-    Vector getPosition() const;
-    Vector getSize() const;
-
-private:
-    Vector mPosition;
-    Vector mSize;
-};
-} // namespace BRTC
-#endif // CAMERA_H
+    class Camera
+    {
+        public:
+            SDL_Rect getSDLRect() const;
+            Camera(float width, float height);
+            void move(Vector& offset);
+            void setPosition(const Vector& position);
+            Vector getPosition() const;
+            Vector getSize() const;
+        private:
+            Vector mPosition;
+            Vector mSize;
+    };
+}
+#endif

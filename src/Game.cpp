@@ -1,274 +1,368 @@
 #include "../include/bettlerider/Game.h"
-#include <tinyxml2.h>
-
-using namespace tinyxml2;
 
 namespace BRTC
 {
-Game::Game(SDL_Window *window, SDL_Renderer *renderer)
-    : mWindow(window), mRenderer(renderer), mQuit(false), mPlayer(Vector(0, 0), renderer), mCamera(SCREEN_WIDTH, SCREEN_HEIGHT), mPlayerActivated(true), mActivationTime(0)
-{
-    std::cout << "Game constructor called" << std::endl;
-
-   mPlatformsTexturePath = "../assets/fulltile.png";
-   mPlatformsTexture = IMG_LoadTexture(renderer, mPlatformsTexturePath.c_str());
-   if (!mPlatformsTexture)
-   {
-       std::cerr << "Failed to load platforms texture: " << IMG_GetError() << std::endl;
-   }
-
-
-    SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
-    SDL_RenderSetIntegerScale(mRenderer, SDL_TRUE);
-    
 /*
-    if (SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP) != 0)
+-------------------------------------------------------------------------------
+    Construtor da classe Game.
+    Inicializa a janela, o renderizador, e carrega os recursos necessários.
+    Configura o sistema de áudio e carrega a textura de fundo.
+-------------------------------------------------------------------------------
+*/
+    Game::Game
+    (
+        SDL_Window *window, 
+        SDL_Renderer *renderer
+    )
+    : 
+    mWindow(window), 
+    mRenderer(renderer), 
+    mQuit(false), 
+    mPlayer(Vector(0, 0), renderer), 
+    mCamera(SCREEN_WIDTH, SCREEN_HEIGHT), 
+    mPlayerActivated(true), 
+    mActivationTime(0),
+    mPlatformsTexture(nullptr),
+    mMusic(nullptr),
+    mJumpSound(nullptr),
+    mFont(nullptr),
+    mSmallFont(nullptr),
+    isTransitioning(false),
+    increasing(true),
+    alpha(0)
     {
-        std::cerr << "Failed to set fullscreen mode: " << SDL_GetError() << std::endl;
-    }*/
-
-   /* SDL_Surface *loadedBackground = IMG_Load("../assets/Background.png");
-    if (loadedBackground == nullptr)
-    {
-        std::cerr << "Failed to load background image: " << IMG_GetError() << std::endl;
-    }
-     mBackgroundTexture =
-        SDL_CreateTextureFromSurface(renderer, loadedBackground);
-    SDL_FreeSurface(loadedBackground);   
-     // Carregar fundo distante
-   SDL_Surface *loadedFarBackground = IMG_Load("../assets/parallax/1.png");
-   if (!loadedFarBackground) {
-       std::cerr << "Erro ao carregar BackgroundFar: " << IMG_GetError() << std::endl;
-   }
-   mFarBackgroundTexture = SDL_CreateTextureFromSurface(renderer, loadedFarBackground);
-   SDL_FreeSurface(loadedFarBackground);
-
-   // Carregar fundo médio
-   SDL_Surface *loadedMidBackground = IMG_Load("../assets/parallax/2.png");
-   if (!loadedMidBackground) {
-       std::cerr << "Erro ao carregar BackgroundMid: " << IMG_GetError() << std::endl;
-   }
-   mMidBackgroundTexture = SDL_CreateTextureFromSurface(renderer, loadedMidBackground);
-   SDL_FreeSurface(loadedMidBackground); 
-    */
-
-    const char* layerFiles[5] = {
-        "../assets/parallax/1.png",
-        "../assets/parallax/2.png",
-        "../assets/parallax/3.png",
-        "../assets/parallax/4.png",
-        "../assets/parallax/5.png"
-    };
-
-    mParallaxFactors[0] = 0.1f;
-    mParallaxFactors[1] = 0.3f;
-    mParallaxFactors[2] = 0.5f;
-    mParallaxFactors[3] = 0.7f;
-    mParallaxFactors[4] = 0.9f;
-
-    for (int i = 0; i < 5; i++) {
-        SDL_Surface *loadedSurface = IMG_Load(layerFiles[i]);
-        if (!loadedSurface) {
-            std::cerr << "Erro ao carregar  " << layerFiles[i] << ": " << IMG_GetError() << std::endl;
-            continue;
-        }
-        mParallaxLayers[i] = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-        SDL_FreeSurface(loadedSurface);
-    }
-  
-
-  
-   
-
-    if (TTF_Init() == -1)
-    {
-        std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        std::cout << "Game constructor called" << std::endl;
+        initializeRenderSettings();
+        loadTextures();
+        loadParallaxLayers();
+        initializeAudioSystem();
+        loadInitialLevel();
+        mPlayerActivated = false;
+        mActivationTime = SDL_GetTicks() + 500;
+        centerCameraOnPlayer();
     }
 
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+    void Game::initializeRenderSettings()
     {
-        std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
+        SDL_RenderSetLogicalSize(mRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+        SDL_RenderSetIntegerScale(mRenderer, SDL_TRUE);
     }
 
-  /*  mMusic = Mix_LoadMUS("../assets/8-bit-game-158815.mp3");
-    if (mMusic == nullptr)
+    void Game::loadTextures()
     {
-        std::cerr << "Failed to load music! SDL_mixer Error: " << Mix_GetError() << std::endl;
-    }*/
-
-   /* mJumpSound = Mix_LoadWAV(
-        "../assets/mixkit-player-jumping-in-a-video-game-2043.wav");
-    if (mJumpSound == nullptr)
-    {
-        std::cerr << "Failed to load jump sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
-    }*/
-
-   // Mix_PlayMusic(mMusic, -1);
-
-    mFont = TTF_OpenFont("../../platfom2d/assets/All Star Resort.ttf", 100);
-    if (mFont == nullptr)
-    {
-        std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;
-    }
-
-    mSmallFont = TTF_OpenFont("../../platfom2d/assets/Type Machine.ttf", 24);
-    if (mSmallFont == nullptr)
-    {
-        std::cerr << "Failed to load small font! SDL_ttf Error: " << TTF_GetError() << std::endl;
-    }
-
-    loadGameLevelFromTMX("../map/level1.tmx");
-    mPlayerActivated = false;
-    mActivationTime = SDL_GetTicks() + 500;
-    Vector playerPos = mPlayer.getPosition();
-    mCamera.setPosition(Vector(playerPos.x - (SCREEN_WIDTH/(2*PLAYER_ZOOM_FACTOR)), playerPos.y - (SCREEN_HEIGHT/(2*PLAYER_ZOOM_FACTOR))));
-}
-static std::unordered_map<std::string, json_object*> levelCache;
-Game::~Game()
-{
-   for (int i = 0; i < 5; i++) {
-        if (mParallaxLayers[i]) {
-            SDL_DestroyTexture(mParallaxLayers[i]);
+        mPlatformsTexturePath = "../assets/fulltile.png";
+        mPlatformsTexture = IMG_LoadTexture(mRenderer, mPlatformsTexturePath.c_str());
+        if (!mPlatformsTexture)
+        {
+            std::cerr << "Failed to load platforms texture: " << IMG_GetError() << std::endl;
         }
     }
-    Mix_FreeChunk(mJumpSound);
-    TTF_CloseFont(mFont);
-    TTF_CloseFont(mSmallFont);
-    TTF_Quit();
-}
 
-
-void Game::loadGameLevelFromTMX(const std::string &filePath){
-    std::cout << "Loading TMX file: " << filePath << std::endl;
-    mPlatforms.clear();
-    mWalls.clear();
-    mSolidPlatforms.clear();
-    mCrates.clear();
-    mDoors.clear();
-    mDecorations.clear();
-
-    XMLDocument doc;
-    if (doc.LoadFile(filePath.c_str())) {
-        std::cerr << "Failed to load TMX file: " << filePath << std::endl;
-        return;
+    void Game::initializeAudioSystem() 
+    {
+        if (TTF_Init() == -1) 
+        {
+            std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        }
+        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) 
+        {
+            std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
+        }
+        // Audio loading commented out as per original code
+        /*
+        mMusic = Mix_LoadMUS("../assets/8-bit-game-158815.mp3");
+        if (!mMusic) {
+            std::cerr << "Failed to load music! SDL_mixer Error: " << Mix_GetError() << std::endl;
+        }
+        */
     }
 
-    XMLElement* map = doc.FirstChildElement("map");
-    int tileWidth = map->IntAttribute("tilewidth");
-    int tileHeight = map->IntAttribute("tileheight");
-    const int tileSize = tileWidth;
+    void Game::loadParallaxLayers() 
+    {
+        const std::array<const char*, 5> layerFiles = 
+        {
+            "../assets/parallax/1.png",
+            "../assets/parallax/2.png",
+            "../assets/parallax/3.png",
+            "../assets/parallax/4.png",
+            "../assets/parallax/5.png"
+        };
+        const std::array<float, 5> factors = {0.1f, 0.3f, 0.5f, 0.7f, 0.9f};
+        mParallaxFactors = factors;
+        for (int i = 0; i < 5; i++) 
+        {
+            SDL_Surface* loadedSurface = IMG_Load(layerFiles[i]);
+            if (!loadedSurface) 
+            {
+                std::cerr << "Error loading " << layerFiles[i] << ": " << IMG_GetError() << std::endl;
+                continue;
+            }
+            mParallaxLayers[i] = SDL_CreateTextureFromSurface(mRenderer, loadedSurface);
+            SDL_FreeSurface(loadedSurface);
+            if (!mParallaxLayers[i]) 
+            {
+                std::cerr << "Error creating texture for layer " << i << std::endl;
+            }
+        }
+    }
+    
+    void Game::loadInitialLevel() 
+    {
+        loadGameLevelFromTMX("../map/level1.tmx");
+    }
+    
+    void Game::centerCameraOnPlayer() 
+    {
+        Vector playerPos = mPlayer.getPosition();
+        mCamera.setPosition
+        (
+            Vector
+            (
+            playerPos.x - (SCREEN_WIDTH / (2 * PLAYER_ZOOM_FACTOR)),
+            playerPos.y - (SCREEN_HEIGHT / (2 * PLAYER_ZOOM_FACTOR))
+            )
+        );
+    }
+/*
+-------------------------------------------------------------------------------
+    Destrutor da classe Game.
+    Libera os recursos alocados, como texturas, fontes e áudio.
+-------------------------------------------------------------------------------
+*/
+    Game::~Game()
+    {
+        for (int i = 0; i < 5; i++) 
+        {
+            if (mParallaxLayers[i]) {SDL_DestroyTexture(mParallaxLayers[i]);}
+        }
+        Mix_FreeChunk(mJumpSound);
+        TTF_CloseFont(mFont);
+        TTF_CloseFont(mSmallFont);
+        TTF_Quit();
+    }
+/*
+-------------------------------------------------------------------------------
+    Função para carregar o arquivo TMX e processar os dados do mapa.
+    Ela carrega o arquivo, processa as camadas e os objetos, e armazena os dados
+    em listas apropriadas.
+-------------------------------------------------------------------------------
+*/
+    void Game::loadGameLevelFromTMX(const std::string &filePath)
+    {
+        std::cout << "Loading TMX file: " << filePath << std::endl;
+        clearLevelData();
+        XMLDocument doc;
+        if (doc.LoadFile(filePath.c_str())) 
+        {
+            std::cerr << "Failed to load TMX file: " << filePath << std::endl;
+            return;
+        }
+        XMLElement* map = doc.FirstChildElement("map");
+        int tileSize = map->IntAttribute("tilewidth");
+        mapWidth = map->IntAttribute("width") * tileSize;
+        mapHeight = map->IntAttribute("height") * tileSize;
+        processMapLayers(map, tileSize);
+        processObjectGroups(map, tileSize);
+    }
 
-    mapWidth = map->IntAttribute("width") * tileWidth;
-    mapHeight = map->IntAttribute("height") * tileHeight;
+    void Game::clearLevelData()
+    {
+        mPlatforms.clear();
+        mWalls.clear();
+        mSolidPlatforms.clear();
+        mCrates.clear();
+        mDoors.clear();
+        mDecorations.clear();
+    }
 
-    std::unordered_map<int, int> tileTypeMap = {
+    void Game::processMapLayers(XMLElement* map, int tileSize) 
+    {
+        std::unordered_map<int, int> tileTypeMap = 
+        {
         {5, 2},{9, 2},{16, 2}, {31, 2},  // Plataforma Sólida
         {18, 1}, // Plataforma vazada
         {64, 3},{15, 3},{41, 3}, {87, 3}, // Parede
         {65, 4} // Caixote
-    };
-
-    XMLElement* layer = map->FirstChildElement("layer");
-    while (layer) {
-        const char* layerName = layer->Attribute("name");
-        XMLElement* data = layer->FirstChildElement("data");
-
-        if (data && strcmp(layerName, "blocks") == 0 || strcmp(layerName, "decorations") == 0) {
-            std::string csvData = data->GetText();
-            std::istringstream ss(csvData);
-            std::string token;
-
-            int index = 0;
-            int layerWidth = layer->IntAttribute("width");
-
-            while (std::getline(ss, token, ',')) {
-             //   token.erase(std::remove_if(token.begin(), token.end(), ::isspace), token.end());
-              //  std::cout << "Token: \"" << token << "\"" << std::endl;
-                int tileId = std::stoi(token);
-                if (tileId != 0) {
-                    int x = (index % layerWidth) * tileSize;
-                    int y = (index / layerWidth) * tileSize;
-                    auto it = tileTypeMap.find(tileId);
-                    if (it != tileTypeMap.end()) {
-                       
-                        if (strcmp(layerName, "blocks") == 0) {
-                              switch(it->second) {
-                            case 1 : // Plataforma vazada
-                                mPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mPlatformsTexture, tileId);
-                                break;
-                            case 2 : // Plataforma sólida
-                                mSolidPlatforms.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mPlatformsTexture, tileId);
-                                break;
-                            case 3 : // Parede
-                                mWalls.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mPlatformsTexture, tileId);
-                                break;
-                            case 4 : // Caixote
-                                mCrates.emplace_back(Vector(x, y),  mRenderer);
-                                break;
-                        }
-                        }
-                    }
-                    if (strcmp(layerName, "decorations") == 0) {
-                        mDecorations.emplace_back(Vector(x, y), Vector(tileSize, tileSize), mPlatformsTexture, tileId);
-                       
-                    }
-                   
-                }
-                index++;
-            }
+        };
+        XMLElement* layer = map->FirstChildElement("layer");
+        while (layer) {
+            processLayers(layer, tileSize, tileTypeMap);
+            layer = layer->NextSiblingElement("layer");
         }
-        layer = layer->NextSiblingElement("layer");
     }
 
-    XMLElement* objectGroup = map->FirstChildElement("objectgroup");
-    while (objectGroup) {
+    void Game::processLayers
+    (
+        XMLElement* layer, 
+        int tileSize, 
+        const std::unordered_map<int, int>& tileTypeMap
+    ) 
+    {
+        const char* layerName = layer->Attribute("name");
+        XMLElement* data = layer->FirstChildElement("data"); 
+        if 
+        (
+            !data || 
+            !(strcmp(layerName, "blocks") == 0 || 
+            strcmp(layerName, "decorations") == 0)
+        ) 
+        {
+            return;
+        }  
+        std::string csvData = data->GetText();
+        std::istringstream ss(csvData);
+        std::string token;
+        int index = 0;
+        int layerWidth = layer->IntAttribute("width");
+        while (std::getline(ss, token, ',')) 
+        {
+            int tileId = std::stoi(token);
+            if (tileId == 0) 
+            {
+                index++;
+                continue;
+            }
+            mTilePosition.x = (index % layerWidth) * tileSize;
+            mTilePosition.y = (index / layerWidth) * tileSize;
+            if (strcmp(layerName, "blocks") == 0) 
+            {
+                processBlockTile(tileId, mTilePosition, tileSize, tileTypeMap);
+            } 
+            else if (strcmp(layerName, "decorations") == 0) 
+            {
+                mDecorations.emplace_back
+                (
+                    Vector(mTilePosition), 
+                    Vector(tileSize, tileSize), 
+                    mPlatformsTexture, 
+                    tileId
+                );
+            }
+            index++;
+        }
+    } 
+
+    void Game::processBlockTile
+    (
+        int tileId, 
+        Vector& tilePosition,
+        int tileSize, 
+        const std::unordered_map<int, int>& tileTypeMap
+    ) 
+    {
+        auto it = tileTypeMap.find(tileId);
+        if (it == tileTypeMap.end()) return;
+        switch(it->second) 
+        {
+            case 1: // Plataforma vazada
+            mPlatforms.emplace_back
+            (
+                Vector(mTilePosition), 
+                Vector(tileSize, tileSize), 
+                mPlatformsTexture, 
+                tileId
+            );
+            break;
+            case 2: // Plataforma sólida
+            mSolidPlatforms.emplace_back
+            (
+                Vector(mTilePosition), 
+                Vector(tileSize, tileSize), 
+                mPlatformsTexture, 
+                tileId
+            );
+            break;
+            case 3: // Parede
+            mWalls.emplace_back
+            (
+                Vector(mTilePosition), 
+                Vector(tileSize, tileSize), 
+                mPlatformsTexture, 
+                tileId
+            );
+            break;
+            case 4: // Caixote
+            mCrates.emplace_back
+            (
+                Vector(mTilePosition),  
+                mRenderer
+            );
+            break;
+        }
+    }
+
+    void Game::processObjectGroups(XMLElement* map, int tileSize) 
+    {
+        XMLElement* objectGroup = map->FirstChildElement("objectgroup");
+        while (objectGroup) 
+        {
+            processObjectGroup(objectGroup, tileSize);
+            objectGroup = objectGroup->NextSiblingElement("objectgroup");
+        }
+    }
+
+    void Game::processObjectGroup(XMLElement* objectGroup, int tileSize) 
+    {
         XMLElement* obj = objectGroup->FirstChildElement("object");
-        while (obj) {
-            const char* type = obj->Attribute("type");
-            float x = obj->FloatAttribute("x");
-            float y = obj->FloatAttribute("y");
-    
-            if (type && strcmp(type, "player_spawn") == 0) {
-                mPlayer.setPosition(Vector(x, y));
-            }
-            else if (type && strcmp(type, "door") == 0) {
-                std::string target;
-                float spawnX = 1, spawnY = 1;
-    
-                XMLElement* properties = obj->FirstChildElement("properties");
-                if (properties) {
-                    XMLElement* prop = properties->FirstChildElement("property");
-                    while (prop) {
-                        const char* name = prop->Attribute("name");
-                        if (strcmp(name, "target") == 0) {
-                            target = prop->Attribute("value");
-                        }
-                        else if (strcmp(name, "spawn_x") == 0) {
-                            spawnX = prop->FloatAttribute("value") * tileSize;
-                        }
-                        else if (strcmp(name, "spawn_y") == 0) {
-                            spawnY = prop->FloatAttribute("value") * tileSize;
-                        }
-                        prop = prop->NextSiblingElement("property");
-                    }
-                    mDoors.emplace_back(Vector(x, y), Vector(tileSize, tileSize), target, mRenderer, mPlatformsTexturePath, Vector(spawnX, spawnY));                
-                }
-            }
-            // Avança para o próximo objeto dentro do grupo
+        while (obj) 
+        {
+            processObject(obj, tileSize);
             obj = obj->NextSiblingElement("object");
         }
-        // Avança para o próximo grupo de objetos
-        objectGroup = objectGroup->NextSiblingElement("objectgroup");
     }
-    
-}
 
-
-void Game::handleEvents()
-{
-    SDL_Event e;
-    while (SDL_PollEvent(&e) != 0)
+    void Game::processObject(XMLElement* obj, int tileSize) 
     {
+        const char* type = obj->Attribute("type");
+        mAttributeSpawn.x = obj->FloatAttribute("x");
+        mAttributeSpawn.y = obj->FloatAttribute("y");
+        if (!type) return;
+        if (strcmp(type, "player_spawn") == 0) { mPlayer.setPosition(Vector(mAttributeSpawn)); } 
+        else if(strcmp(type, "door") == 0) { processDoorObject(obj, mAttributeSpawn, tileSize); }
+    }
+
+    void Game::processDoorObject
+    (
+        XMLElement* obj, 
+        Vector& AttributeSpawn,
+        int tileSize
+    ) 
+    {
+        std::string target;
+        XMLElement* properties = obj->FirstChildElement("properties");
+        if (!properties) return;
+        XMLElement* prop = properties->FirstChildElement("property");
+        while (prop) 
+        {
+            const char* name = prop->Attribute("name");
+            if (!name) continue;
+            if (strcmp(name, "target") == 0) { target = prop->Attribute("value"); } 
+            else if (strcmp(name, "spawn_x") == 0) { mSpawnPosition.x = prop->FloatAttribute("value") * tileSize; } 
+            else if (strcmp(name, "spawn_y") == 0) { mSpawnPosition.y = prop->FloatAttribute("value") * tileSize; }
+            prop = prop->NextSiblingElement("property");
+        }
+        mDoors.emplace_back
+        (
+            Vector(mAttributeSpawn), 
+            Vector(tileSize, tileSize), 
+            target, 
+            mRenderer, 
+            mPlatformsTexturePath, 
+            Vector(mSpawnPosition)
+        );
+    }
+/*
+-------------------------------------------------------------------------------
+    Função de manipulação de eventos.
+    Aqui é onde os eventos do teclado e do mouse são tratados.
+    A função também lida com a alternância entre o modo de tela cheia e janela.
+-------------------------------------------------------------------------------
+*/
+    void Game::handleEvents()
+    {
+        SDL_Event e;
+        while (SDL_PollEvent(&e) != 0)
+        {
         if (e.type == SDL_QUIT)
             mQuit = true;
         mPlayer.handleEvent(e);
@@ -288,246 +382,291 @@ void Game::handleEvents()
                 SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
         }
     }
-}
-
-void Game::update()
-{
-   // SDL_Log("Game::update() - DeltaTime: %f", deltaTime);
-    if(isTransitioning) {
-        Vector currentVelocity = mPlayer.getVelocity();
-        mPlayer.setVelocity(Vector(0, 0));
-        if (SDL_GetTicks() - transitionStartTime > TRANSITION_DELAY) {
-            loadGameLevelFromTMX(targetLevel);
-            mPlayer.setPosition(targetSpawn);
-            mPlayer.setVelocity(currentVelocity);
-            mPlayerActivated = false;
-            mActivationTime = SDL_GetTicks() + 500;
-            isTransitioning = false;
+    }
+/*
+-------------------------------------------------------------------------------
+Função de atualização do jogo,
+Aqui é onde a lógica do jogo é atualizada, incluindo a movimentação do jogador,
+detecção de colisões e a atualização da câmera.
+A função também lida com a transição entre os níveis.
+-------------------------------------------------------------------------------
+*/
+    void Game::update()
+    {
+        handleTransition();
+        if (!isTransitioning) 
+        {
+            updateGameState();
+            updateCamera();
+            updateCrates();
         }
-        return;
     }
-   
-    std::string levelToLoad = "";
-    Vector spawnPosition;
-    //mPlayer.update();
-    
-    if (SDL_GetTicks() > mActivationTime) {
-        mPlayerActivated = true;
-    }
-    if (mPlayerActivated) {
-        mPlayer.update(deltaTime);
-     //   std::cout << "Player ativado após " << (SDL_GetTicks() - mActivationTime) << "ms" << std::endl;
-    }
-    PhysicsEngine::HandleCollisions(
-        mPlayer, mWalls, mPlatforms, mSolidPlatforms);
-    if (PhysicsEngine::HandlePlayerCollisions(
-        mPlayer, mCrates, mDoors, levelToLoad, spawnPosition))
-    { 
-        /*Vector newSpawn = (spawnPosition.x >= 0 && spawnPosition.y >= 0) ? spawnPosition : Vector(-1, -1);
 
-        loadLevelFromJSON(levelToLoad);
-        if (newSpawn.x >= 0 && newSpawn.y >= 0) {
-            mPlayer.setPosition(newSpawn);
-        }*/
-       if(!isTransitioning) {
+    void Game::handleTransition()
+    {
+        if (!isTransitioning) return;
+
+    Vector currentVelocity = mPlayer.getVelocity();
+    mPlayer.setVelocity(Vector(0, 0));
+    
+    if (SDL_GetTicks() - transitionStartTime > TRANSITION_DELAY) 
+    {
+        completeTransition(currentVelocity);
+    }
+    }
+
+    void Game::completeTransition(const Vector& currentVelocity) 
+    {
+        loadGameLevelFromTMX(targetLevel);
+        mPlayer.setPosition(targetSpawn);
+        mPlayer.setVelocity(currentVelocity);
+        mPlayerActivated = false;
+        mActivationTime = SDL_GetTicks() + 500;
+        isTransitioning = false;
+    }
+
+    void Game::updateGameState()
+    {
+        checkPlayerActivation();
+        updatePlayer();
+        checkLevelTransitions();
+    }
+
+    void Game::checkPlayerActivation()
+    {
+        if (SDL_GetTicks() > mActivationTime) { mPlayerActivated = true; }
+    }
+
+    void Game::updatePlayer() 
+    {
+        if (mPlayerActivated) 
+        {
+        mPlayer.update(deltaTime);
+        PhysicsEngine::HandleCollisions(mPlayer, mWalls, mPlatforms, mSolidPlatforms);
+        }
+    }
+
+    void Game::checkLevelTransitions()
+    {
+        std::string levelToLoad;
+        Vector spawnPosition;
+        if 
+        (
+            PhysicsEngine::HandlePlayerCollisions
+            (
+                mPlayer, 
+                spawnPosition, 
+                mDoors, 
+                mCrates, 
+                levelToLoad)
+            ) 
+            {
+            startTransition(levelToLoad, spawnPosition);
+            }
+        }
+
+    void Game::startTransition(const std::string& level, const Vector& spawn) 
+    {
+        if (!isTransitioning) 
+        {
             isTransitioning = true;
             transitionStartTime = SDL_GetTicks();
-            targetLevel = levelToLoad;
-            targetSpawn = spawnPosition;
-       }
+            targetLevel = level;
+            targetSpawn = spawn;
+        }
     }
-  
-    Vector playerPosition = mPlayer.getPosition();
 
-    /*std::cout << "Player Position: (" << playerPosition.x << ", "
-              << playerPosition.y << ")\n";
-    std::cout << "Camera Position: (" << mCamera.getPosition().x << ", " << mCamera.getPosition().y << ")\n";
-    std::cout << "mOnGround: " << mPlayer.isOnGround()
-              << ", mFalling: " << mPlayer.isFalling() << std::endl;*/
-
-    float cameraMarginX = effectiveScreenWidth * 0.50f;
-    float cameraMarginY = effectiveScreenHeight * 0.50f;
-
-    // Mantenha o jogador centralizado na área visível reduzida
-    float playerCenterX = playerPosition.x + mPlayer.getWidth() / 2;
-    float playerCenterY = playerPosition.y + mPlayer.getHeight() / 2;
-
-    // Atualize a posição da câmera
-    mCamera.setPosition(Vector(playerCenterX - effectiveScreenWidth / 2, playerCenterY - effectiveScreenHeight / 2));
-    Vector cameraPosition = mCamera.getPosition();
-    cameraPosition.x = std::max(0.0f, std::min(cameraPosition.x, static_cast<float>(mapWidth) - effectiveScreenWidth));
-    cameraPosition.y = std::max(0.0f, std::min(cameraPosition.y, static_cast<float>(mapHeight) - effectiveScreenHeight));
-    mCamera.setPosition(cameraPosition);
-
-    if (playerCenterX < cameraPosition.x + cameraMarginX)
-        cameraPosition.x = playerCenterX - cameraMarginX;
-    else if (playerCenterX > cameraPosition.x + SCREEN_WIDTH - cameraMarginX)
-        cameraPosition.x = playerCenterX - (SCREEN_WIDTH - cameraMarginX);
-
-    if (playerCenterY < cameraPosition.y + cameraMarginY)
-        cameraPosition.y = playerCenterY - cameraMarginY;
-    else if (playerCenterY > cameraPosition.y + SCREEN_HEIGHT - cameraMarginY)
-        cameraPosition.y = playerCenterY - (SCREEN_HEIGHT - cameraMarginY);
-
-    mCamera.setPosition(cameraPosition);
-
-    for (auto &crate : mCrates)
+    void Game::updateCamera() 
     {
-        crate.update(deltaTime); // Passe um valor de tempo delta apropriado
-        PhysicsEngine::HandleCollisions(
-            crate, mWalls, mPlatforms, mSolidPlatforms);
+        Vector playerCenter = getPlayerCenter();
+        Vector cameraPosition = calculateCameraPosition(playerCenter);
+        cameraPosition.x = 
+            std::max(0.0f, std::min(cameraPosition.x, 
+            static_cast<float>(mapWidth) - effectiveScreenWidth));
+        cameraPosition.y = 
+            std::max(0.0f, std::min(cameraPosition.y, 
+            static_cast<float>(mapHeight) - effectiveScreenHeight));
+        applyCameraMargins(playerCenter, cameraPosition);
+        mCamera.setPosition(cameraPosition);
     }
-}
 
-void Game::render()
-{
-  //  SDL_Log("Game::render() chamado");
-    
-    if (isTransitioning) {
+    Vector Game::getPlayerCenter() const 
+    {
+        Vector playerPosition = mPlayer.getPosition();
+        return Vector
+        (
+        playerPosition.x + mPlayer.getSize().x / 2, 
+        playerPosition.y + mPlayer.getSize().y / 2
+        );
+    }
+
+    Vector Game::calculateCameraPosition(const Vector& playerCenter) const 
+    {
+        return Vector
+        (
+        playerCenter.x - effectiveScreenWidth / 2,
+        playerCenter.y - effectiveScreenHeight / 2
+        );
+    }
+
+    void Game::applyCameraMargins(const Vector& playerCenter, Vector& cameraPosition) 
+    {
+        const float cameraMarginX = effectiveScreenWidth * 0.50f;
+        const float cameraMarginY = effectiveScreenHeight * 0.50f;
+        if 
+        (playerCenter.x < cameraPosition.x + cameraMarginX) 
+        {cameraPosition.x = playerCenter.x - cameraMarginX;} 
+        else if 
+        (playerCenter.x > cameraPosition.x + SCREEN_WIDTH - cameraMarginX) 
+        {cameraPosition.x = playerCenter.x - (SCREEN_WIDTH - cameraMarginX);}
+        if 
+        (playerCenter.y < cameraPosition.y + cameraMarginY) 
+        {cameraPosition.y = playerCenter.y - cameraMarginY;}
+        else if 
+        (playerCenter.y > cameraPosition.y + SCREEN_HEIGHT - cameraMarginY) 
+        {cameraPosition.y = playerCenter.y - (SCREEN_HEIGHT - cameraMarginY);}
+    }
+
+    void Game::updateCrates() 
+    {
+        for (auto &crate : mCrates) 
+        {
+        crate.update(deltaTime);
+        PhysicsEngine::HandleCollisions
+        (
+            crate, 
+            mWalls, 
+            mPlatforms, 
+            mSolidPlatforms
+        );
+        }
+    }
+/*
+-------------------------------------------------------------------------------
+    Função de renderização do jogo,
+    Aqui é onde todos os objetos do jogo são desenhados na tela, incluindo o fundo,
+    os objetos do jogo e o jogador.
+-------------------------------------------------------------------------------
+*/
+    void Game::render()
+    {
+        if (isTransitioning) 
+        {
+            renderTransitionEffect();
+            return;
+        }
+        prepareRender();
+        renderBackground();
+        renderGameObjects();
+        finalizeRender();
+    }
+
+    void Game::renderTransitionEffect() 
+    {
         Uint32 elapsed = SDL_GetTicks() - transitionStartTime;
-        if (elapsed <= HALF_TRANSITION) {
-            float progress = static_cast<float>(elapsed) / HALF_TRANSITION;
-            alpha = static_cast<int>(255 * progress);
-        } else if (elapsed < TRANSITION_DELAY) {
-            float progress = static_cast<float>(elapsed - HALF_TRANSITION) / HALF_TRANSITION;
-            alpha = 255 - static_cast<int>(255 * progress);
-        } else {
-            alpha = 0;
-        }   
-        
+        if (elapsed <= HALF_TRANSITION) 
+        {
+        alpha = static_cast<int>(255 * (static_cast<float>(elapsed) / HALF_TRANSITION));
+        }
+        else { alpha = 0; }
         SDL_SetRenderDrawBlendMode(mRenderer, SDL_BLENDMODE_BLEND);
-        SDL_Rect fadeRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+        SDL_Rect fadeRect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
         SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, alpha);
         SDL_RenderFillRect(mRenderer, &fadeRect);
         SDL_RenderPresent(mRenderer);
-        return;
     }
 
-    SDL_SetRenderDrawColor(mRenderer, 0x00, 0x00, 0x00, 0x00);
-    SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
-    SDL_RenderClear(mRenderer);
+    void Game::prepareRender()
+    {
+        SDL_SetRenderDrawColor(mRenderer, 0x00, 0x00, 0x00, 0x00);
+        SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
+        SDL_RenderClear(mRenderer);
+    }
 
-    Vector cameraPos = mCamera.getPosition();
-    
-    for (int i = 0; i < 5; i++) {
-        if (mParallaxLayers[i]) {
-            int texWidth, texHeight;
-            SDL_QueryTexture(mParallaxLayers[i], nullptr, nullptr, &texWidth, &texHeight);
-
-            float factor = mParallaxFactors[i];
-            float parallaxOffsetX = cameraPos.x * factor;
-            float parallaxOffsetY = cameraPos.y * factor * 0.5f;
-
-            // Calcula a posição base para repetição
-            float baseX = -parallaxOffsetX;
-            float baseY = -parallaxOffsetY;
-
-            // Calcula quantas vezes a textura precisa se repetir
-            int repeatX = static_cast<int>(effectiveScreenWidth / texWidth) + 2;
-            int repeatY = static_cast<int>(effectiveScreenHeight / texHeight) + 2;
-
-            // Ajusta o ponto inicial para preencher toda a tela
-            int startX = static_cast<int>(baseX) % texWidth;
-            int startY = static_cast<int>(baseY) % texHeight;
-            if (startX > 0) startX -= texWidth;
-            if (startY > 0) startY -= texHeight;
-
-            // Renderiza as repetições da textura
-            for (int x = 0; x < repeatX; x++) {
-                for (int y = 0; y < repeatY; y++) {
-                    SDL_Rect layerRect = {
-                        startX + x * texWidth,
-                        startY + y * texHeight,
-                        texWidth,
-                        texHeight
-                    };
-                    SDL_RenderCopy(mRenderer, mParallaxLayers[i], nullptr, &layerRect);
-                }
+    void Game::renderBackground()
+    {
+        Vector cameraPos = mCamera.getPosition();
+        for (int i = 0; i < 5; i++) 
+        {
+            if (mParallaxLayers[i]) 
+            {
+                renderParallaxLayer(i, cameraPos);
             }
         }
     }
 
-  //  bool WeHaveDecorations, WeHavePlatforms, WeHaveSolidPlatforms, WeHaveWalls, WeHaveCrates, WeHaveDoors;
-
-    for (auto &decoration : mDecorations)
+    void Game::renderParallaxLayer(int layerIndex, const Vector& cameraPos) 
     {
-        if (decoration.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
+        int texWidth, texHeight;
+        SDL_QueryTexture(mParallaxLayers[layerIndex], nullptr, nullptr, &texWidth, &texHeight);
+        float factor = mParallaxFactors[layerIndex];
+        Vector parallaxOffset(cameraPos.x * factor, cameraPos.y * factor * 0.5f);
+        Vector base(-parallaxOffset.x, -parallaxOffset.y);
+        Vector repeat
+        (
+            static_cast<int>(effectiveScreenWidth / texWidth) + 2,
+            static_cast<int>(effectiveScreenHeight / texHeight) + 2
+        );
+        Vector start
+        (
+        static_cast<int>(base.x) % texWidth,
+        static_cast<int>(base.y) % texHeight
+        );    
+        if (start.x > 0) start.x -= texWidth;
+        if (start.y > 0) start.y -= texHeight;
+        for (int x = 0; x < repeat.x; x++) 
         {
-            decoration.render(mRenderer, mCamera.getPosition());
-          //  WeHaveDecorations = true;
-       //     std::cout << "We have decorations" << std::endl;
-        }
+            for (int y = 0; y < repeat.y; y++) 
+            {
+                SDL_Rect layerRect = 
+                {
+                    static_cast<int>(start.x + x * texWidth),
+                    static_cast<int>(start.y + y * texHeight),
+                    texWidth,
+                    texHeight
+                };
+                SDL_RenderCopy(mRenderer, mParallaxLayers[layerIndex], nullptr, &layerRect);
+            }
+        }   
     }
 
-    for (auto &platform : mPlatforms)
+    void Game::renderGameObjects() 
     {
-        if (platform.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
-        {
-            platform.render(mRenderer, mCamera.getPosition());
-          //  WeHavePlatforms = true;
-          //  std::cout << "We have platforms" << std::endl;
-        }
+        Vector cameraPos = mCamera.getPosition();
+        Vector viewSize(effectiveScreenWidth, effectiveScreenHeight);
+        renderObjects(mDecorations, cameraPos, viewSize);
+        renderObjects(mPlatforms, cameraPos, viewSize);
+        renderObjects(mSolidPlatforms, cameraPos, viewSize);
+        renderObjects(mWalls, cameraPos, viewSize);
+        renderObjects(mCrates, cameraPos, viewSize);
+        renderObjects(mDoors, cameraPos, viewSize); 
+        mPlayer.render(mRenderer, cameraPos);
     }
 
-    for (auto &solidPlatform : mSolidPlatforms)
+    template<typename T>
+
+    void Game::renderObjects
+    (
+        std::list<T>& objects, 
+        Vector& cameraPos, 
+        Vector& viewSize
+    ) 
     {
-        if (solidPlatform.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
+        for (auto& obj : objects) 
         {
-            solidPlatform.render(mRenderer, mCamera.getPosition());
-           // WeHaveSolidPlatforms = true;
-       //    std::cout << "We have solid platforms" << std::endl;
+            if (obj.isVisible(cameraPos, viewSize)) 
+            { obj.render(mRenderer, cameraPos); }
         }
     }
+    void Game::finalizeRender() { SDL_RenderPresent(mRenderer); }
 
-    for (auto &wall : mWalls)
+    void Game::resetGame()
     {
-        if (wall.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
-        {
-            wall.render(mRenderer, mCamera.getPosition());
-           // WeHaveWalls = true;
-         //   std::cout << "We have walls" << std::endl;
-        }
+        mPlayer.setVelocity(Vector(0, 0));   // Velocidade inicial
+        mCamera.setPosition(Vector(0, 0));
+        std::cout << "Resetting game..." << std::endl;
     }
 
- 
-
-    for (auto &crate : mCrates)
-    {
-        if (crate.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
-        {
-            crate.render(mRenderer, mCamera.getPosition());
-          //  WeHaveCrates = true;
-       //     std::cout << "We have crates" << std::endl;
-        }
-    }
-
-    for (auto &door : mDoors)
-    {
-        if (door.isVisible(mCamera.getPosition(), Vector(effectiveScreenWidth, effectiveScreenHeight)))
-        {
-            door.render(mRenderer, mCamera.getPosition());
-         //   WeHaveDoors = true;
-        //    std::cout << "We have doors" << std::endl;
-        }
-    }
-
-   
-        //std::cout << "We have all objects" << std::endl;
-    mPlayer.render(mRenderer, mCamera.getPosition());
-    SDL_RenderPresent(mRenderer);
-}
-
-void Game::resetGame()
-{
-    mPlayer.setVelocity(Vector(0, 0));   // Velocidade inicial
-    mCamera.setPosition(Vector(0, 0));
-
-    std::cout << "Resetting game..." << std::endl;
-}
-
-bool Game::isRunning()
-{
-    return !mQuit;
-}
+    bool Game::isRunning(){return !mQuit;}
 
 } // namespace BRTC
