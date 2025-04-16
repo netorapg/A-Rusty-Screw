@@ -23,6 +23,7 @@ namespace BRTC
             );
             ~Player() 
             {
+                animations.clear();
                 if (spriteSheetTexture) 
                 {
                     SDL_DestroyTexture(spriteSheetTexture);
@@ -37,22 +38,23 @@ namespace BRTC
             override;
             void handleEvent(SDL_Event& e) override;
             void setPassingThroughPlatform(bool enable);
-            bool isFacingRight() const { return mFacingRight; }
+            bool isFacingRight() const { return mFacingDirection == 1; }
+            int getFacingDirection() const { return mFacingDirection; }
             int getWidth() const { return static_cast<int>(mSize.x); }
             int getHeight() const { return static_cast<int>(mSize.y); }
         private:
-            bool mFacingRight;
+           int mFacingDirection;
             bool mIsJumping;
             bool mIspunching = false;
             bool mIspunchingHarder = false;
             bool mIsFalling = false;
-            bool mShowDebugRects = false; 
+            bool mShowDebugRects = true; 
             std::unordered_map<std::string, Animation> animations;
             std::string currentAnimation;
-            Vector mPunchOffsetRight;
-            Vector mPunchOffsetLeft;
-            Vector mStrongPunchOffsetRight;
-            Vector mStrongPunchOffsetLeft;
+            Vector mPunchOffset;
+            Vector mStrongPunchOffset;
+            
+
             void DrawDebugRect
             (
                 SDL_Renderer* renderer, 

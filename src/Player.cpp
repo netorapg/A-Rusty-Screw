@@ -2,23 +2,25 @@
 
 namespace BRTC
 {
-  int sizeX = 29;
-  int sizeY = 29;
+
   Player::Player( Vector position, SDL_Renderer *renderer )
   : DynamicObject
     ( 
       position, 
-      Vector( 28, 42) ), 
-      mFacingRight( true )
+      Vector( 28, 42) 
+    ), 
+    mFacingDirection(1),
+    mIsJumping( false )
   {
-    const float idleOffsetX = (25.5 - 28) / 2.0f;
+  /*  const float baseWidth = 29;
     const float punchWidth = 37;
-    mPunchOffsetLeft = Vector(-(punchWidth - 29) + idleOffsetX, 0);
     const float strongPunchWidth = 40;
-    mStrongPunchOffsetLeft = Vector(-(strongPunchWidth - 29) + idleOffsetX, 0);
+    mPunchOffset = Vector(punchWidth - baseWidth, 0);
+    mStrongPunchOffset = Vector(strongPunchWidth, 0);*/
+    
     SDL_Surface* surface = IMG_Load("../assets/bezourinha_sprites.png");
     if (!surface) { throw std::runtime_error("Failed to load sprite sheet: " + std::string(IMG_GetError())); }
-    SDL_Texture* spriteSheetTexture = SDL_CreateTextureFromSurface(renderer, surface);
+    spriteSheetTexture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
     if (!spriteSheetTexture) { throw std::runtime_error("Failed to create texture form sprite sheet: " + std::string(IMG_GetError()));}
   
@@ -65,11 +67,11 @@ void Player::handleEvent( SDL_Event &e )
     {
       case SDLK_d:
         velocity.x   = MOVE_SPEED;
-        mFacingRight = true;
+        mFacingDirection = 1;
         break;
       case SDLK_a:
         velocity.x   = -MOVE_SPEED;
-        mFacingRight = false;
+        mFacingDirection = -1;
         break;
       case SDLK_SPACE:
         if(isOnGround() )
@@ -79,9 +81,10 @@ void Player::handleEvent( SDL_Event &e )
         }
         break;
       case SDLK_s:
-        if( isOnGround() )
+        if( isOnGround() ) {
           setPassingThroughPlatform( true );
           setOnGround( false );
+        }
         break;
       case SDLK_j:
         mIspunching = true;
@@ -112,26 +115,54 @@ void Player::handleEvent( SDL_Event &e )
   }
   setVelocity( velocity );
 }
-void Player::update(float deltaTime)
+void Player::update(float deltaTime) 
 {
-  Vector velocity = getVelocity();
-  Vector position = getPosition();
-  velocity.y += GRAVITY * deltaTime;
-  position += velocity * deltaTime;
-  setVelocity( velocity );
-  setPosition( position );
+    // Atualização física do jogador
+    Vector velocity = getVelocity();
+    Vector position = getPosition();
+    velocity.y += GRAVITY * deltaTime;
+    position += velocity * deltaTime;
+    setVelocity(velocity);
+    setPosition(position);
 
-  std::string previousAnimation = currentAnimation; 
-  if( isOnGround() ) mIsJumping = false;
-  if( !isOnGround() ) mIsJumping = true;
-  if( isOnGround() && velocity.x != 0.0f ) currentAnimation = "run";
-  else if( mIsJumping) currentAnimation = "jump";
-  else if( mIspunching ) currentAnimation = "punch";
-  else if( mIspunchingHarder ) currentAnimation = "strongPunch";
-  else currentAnimation = "idle";
-  if (previousAnimation != currentAnimation) { animations[currentAnimation].reset(); }
-  animations[currentAnimation].update(deltaTime);
+    // Lógica de transição de animação melhorada
+    std::string newAnimation;
+    
+    
+    if (isOnGround()) {
+        mIsJumping = false;
+        
+        if (mIspunching) {
+            newAnimation = "punch";
+        } 
+        else if (mIspunchingHarder) {
+            newAnimation = "strongPunch";
+        } 
+        else if (velocity.x != 0.0f && velocity.y == 0.0f) {
+            newAnimation = "run";
+        }
+        else if (velocity.x != 0.0f) {
+            newAnimation = "run";
+        } 
+        else {
+            newAnimation = "idle";
+        }
+    } 
+    else {
+        mIsJumping = true;
+        newAnimation = "jump";
+    }
+
+    // Transição suave entre animações
+    if (newAnimation != currentAnimation) {
+        animations[newAnimation].reset();
+        currentAnimation = newAnimation;
+    }
+
+    // Atualiza a animação atual
+    animations[currentAnimation].update(deltaTime);
 }
+
 void Player::DrawDebugRect
   (
     SDL_Renderer* renderer, 
@@ -150,44 +181,44 @@ void Player::DrawDebugRect
   SDL_SetRenderDrawColor(renderer, r, g, b, 255);
   SDL_RenderDrawRect(renderer, &rect);
   }
+
   void Player::render(SDL_Renderer* renderer, Vector cameraPosition) 
-  {
+{
     Vector screenPos = getPosition() - cameraPosition;
     SpritePtr currentSprite = animations[currentAnimation].getCurrentSprite();
+    
     if(currentSprite) 
     {
-      SDL_Point baseOffset = *animations[currentAnimation].getCurrentOffset();
-      Vector additionalOffset(0, 0);  
-      if (!mFacingRight) 
-      {
-        if (currentAnimation == "punch") { additionalOffset = mPunchOffsetLeft; } 
-        else if (currentAnimation == "strongPunch") { additionalOffset = mStrongPunchOffsetLeft; }
-      }  
-      int renderX = static_cast<int>(screenPos.x + baseOffset.x + additionalOffset.x);
-      int renderY = static_cast<int>(screenPos.y + baseOffset.y);
-        
-      if (mShowDebugRects) 
-      {
-        DrawDebugRect
-        (
-          renderer, 
-          static_cast<int>(screenPos.x), 
-          static_cast<int>(screenPos.y), 
-          28, 42, 
-          255, 0, 0
-        );
-        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-        SDL_RenderDrawLine
-        (
-          renderer, 
-          static_cast<int>(screenPos.x) + 14, 
-          static_cast<int>(screenPos.y) + 14, 
-          renderX + 14, 
-          renderY + 14);
+        SDL_Point baseOffset = *animations[currentAnimation].getCurrentOffset();
+        const SDL_Rect& frameRect = currentSprite->getSrcRect();
+        float baseWidth = 28;
+        float frameWidth = frameRect.w;
+        float widthDifference = frameWidth - baseWidth;
+        Vector renderOffset;
+        renderOffset.x = static_cast<int>(screenPos.x);
+        renderOffset.y = static_cast<int>(screenPos.y);
+        if(mFacingDirection == -1) 
+        { renderOffset.x -= widthDifference * 1.0f; } 
+        else 
+        { renderOffset.x += widthDifference * 0.0f; }
+        renderOffset.x += baseOffset.x;
+        renderOffset.y += baseOffset.y;
+        if (mShowDebugRects) 
+        {
+            DrawDebugRect
+            (
+                renderer, 
+                static_cast<int>(screenPos.x), 
+                static_cast<int>(screenPos.y), 
+                getWidth(), 
+                getHeight(), 
+                255, 0, 0
+            );
         }
-        currentSprite->draw(renderer, renderX, renderY, !mFacingRight);
-      }
-  }
+        currentSprite->draw(renderer, renderOffset.x, renderOffset.y, mFacingDirection == -1);
+    }
+}
+
   void Player::setPassingThroughPlatform( bool enable )
   {
     mPassingThroughPlatform = enable;
