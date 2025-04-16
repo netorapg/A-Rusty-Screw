@@ -12,51 +12,53 @@ namespace BRTC
     mFacingDirection(1),
     mIsJumping( false )
   {
-  /*  const float baseWidth = 29;
-    const float punchWidth = 37;
-    const float strongPunchWidth = 40;
-    mPunchOffset = Vector(punchWidth - baseWidth, 0);
-    mStrongPunchOffset = Vector(strongPunchWidth, 0);*/
     
     SDL_Surface* surface = IMG_Load("../assets/bezourinha_sprites.png");
-    if (!surface) { throw std::runtime_error("Failed to load sprite sheet: " + std::string(IMG_GetError())); }
+    if (!surface) 
+    { throw std::runtime_error("Failed to load sprite sheet: " + std::string(IMG_GetError())); }
     spriteSheetTexture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
-    if (!spriteSheetTexture) { throw std::runtime_error("Failed to create texture form sprite sheet: " + std::string(IMG_GetError()));}
+    if (!spriteSheetTexture) 
+    { throw std::runtime_error("Failed to create texture form sprite sheet: " + std::string(IMG_GetError()));}
   
-  Animation runAnim;
-  runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 113, 2, 20, 41 }), 0.1f, { 0, 0 } } );
-  runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 146, 2, 32, 41 }), 0.1f, { 0, 0 } } );
-  runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 181, 5, 36, 37 }), 0.1f, { 0, 0 } } );
-  runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 1, 49, 32, 41 }), 0.1f, { 0, 0 } } );
-  runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 113, 2, 20, 41 }), 0.1f, { 0, 0 } } );
-  runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 46, 50, 21, 41 }), 0.1f, { 0, 0 } } );
-  runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 79, 53, 32, 37 }), 0.1f, { 0, 0 } } );
-  runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 46, 50, 21, 41 }), 0.1f, { 0, 0 } } );
-  runAnim.setLoop( true );
-  Animation idleAnim;
-  idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 6, 1, 28, 42 }), 0.2f, { 0, 0 } } );
-  idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 39, 1, 28, 42 }), 0.2f, { 0, 0 }}  );
-  idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 76, 2, 29, 41 }), 0.2f, { 0, 0 }}  );
-  idleAnim.setLoop( true );
-  Animation punchAnim;
-  punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 11, 108, 33, 42 }), 0.1f, { 0, 0 } } );
-  punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 53, 108, 37, 42 }), 0.1f, { 0, 0 } } );
-  punchAnim.setLoop( false );
-  Animation strongPunchAnim;
-  strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 95, 107, 39, 42 }), 0.1f, { 0, 0 } } );
-  strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 141, 107, 40, 42 }), 0.1f, { 0, 0 } } );
-  strongPunchAnim.setLoop( false );
-  Animation jumpAnim;
-  jumpAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 120, 50, 31, 49 }), 0.1f, { 0, 0 } } );
-  jumpAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 158, 50, 31, 49 }), 0.1f, { 0, 0 } } );
-  jumpAnim.setLoop( true );
-  animations["run"] = runAnim;
-  animations["idle"] = idleAnim;
-  animations["jump"] = jumpAnim;
-  animations["punch"] = punchAnim;
-  animations["strongPunch"] = strongPunchAnim;
-  currentAnimation = "idle";
+    Animation runAnim;
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 113, 2, 20, 41 }), 0.1f, { 0, 0 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 146, 2, 32, 41 }), 0.1f, { 0, 0 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 181, 5, 36, 37 }), 0.1f, { 0, 0 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 1, 49, 32, 41 }), 0.1f, { 0, 0 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 113, 2, 20, 41 }), 0.1f, { 0, 0 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 46, 50, 21, 41 }), 0.1f, { 0, 0 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 79, 53, 32, 37 }), 0.1f, { 0, 0 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 46, 50, 21, 41 }), 0.1f, { 0, 0 } } );
+      runAnim.setLoop( true );
+
+    Animation idleAnim;
+      idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 6, 1, 28, 42 }), 0.2f, { 0, 0 } } );
+      idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 39, 1, 28, 42 }), 0.2f, { 0, 0 }}  );
+      idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 76, 2, 29, 41 }), 0.2f, { 0, 0 }}  );
+      idleAnim.setLoop( true );
+
+    Animation punchAnim;
+      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 11, 108, 33, 42 }), 0.1f, { 0, 0 } } );
+      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 53, 108, 37, 42 }), 0.1f, { 0, 0 } } );
+      punchAnim.setLoop( false );
+
+    Animation strongPunchAnim;
+      strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 95, 107, 39, 42 }), 0.1f, { 0, 0 } } );
+      strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 141, 107, 40, 42 }), 0.1f, { 0, 0 } } );
+      strongPunchAnim.setLoop( false );
+
+    Animation jumpAnim;
+      jumpAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 120, 50, 31, 49 }), 0.1f, { 0, 0 } } );
+      jumpAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 158, 50, 31, 49 }), 0.1f, { 0, 0 } } );
+      jumpAnim.setLoop( true );
+
+    animations["run"] = runAnim;
+    animations["idle"] = idleAnim;
+    animations["jump"] = jumpAnim;
+    animations["punch"] = punchAnim;
+    animations["strongPunch"] = strongPunchAnim;
+    currentAnimation = "idle";
 }
 void Player::handleEvent( SDL_Event &e )
 {
