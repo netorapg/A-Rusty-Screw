@@ -108,6 +108,20 @@ void Player::handleEvent( SDL_Event &e )
       case SDLK_k:
         mIspunchingHarder = true;
         break;
+      case SDLK_LSHIFT:
+        if ( mFacingDirection == 1) {
+          for (int i = 0; i < 5; i++) {
+            velocity.x += MOVE_SPEED * 2;
+          }
+        } else if (mFacingDirection == -1) {
+          for (int i = 0; i < 5; i++) {
+            velocity.x += -MOVE_SPEED * 2;
+          }
+        }
+        break;
+      case SDLK_LCTRL:
+        mShowDebugRects = !mShowDebugRects;
+        break;
     }
   }
   else if( e.type == SDL_KEYUP )

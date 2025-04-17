@@ -85,7 +85,7 @@ namespace BRTC
                 std::cout << "Collision on left side" << std::endl;
                 std::cout << "Before adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
 
-                position.x = wallPos.x + size.x;
+                position.x = wallPos.x + size.x + 2.0f;
                 velocity.x = 0;
                 std::cout << "After adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
                 //dynamicObject.setIsCollidingWithWall(true);
