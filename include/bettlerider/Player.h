@@ -53,6 +53,7 @@ namespace BRTC
             std::string currentAnimation;
             Vector mPunchOffset;
             Vector mStrongPunchOffset;
+            //void mDashSpeed(int direction, float speedInX, int i);
             
 
             void DrawDebugRect

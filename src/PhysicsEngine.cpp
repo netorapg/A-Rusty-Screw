@@ -85,8 +85,9 @@ namespace BRTC
                 std::cout << "Collision on left side" << std::endl;
                 std::cout << "Before adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
 
-                position.x = wallPos.x + size.x + 2.0f;
+                position.x = wallPos.x + size.x;
                 velocity.x = 0;
+                velocity.y *= 0;
                 std::cout << "After adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
                 //dynamicObject.setIsCollidingWithWall(true);
 
@@ -96,15 +97,22 @@ namespace BRTC
                 std::cout << "Collision on right side" << std::endl;
                 std::cout << "Before adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
 
-                position.x = wallPos.x - size.x + 3.0f;
+                position.x = wallPos.x - size.x;
                 velocity.x = 0;
+                velocity.y *= 0;
+                
                 std::cout << "After adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
                 //dynamicObject.setIsCollidingWithWall(true);
 
             }
-            //std::cout <<"Before friction: velocity.y = " << velocity.y << std::endl;
-            velocity.y *= FRICTION;
+            else if (dynamicObject.isOnGround()) {
+                dynamicObject.setIsCollidingWithWall(false);
+            }
             dynamicObject.setIsCollidingWithWall(true);
+
+            //std::cout <<"Before friction: velocity.y = " << velocity.y << std::endl;
+           
+            
            //std::cout <<"After friction: velocity.y = " << velocity.y << std::endl;
         }
         return collisionOcurred;
