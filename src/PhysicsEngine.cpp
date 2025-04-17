@@ -88,7 +88,7 @@ namespace BRTC
                 position.x = wallPos.x + size.x;
                 velocity.x = 0;
                 std::cout << "After adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
-                dynamicObject.setIsCollidingWithWall(true);
+                //dynamicObject.setIsCollidingWithWall(true);
 
             }
             else if (velocity.x > 0)
@@ -99,11 +99,12 @@ namespace BRTC
                 position.x = wallPos.x - size.x + 3.0f;
                 velocity.x = 0;
                 std::cout << "After adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
-                dynamicObject.setIsCollidingWithWall(true);
+                //dynamicObject.setIsCollidingWithWall(true);
 
             }
             //std::cout <<"Before friction: velocity.y = " << velocity.y << std::endl;
             velocity.y *= FRICTION;
+            dynamicObject.setIsCollidingWithWall(true);
            //std::cout <<"After friction: velocity.y = " << velocity.y << std::endl;
         }
         return collisionOcurred;

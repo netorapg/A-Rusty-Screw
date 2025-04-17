@@ -133,39 +133,41 @@ void Player::handleEvent( SDL_Event &e )
 }
 void Player::update(float deltaTime) 
 {
-  
     Vector velocity = getVelocity();
     Vector position = getPosition();
+
+    // Aplica a gravidade
     velocity.y += GRAVITY * deltaTime;
+
+    // Atualiza a posição com base na velocidade
     position += velocity * deltaTime;
-    setVelocity(velocity);
-    setPosition(position);
 
-
-    std::string newAnimation;
-    
-    
+    // Verifica se o jogador está no chão
     if (isOnGround()) {
         mIsJumping = false;
-        
+
+        // Zera a velocidade no eixo x se nenhuma tecla de movimento estiver pressionada
+        const Uint8* state = SDL_GetKeyboardState(NULL);
+        if (!state[SDL_SCANCODE_D] && !state[SDL_SCANCODE_A]) {
+            velocity.x = 0.0f;
+        }
+    } else {
+        mIsJumping = true;
+    }
+
+    // Atualiza a animação com base no estado atual
+    std::string newAnimation;
+    if (isOnGround()) {
         if (mIspunching) {
             newAnimation = "punch";
-        } 
-        else if (mIspunchingHarder) {
+        } else if (mIspunchingHarder) {
             newAnimation = "strongPunch";
-        } 
-        else if (velocity.x != 0.0f && velocity.y == 0.0f) {
+        } else if (velocity.x != 0.0f) {
             newAnimation = "run";
-        }
-        else if (velocity.x != 0.0f) {
-            newAnimation = "run";
-        } 
-        else {
+        } else {
             newAnimation = "idle";
         }
-    } 
-    else {
-        mIsJumping = true;
+    } else {
         newAnimation = "jump";
     }
 
@@ -177,6 +179,10 @@ void Player::update(float deltaTime)
 
     // Atualiza a animação atual
     animations[currentAnimation].update(deltaTime);
+
+    // Atualiza a posição e velocidade do jogador
+    setVelocity(velocity);
+    setPosition(position);
 }
 
 void Player::DrawDebugRect
