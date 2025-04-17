@@ -76,12 +76,26 @@ void Player::handleEvent( SDL_Event &e )
         mFacingDirection = -1;
         break;
       case SDLK_SPACE:
-        if(isOnGround() )
+        if(isOnGround())
         {
           setOnGround( false );
           velocity.y = JUMP_FORCE;
         }
-        break;
+        if(isCollidingWithWall() && mFacingDirection == 1 )
+        {
+          setIsCollidingWithWall( false );
+          mFacingDirection = -1;
+          velocity.x = -MOVE_SPEED;
+          velocity.y = JUMP_FORCE;
+        }
+        if(isCollidingWithWall() && mFacingDirection == -1 )
+        {
+          setIsCollidingWithWall( false );
+          mFacingDirection = 1;
+          velocity.x = MOVE_SPEED;
+          velocity.y = JUMP_FORCE;
+        }
+      break;
       case SDLK_s:
         if( isOnGround() ) {
           setPassingThroughPlatform( true );
@@ -119,7 +133,7 @@ void Player::handleEvent( SDL_Event &e )
 }
 void Player::update(float deltaTime) 
 {
-    // Atualização física do jogador
+  
     Vector velocity = getVelocity();
     Vector position = getPosition();
     velocity.y += GRAVITY * deltaTime;
@@ -127,7 +141,7 @@ void Player::update(float deltaTime)
     setVelocity(velocity);
     setPosition(position);
 
-    // Lógica de transição de animação melhorada
+
     std::string newAnimation;
     
     

@@ -66,23 +66,45 @@ namespace BRTC
     )
     {
         bool collisionOcurred = false;
+        bool grapping = false;
         const Vector size = dynamicObject.getSize();
-
         for (const auto& wall: walls) 
         {
-            if (!CheckCollision(wall, dynamicObject)) continue;
+            //std::cout << "Checking collision with wall" << std::endl;
+            if (!CheckCollision(wall, dynamicObject)) {
+                //std::cout << "No collision with wall" << std::endl;
+                continue;
+            }
+            //std::cout << "Collision with wall detected" << std::endl;
             collisionOcurred = true;
+         
             const Vector wallPos = wall.getPosition();
             const Vector wallSize = wall.getSize();
-            if (velocity.x > 0)
+            if (velocity.x < 0)
             {
-                position.x = wallPos.x - size.x;
+                std::cout << "Collision on left side" << std::endl;
+                std::cout << "Before adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
+
+                position.x = wallPos.x + size.x;
+                velocity.x = 0;
+                std::cout << "After adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
+                dynamicObject.setIsCollidingWithWall(true);
+
             }
-            else if (velocity.x < 0)
+            else if (velocity.x > 0)
             {
-                position.x = wallPos.x + wallSize.x;
+                std::cout << "Collision on right side" << std::endl;
+                std::cout << "Before adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
+
+                position.x = wallPos.x - size.x + 3.0f;
+                velocity.x = 0;
+                std::cout << "After adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
+                dynamicObject.setIsCollidingWithWall(true);
+
             }
-            velocity.x = 0;
+            //std::cout <<"Before friction: velocity.y = " << velocity.y << std::endl;
+            velocity.y *= FRICTION;
+           //std::cout <<"After friction: velocity.y = " << velocity.y << std::endl;
         }
         return collisionOcurred;
     }
