@@ -68,11 +68,11 @@ void Player::handleEvent( SDL_Event &e )
     switch( e.key.keysym.sym )
     {
       case SDLK_d:
-        velocity.x   = MOVE_SPEED;
+        velocity.x = MOVE_SPEED;
         mFacingDirection = 1;
         break;
       case SDLK_a:
-        velocity.x   = -MOVE_SPEED;
+        velocity.x = -MOVE_SPEED;
         mFacingDirection = -1;
         break;
       case SDLK_SPACE:
@@ -83,17 +83,19 @@ void Player::handleEvent( SDL_Event &e )
         }
         if(isCollidingWithWall() && mFacingDirection == 1 )
         {
-          setIsCollidingWithWall( false );
-          mFacingDirection = -1;
+          std::cout << "pulou da parede vindo da esquerda para direita" << std::endl;
           velocity.x = -MOVE_SPEED;
           velocity.y = JUMP_FORCE;
+          mFacingDirection = -1;
+          setIsCollidingWithWall( false );
         }
         if(isCollidingWithWall() && mFacingDirection == -1 )
         {
-          setIsCollidingWithWall( false );
-          mFacingDirection = 1;
+          std::cout << "pulou da parede vindo da direita para esquerda" << std::endl;
           velocity.x = MOVE_SPEED;
           velocity.y = JUMP_FORCE;
+          mFacingDirection = 1;
+          setIsCollidingWithWall( false );
         }
       break;
       case SDLK_s:
@@ -147,6 +149,9 @@ void Player::handleEvent( SDL_Event &e )
 }
 void Player::update(float deltaTime) 
 {
+
+   // std::cout << "Deteccao no player"<< isCollidingWithWall() << std::endl;
+  //  std::cout << "player no chao"<< isOnGround() << std::endl;
     Vector velocity = getVelocity();
     Vector position = getPosition();
 
@@ -158,9 +163,9 @@ void Player::update(float deltaTime)
 
     // Verifica se o jogador está no chão
     if (isOnGround()) {
+        setIsCollidingWithWall(false);
         mIsJumping = false;
-
-        // Zera a velocidade no eixo x se nenhuma tecla de movimento estiver pressionada
+    
         const Uint8* state = SDL_GetKeyboardState(NULL);
         if (!state[SDL_SCANCODE_D] && !state[SDL_SCANCODE_A]) {
             velocity.x = 0.0f;

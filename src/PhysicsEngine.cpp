@@ -87,9 +87,9 @@ namespace BRTC
 
                 position.x = wallPos.x + size.x;
                 velocity.x = 0;
-                velocity.y *= 0;
+                
                 std::cout << "After adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
-                //dynamicObject.setIsCollidingWithWall(true);
+               
 
             }
             else if (velocity.x > 0)
@@ -97,18 +97,17 @@ namespace BRTC
                 std::cout << "Collision on right side" << std::endl;
                 std::cout << "Before adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
 
-                position.x = wallPos.x - size.x;
+                position.x = wallPos.x - size.x +1;
                 velocity.x = 0;
-                velocity.y *= 0;
+               
                 
                 std::cout << "After adjustment: position.x = " << position.x << ", velocity.x = " << velocity.x << std::endl;
-                //dynamicObject.setIsCollidingWithWall(true);
+  
 
             }
-            else if (dynamicObject.isOnGround()) {
-                dynamicObject.setIsCollidingWithWall(false);
-            }
+            //velocity.y = 0;
             dynamicObject.setIsCollidingWithWall(true);
+           // std::cout << "detecção na collision" << dynamicObject.isCollidingWithWall() << std::endl;
 
             //std::cout <<"Before friction: velocity.y = " << velocity.y << std::endl;
            
@@ -184,6 +183,7 @@ namespace BRTC
     {
         if (!hasPlatformCollision && dynamicObject.isOnGround()) 
         {
+           // dynamicObject.setIsCollidingWithWall(true);
             dynamicObject.setOnGround(false);
             dynamicObject.setFalling(true);
         }
