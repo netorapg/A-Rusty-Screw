@@ -50,6 +50,10 @@ namespace BRTC
             bool mIspunchingHarder = false;
             bool mIsFalling = false;
             bool mShowDebugRects = true; 
+            bool mIsDashing = false;
+            float mDashTimer = 0.0f;
+            const float DASH_DURATION = 0.2f;
+            const float DASH_SPEED = 500.0f;
             std::unordered_map<std::string, Animation> animations;
             std::string currentAnimation;
             Vector mPunchOffset;

@@ -179,7 +179,7 @@ namespace BRTC
     {
         std::unordered_map<int, int> tileTypeMap = 
         {
-        {5, 2},{9, 2},{16, 2}, {31, 2},  // Plataforma Sólida
+        {5, 2},{9, 2},{16, 2},{31, 2},{78, 2},  // Plataforma Sólida
         {18, 1}, // Plataforma vazada
         {64, 3},{15, 3},{41, 3}, {87, 3}, // Parede
         {65, 4} // Caixote

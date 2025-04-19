@@ -95,15 +95,16 @@ void Player::handleEvent( SDL_Event &e )
       case SDLK_k:
         mIspunchingHarder = true;
         break;
-      case SDLK_LSHIFT:
-        if ( mFacingDirection == 1) {
-          for (int i = 0; i < 10; i++) {
-            velocity.x += i;
-          }
-        } else if (mFacingDirection == -1) {
-          for (int i = 0; i < 10; i++) {
-            velocity.x += -i;
-          }
+        case SDLK_e:
+        if (!mIsDashing && isOnGround() && !isCollidingWithWall()) { // Apenas inicia o dash se não estiver dashing
+            mIsDashing = true;
+            mDashTimer = DASH_DURATION;
+            if (mFacingDirection == 1) {
+                velocity.x += DASH_SPEED; // Dash para a direita
+            } 
+            else if (mFacingDirection == -1) {
+                velocity.x += -DASH_SPEED; // Dash para a esquerda
+            }
         }
         break;
       case SDLK_LCTRL:
@@ -155,10 +156,31 @@ void Player::handleWallJump(Vector& velocity)
 void Player::update(float deltaTime) 
 {
 
-   // std::cout << "Deteccao no player"<< isCollidingWithWall() << std::endl;
+   // std::cout << "player tocando na parede: "<< isCollidingWithWall() << std::endl;
   //  std::cout << "player no chao"<< isOnGround() << std::endl;
     Vector velocity = getVelocity();
     Vector position = getPosition();
+
+
+
+   
+
+    if (mIsDashing) {
+      mDashTimer -= deltaTime;
+      if (mFacingDirection == 1) {
+          velocity.x = 0.0f;
+          velocity.x += DASH_SPEED; // Dash para a direita
+          position += velocity * deltaTime;
+      } else if (mFacingDirection == -1) {
+          velocity.x = 0.0f;
+          velocity.x += -DASH_SPEED; // Dash para a esquerda
+          position += velocity * deltaTime;
+      }
+      if (mDashTimer <= 0.0f) {
+          mIsDashing = false;
+          velocity.x = 0.0f; // Para o movimento horizontal após o dash
+      }
+    }
 
     // Aplica a gravidade
     velocity.y += GRAVITY * deltaTime;
@@ -186,7 +208,7 @@ void Player::update(float deltaTime)
             newAnimation = "punch";
         } else if (mIspunchingHarder) {
             newAnimation = "strongPunch";
-        } else if (velocity.x != 0.0f) {
+        } else if (velocity.x != 0.0f || mIsDashing) {
             newAnimation = "run";
         } else {
             newAnimation = "idle";
