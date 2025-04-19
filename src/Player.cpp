@@ -81,22 +81,7 @@ void Player::handleEvent( SDL_Event &e )
           setOnGround( false );
           velocity.y = JUMP_FORCE;
         }
-        if(isCollidingWithWall() && mFacingDirection == 1 )
-        {
-          std::cout << "pulou da parede vindo da esquerda para direita" << std::endl;
-          velocity.x = -MOVE_SPEED;
-          velocity.y = JUMP_FORCE;
-          mFacingDirection = -1;
-          setIsCollidingWithWall( false );
-        }
-        if(isCollidingWithWall() && mFacingDirection == -1 )
-        {
-          std::cout << "pulou da parede vindo da direita para esquerda" << std::endl;
-          velocity.x = MOVE_SPEED;
-          velocity.y = JUMP_FORCE;
-          mFacingDirection = 1;
-          setIsCollidingWithWall( false );
-        }
+        handleWallJump(velocity);
       break;
       case SDLK_s:
         if( isOnGround() ) {
@@ -147,6 +132,26 @@ void Player::handleEvent( SDL_Event &e )
   }
   setVelocity( velocity );
 }
+
+void Player::handleWallJump(Vector& velocity)
+{
+    if (isCollidingWithWall() && mFacingDirection == 1)
+    {
+        velocity.x = -MOVE_SPEED;
+        velocity.y = JUMP_FORCE;
+        mFacingDirection = -1;
+        setIsCollidingWithWall(false);
+    }
+    else if (isCollidingWithWall() && mFacingDirection == -1)
+    {
+        velocity.x = MOVE_SPEED;
+        velocity.y = JUMP_FORCE;
+        mFacingDirection = 1;
+        setIsCollidingWithWall(false);
+    }
+    setVelocity(velocity);
+}
+
 void Player::update(float deltaTime) 
 {
 

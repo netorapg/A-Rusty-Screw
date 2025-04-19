@@ -36,6 +36,7 @@ namespace BRTC
                 Vector cameraPosition
             ) 
             override;
+            void handleWallJump(Vector& velocity);
             void handleEvent(SDL_Event& e) override;
             void setPassingThroughPlatform(bool enable);
             bool isFacingRight() const { return mFacingDirection == 1; }
