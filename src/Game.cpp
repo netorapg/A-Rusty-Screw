@@ -19,7 +19,11 @@ namespace BRTC
     mRenderer(renderer), 
     mQuit(false), 
     mPlayer(Vector(0, 0), renderer), 
-    mCamera(SCREEN_WIDTH, SCREEN_HEIGHT), 
+    mCamera
+    (
+        SCREEN_WIDTH / PLAYER_ZOOM_FACTOR, 
+        SCREEN_HEIGHT / PLAYER_ZOOM_FACTOR
+    ), 
     mPlayerActivated(true), 
     mActivationTime(0),
     mPlatformsTexture(nullptr),
@@ -479,15 +483,16 @@ A função também lida com a transição entre os níveis.
     void Game::updateCamera() 
     {
         Vector playerCenter = getPlayerCenter();
-        Vector cameraPosition = calculateCameraPosition(playerCenter);
-        cameraPosition.x = 
-            std::max(0.0f, std::min(cameraPosition.x, 
-            static_cast<float>(mapWidth) - effectiveScreenWidth));
-        cameraPosition.y = 
-            std::max(0.0f, std::min(cameraPosition.y, 
-            static_cast<float>(mapHeight) - effectiveScreenHeight));
-        applyCameraMargins(playerCenter, cameraPosition);
-        mCamera.setPosition(cameraPosition);
+        Vector desiredPosition = calculateCameraPosition(playerCenter);
+
+        desiredPosition.x = std::max(0.0f, std::min(desiredPosition.x, static_cast<float>(mapWidth) - effectiveScreenWidth));
+        desiredPosition.y = std::max(0.0f, std::min(desiredPosition.y, static_cast<float>(mapHeight) - effectiveScreenHeight));
+        
+        applyCameraMargins(playerCenter, desiredPosition);
+
+        Vector currentPos = mCamera.getPosition();
+        Vector newPosition = Vector( currentPos.x + (desiredPosition.x - currentPos.x)* mCameraSmoothSpeed * deltaTime, currentPos.y + (desiredPosition.y - currentPos.y) * mCameraSmoothSpeed * deltaTime);
+        mCamera.setPosition(newPosition);
     }
 
     Vector Game::getPlayerCenter() const 
@@ -633,14 +638,17 @@ A função também lida com a transição entre os níveis.
     void Game::renderGameObjects() 
     {
         Vector cameraPos = mCamera.getPosition();
+
+        Vector snappedCameraPos(std::floor(cameraPos.x), std::floor(cameraPos.y));
         Vector viewSize(effectiveScreenWidth, effectiveScreenHeight);
-        renderObjects(mDecorations, cameraPos, viewSize);
-        renderObjects(mPlatforms, cameraPos, viewSize);
-        renderObjects(mSolidPlatforms, cameraPos, viewSize);
-        renderObjects(mWalls, cameraPos, viewSize);
-        renderObjects(mCrates, cameraPos, viewSize);
-        renderObjects(mDoors, cameraPos, viewSize); 
-        mPlayer.render(mRenderer, cameraPos);
+
+        renderObjects(mDecorations, snappedCameraPos, viewSize);
+        renderObjects(mPlatforms, snappedCameraPos, viewSize);
+        renderObjects(mSolidPlatforms, snappedCameraPos, viewSize);
+        renderObjects(mWalls, snappedCameraPos, viewSize);
+        renderObjects(mCrates, snappedCameraPos, viewSize);
+        renderObjects(mDoors, snappedCameraPos, viewSize); 
+        mPlayer.render(mRenderer, snappedCameraPos);
     }
 
     template<typename T>

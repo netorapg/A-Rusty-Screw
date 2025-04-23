@@ -134,13 +134,13 @@ namespace BRTC
             const Vector platformPos = platform.getPosition();
             const Vector platformSize = platform.getSize();
             
-            // Calcula overlaps em todos os lados
-            float overlapTop = (position.y + size.y) - platformPos.y + 0.1f;
-            float overlapBottom = (platformPos.y + platformSize.y) - position.y + 0.1f;
-            float overlapLeft = (position.x + size.x) - platformPos.x + 0.1f;
-            float overlapRight = (platformPos.x + platformSize.x) - position.x + 0.1f;
+       
+            float overlapTop = (position.y + size.y) - platformPos.y;
+            float overlapBottom = (platformPos.y + platformSize.y) - position.y;
+            float overlapLeft = (position.x + size.x) - platformPos.x;
+            float overlapRight = (platformPos.x + platformSize.x) - position.x;
             
-            // Determina o menor overlap (lado da colisão)
+            
             if (overlapTop < overlapBottom && 
                 overlapTop < overlapLeft && 
                 overlapTop < overlapRight && 
@@ -150,32 +150,41 @@ namespace BRTC
                 velocity.y = 0;
                 dynamicObject.setOnGround(true);
                 dynamicObject.setFalling(false);
+
+                continue;
             } 
             else if (overlapBottom < overlapTop && 
                      overlapBottom < overlapLeft && 
                      overlapBottom < overlapRight && 
-                     velocity.y <= 0) // Colisão pela base
+                     velocity.y <= 0)
             {
-                position.y = platformPos.y + platformSize.y + 0.1f;
+                position.y = platformPos.y + platformSize.y;
                 velocity.y = 0;
                 dynamicObject.setFalling(true);
             }
-            // Opcional: colisões laterais para plataformas sólidas
+  
             else if (overlapLeft < overlapTop && 
                      overlapLeft < overlapBottom && 
-                     overlapLeft < overlapRight)
+                     overlapLeft < overlapRight &&
+                     position.y + size.y > platformSize.y  + 3.0f &&
+                     position.y < platformPos.y + platformSize.y - 3.0f &&
+                    std::abs(velocity.x) > 1.1f)
             {
                 position.x = platformPos.x - size.x;
                 velocity.x = 0;
             }
             else if (overlapRight < overlapTop && 
                      overlapRight < overlapBottom && 
-                     overlapRight < overlapLeft)
+                     overlapRight < overlapLeft &&
+                     position.y + size.y > platformSize.y  + 3.0f &&
+                     position.y < platformPos.y + platformSize.y - 3.0f &&
+                    std::abs(velocity.x) > 1.1f)
             {
                 position.x = platformPos.x + platformSize.x + 0.1f;
                 velocity.x = 0;
             }
         }
+        
         return collisionOccurred;
     }
     
@@ -196,22 +205,24 @@ namespace BRTC
             const Vector platformPos = platform.getPosition();
             const Vector platformSize = platform.getSize();
             
-            // Calcula overlaps
-            float overlapTop = (position.y + size.y) - platformPos.y + 0.1f;
-            float overlapBottom = (platformPos.y + platformSize.y) - position.y + 0.1f;
+        
+            float overlapTop = (position.y + size.y) - platformPos.y;
+            float overlapBottom = (platformPos.y + platformSize.y) - position.y;
             float overlapLeft = (position.x + size.x) - platformPos.x;
-            float overlapRight = (platformPos.x + platformSize.x) - position.x + 0.1f; 
+            float overlapRight = (platformPos.x + platformSize.x) - position.x; 
             
-            // Só colide pelo topo (plataforma unidirecional)
+
             if (overlapTop < overlapBottom && 
                 overlapTop < overlapLeft && 
                 overlapTop < overlapRight && 
                 velocity.y >= 0 && 
-                overlapTop > -5.0f) // Margem de 5px para evitar colisões muito profundas
+                overlapTop > -5.0f)
             {
-                position.y = platformPos.y - size.y + 0.1f;
+                position.y = platformPos.y - size.y;
                 velocity.y = 0;
                 dynamicObject.setOnGround(true);
+
+                continue;
             }
         }
         return collisionOccurred;
