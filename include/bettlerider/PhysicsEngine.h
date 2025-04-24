@@ -9,6 +9,7 @@
 #include "Platform.h"
 #include "Player.h"
 #include "SolidPlatform.h"
+#include "Ramp.h"
 #include "Wall.h"
 
 namespace BRTC
@@ -17,12 +18,14 @@ namespace BRTC
   {
     public:
     static  bool CheckCollision(const Object& staticObj, const Object& dynamicObj);
+    static  bool CheckRampCollision(const Ramp& ramp, const Vector& point);
     static  void HandleCollisions
       (
         DynamicObject& dynamicObject,
         const std::list<Wall>& walls,
         const std::list<Platform>& platforms,
-        const std::list<SolidPlatform>& solidPlatforms
+        const std::list<SolidPlatform>& solidPlatforms,
+        const std::list<Ramp>& ramps
       );
 
     static  bool HandlePlayerCollisions
@@ -48,7 +51,8 @@ namespace BRTC
       (
         DynamicObject& dynamicObject,                                
         const std::list<SolidPlatform>& solidPlatforms,
-        Vector& position, Vector& velocity
+        Vector& position, 
+        Vector& velocity
       );
 
       static bool handlePlatformCollisions
@@ -56,6 +60,14 @@ namespace BRTC
         DynamicObject& dynamicObject, 
         const std::list<Platform>& platforms,
         Vector& position, 
+        Vector& velocity
+      );
+
+      static bool handleRampCollisions
+      (
+        DynamicObject& dynamicObject,
+        const std::list<Ramp>& ramps,
+        Vector& position,
         Vector& velocity
       );
 

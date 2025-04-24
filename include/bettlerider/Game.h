@@ -16,6 +16,7 @@
 
 #include "Platform.h"
 #include "SolidPlatform.h"
+#include "Ramp.h"
 #include "Wall.h"
 #include "Crate.h"
 #include "Door.h"
@@ -70,6 +71,7 @@ namespace BRTC
 
             std::list<Platform> mPlatforms;
             std::list<SolidPlatform> mSolidPlatforms;
+            std::list<Ramp> mRamps;
             std::list<Wall> mWalls;
             std::list<Crate> mCrates;
             std::list<Door> mDoors;

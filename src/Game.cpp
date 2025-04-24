@@ -174,6 +174,7 @@ namespace BRTC
         mPlatforms.clear();
         mWalls.clear();
         mSolidPlatforms.clear();
+        mRamps.clear();
         mCrates.clear();
         mDoors.clear();
         mDecorations.clear();
@@ -186,7 +187,8 @@ namespace BRTC
         {5, 2},{9, 2},{16, 2},{31, 2},{78, 2},  // Plataforma Sólida
         {18, 1}, // Plataforma vazada
         {64, 3},{15, 3},{41, 3}, {87, 3}, // Parede
-        {65, 4} // Caixote
+        {65, 4}, // Caixote
+        {89, 5} // Rampa
         };
         XMLElement* layer = map->FirstChildElement("layer");
         while (layer) {
@@ -292,6 +294,15 @@ namespace BRTC
                 mRenderer
             );
             break;
+            case 5: // Rampa
+            mRamps.emplace_back
+            (
+                Vector(mTilePosition), 
+                Vector(tileSize, tileSize), 
+                mPlatformsTexture, 
+                tileId,
+                RampType::BOTTOM_LEFT
+            );
         }
     }
 
@@ -446,7 +457,7 @@ A função também lida com a transição entre os níveis.
         if (mPlayerActivated) 
         {
         mPlayer.update(deltaTime);
-        PhysicsEngine::HandleCollisions(mPlayer, mWalls, mPlatforms, mSolidPlatforms);
+        PhysicsEngine::HandleCollisions(mPlayer, mWalls, mPlatforms, mSolidPlatforms, mRamps);
         }
     }
 
@@ -542,7 +553,8 @@ A função também lida com a transição entre os níveis.
             crate, 
             mWalls, 
             mPlatforms, 
-            mSolidPlatforms
+            mSolidPlatforms,
+            mRamps
         );
         }
     }
@@ -648,6 +660,7 @@ A função também lida com a transição entre os níveis.
         renderObjects(mWalls, snappedCameraPos, viewSize);
         renderObjects(mCrates, snappedCameraPos, viewSize);
         renderObjects(mDoors, snappedCameraPos, viewSize); 
+        renderObjects(mRamps, snappedCameraPos, viewSize);
         mPlayer.render(mRenderer, snappedCameraPos);
     }
 

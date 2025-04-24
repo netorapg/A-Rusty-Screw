@@ -16,13 +16,31 @@ namespace BRTC
             dynamicPos.y + dynamicSize.y > staticPos.y
         );
     }
+
+    bool PhysicsEngine::CheckRampCollision(const Ramp& ramp, const Vector& point)
+    {
+        const Vector rampPos = ramp.getPosition();
+        const Vector rampSize = ramp.getSize();
+        Vector relative;
+        relative.x = point.x - rampPos.x;
+        relative.y = point.y - rampPos.y;
+
+        switch(ramp.getType()) {
+            case RampType::BOTTOM_LEFT:
+            return (relative.x >= 0) && (relative.y >= 0) &&
+                    ((relative.y / rampSize.y) <= (1 - relative.x / rampSize.x));
+            case RampType::BOTTOM_RIGHT:
+                
+        }
+    }
     
     void PhysicsEngine::HandleCollisions
     (
         DynamicObject &dynamicObject,
         const std::list<Wall> &walls,
         const std::list<Platform> &platforms,
-        const std::list<SolidPlatform> &solidPlatforms 
+        const std::list<SolidPlatform> &solidPlatforms,
+        const std::list<Ramp> &ramps
     )
     {
         Vector position = dynamicObject.getPosition();
@@ -42,6 +60,7 @@ namespace BRTC
             position, 
             velocity
         );
+        bool hasRampCollision = handleRampCollisions(dynamicObject, ramps, position, velocity);
         if (!dynamicObject.isPassingThroughPlatform()) 
         {
             hasPlatformCollision |= handlePlatformCollisions
@@ -52,7 +71,7 @@ namespace BRTC
                 velocity
             );
         }
-        updateGroundState(dynamicObject, hasPlatformCollision);
+        updateGroundState(dynamicObject, hasPlatformCollision || hasRampCollision);
         dynamicObject.setPosition(position);
         dynamicObject.setVelocity(velocity);
     }
@@ -163,7 +182,7 @@ namespace BRTC
                 dynamicObject.setFalling(true);
             }
   
-            else if (overlapLeft < overlapTop && 
+            /*else if (overlapLeft < overlapTop && 
                      overlapLeft < overlapBottom && 
                      overlapLeft < overlapRight &&
                      position.y + size.y > platformSize.y  + 3.0f &&
@@ -182,17 +201,19 @@ namespace BRTC
             {
                 position.x = platformPos.x + platformSize.x + 0.1f;
                 velocity.x = 0;
-            }
+            }*/
         }
         
         return collisionOccurred;
     }
     
-    bool PhysicsEngine::handlePlatformCollisions(
+    bool PhysicsEngine::handlePlatformCollisions
+    (
         DynamicObject& dynamicObject,
         const std::list<Platform>& platforms,
         Vector& position,
-        Vector& velocity) 
+        Vector& velocity
+    ) 
     {
         bool collisionOccurred = false;
         const Vector size = dynamicObject.getSize();
@@ -226,6 +247,47 @@ namespace BRTC
             }
         }
         return collisionOccurred;
+    }
+
+    bool PhysicsEngine::handleRampCollisions
+    (
+        DynamicObject& dynamicObject,
+        const std::list<Ramp>& ramps,
+        Vector& position,
+        Vector& velocity
+    )
+    {
+        bool collisionOcurred = false;
+        const Vector size = dynamicObject.getSize();
+
+        for (const auto& ramp: ramps)
+        {
+            if(!CheckCollision(dynamicObject, ramp)) continue;
+
+            collisionOcurred = true;
+            const Vector rampPos = ramp.getPosition();
+            const Vector rampSize = ramp.getSize();
+
+            float overlapTop = (position.y + size.y) - rampPos.y;
+            float overlapBottom = (rampPos.y + rampSize.y) - position.y;
+            float overlapLeft = (position.x + size.x) - rampPos.x;
+            float overlapRight = (rampPos.x + rampSize.x ) - position.x;
+
+            if (overlapTop < overlapBottom &&
+                overlapTop < overlapLeft &&
+                overlapTop < overlapRight &&
+                velocity.y >= 0 &&
+                overlapTop < -5.0f
+            )
+            {
+                position.y = rampPos.y - size.y;
+                velocity.y = 0;
+                dynamicObject.setOnGround(true);
+
+                continue;
+            }
+        }
+        return collisionOcurred;
     }
 
     void PhysicsEngine::updateGroundState
