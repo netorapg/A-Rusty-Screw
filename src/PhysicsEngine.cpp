@@ -30,7 +30,16 @@ namespace BRTC
             return (relative.x >= 0) && (relative.y >= 0) &&
                     ((relative.y / rampSize.y) <= (1 - relative.x / rampSize.x));
             case RampType::BOTTOM_RIGHT:
-                
+            return (relative.x <= rampSize.x) && (relative.y >= 0) &&
+                    ((relative.y / rampSize.y) <= (relative.x / rampSize.x));
+            case RampType::TOP_LEFT:
+            return (relative.x >= 0) && (relative.y <= rampSize.y) &&
+                    ((relative.y / rampSize.y) >= (1 - relative.x / rampSize.x));
+            case RampType::TOP_RIGHT:
+            return (relative.x <= rampSize.x) && (relative.y <= rampSize.y) &&
+                    ((relative.y / rampSize.y) >= (relative.x / rampSize.x));
+            default:
+            return false;
         }
     }
     
