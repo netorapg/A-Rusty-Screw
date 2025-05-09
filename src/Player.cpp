@@ -7,7 +7,7 @@ namespace BRTC
   : DynamicObject
     ( 
       position, 
-      Vector( 41, 32) 
+      Vector( 32, 32) 
     ), 
     mFacingDirection(1),
     mIsJumping( false )
@@ -35,9 +35,9 @@ namespace BRTC
       idleAnim.setLoop( true );
 
     Animation punchAnim;
-      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 64, 32, 32, 32 }), 0.1f, { 0, 0 } } );
-      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 96, 32, 32, 32 }), 0.1f, { 0, 0 } } );
-      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 128, 32, 42, 32 }), 0.1f, { 0, 0 } } );
+      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 64, 32, 32, 32 }), 0.09f, { 0, 0 } } );
+      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 96, 32, 32, 32 }), 0.09f, { 0, 0 } } );
+      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 128, 32, 42, 32 }), 0.09f, { 0, 0 } } );
       punchAnim.setLoop( false );
 
     Animation strongPunchAnim;

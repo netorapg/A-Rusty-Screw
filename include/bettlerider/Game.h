@@ -55,7 +55,7 @@ namespace BRTC
             bool increasing = true;
             bool mPlayerActivated;
 
-            const float PLAYER_ZOOM_FACTOR = 2.5f;
+            const float PLAYER_ZOOM_FACTOR = 3.5f;
             float effectiveScreenWidth = SCREEN_WIDTH / PLAYER_ZOOM_FACTOR;
             float effectiveScreenHeight = SCREEN_HEIGHT / PLAYER_ZOOM_FACTOR;
             float mapWidth;
