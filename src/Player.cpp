@@ -57,6 +57,12 @@ namespace BRTC
     animations["strongPunch"] = strongPunchAnim;
     currentAnimation = "idle";
 }
+
+  void Player::equipWeapon(std::shared_ptr<Weapon> weapon) {
+    mEquippedWeapon = weapon;
+    updateWeaponPosition();
+  }
+
 void Player::handleEvent( SDL_Event &e )
 {
   Vector velocity = getVelocity();
@@ -179,6 +185,12 @@ void Player::update(float deltaTime)
       }
     }
 
+    if (mEquippedWeapon) {
+        mEquippedWeapon->setFacingDirection(mFacingDirection);
+        updateWeaponPosition();
+        mEquippedWeapon->update(deltaTime);
+    }
+
     // Aplica a gravidade
     velocity.y += GRAVITY * deltaTime;
 
@@ -247,6 +259,13 @@ void Player::DrawDebugRect
   SDL_RenderDrawRect(renderer, &rect);
   }
 
+  void Player::updateWeaponPosition() {
+    if (mEquippedWeapon) {
+        Vector offset = (mFacingDirection == 1) ? mWeaponOffsetRight : mWeaponOffsetLeft;
+        mEquippedWeapon->setAnchor(this, offset);
+    }
+  }
+
   void Player::render(SDL_Renderer* renderer, Vector cameraPosition) 
 {
     Vector screenPos = getPosition() - cameraPosition;
@@ -282,6 +301,9 @@ void Player::DrawDebugRect
         }
         currentSprite->draw(renderer, renderOffset.x, renderOffset.y, mFacingDirection == -1);
     }
+    if (mEquippedWeapon) {
+        mEquippedWeapon->render(renderer, cameraPosition);
+    }
 }
 
   void Player::setPassingThroughPlatform( bool enable )
@@ -289,3 +311,4 @@ void Player::DrawDebugRect
     mPassingThroughPlatform = enable;
   }
 }
+

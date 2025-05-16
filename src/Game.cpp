@@ -44,6 +44,13 @@ namespace BRTC
         mPlayerActivated = false;
         mActivationTime = SDL_GetTicks() + 500;
         centerCameraOnPlayer();
+        auto initialWeapon = std::make_shared<Weapon>(
+            Vector(0, 0), 
+            Vector(32, 32), 
+            mRenderer, 
+            "../assets/weapon.png"
+        );
+        mPlayer.equipWeapon(initialWeapon);
     }
 
     void Game::initializeRenderSettings()
@@ -457,6 +464,9 @@ A função também lida com a transição entre os níveis.
         if (mPlayerActivated) 
         {
         mPlayer.update(deltaTime);
+        if (auto weapon = mPlayer.getWeapon()) {
+            weapon->update(deltaTime);
+        }
         PhysicsEngine::HandleCollisions(mPlayer, mWalls, mPlatforms, mSolidPlatforms, mRamps);
         }
     }
