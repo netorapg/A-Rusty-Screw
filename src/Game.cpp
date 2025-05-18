@@ -19,7 +19,11 @@ namespace BRTC
     mRenderer(renderer), 
     mQuit(false), 
     mPlayer(Vector(0, 0), renderer), 
-    mCamera(SCREEN_WIDTH, SCREEN_HEIGHT), 
+    mCamera
+    (
+        SCREEN_WIDTH / PLAYER_ZOOM_FACTOR, 
+        SCREEN_HEIGHT / PLAYER_ZOOM_FACTOR
+    ), 
     mPlayerActivated(true), 
     mActivationTime(0),
     mPlatformsTexture(nullptr),
@@ -170,6 +174,7 @@ namespace BRTC
         mPlatforms.clear();
         mWalls.clear();
         mSolidPlatforms.clear();
+        mRamps.clear();
         mCrates.clear();
         mDoors.clear();
         mDecorations.clear();
@@ -179,10 +184,11 @@ namespace BRTC
     {
         std::unordered_map<int, int> tileTypeMap = 
         {
-        {5, 2},{9, 2},{16, 2}, {31, 2},  // Plataforma Sólida
+        {5, 2},{9, 2},{16, 2},{31, 2},{78, 2},  // Plataforma Sólida
         {18, 1}, // Plataforma vazada
         {64, 3},{15, 3},{41, 3}, {87, 3}, // Parede
-        {65, 4} // Caixote
+        {65, 4}, // Caixote
+        {89, 5} // Rampa
         };
         XMLElement* layer = map->FirstChildElement("layer");
         while (layer) {
@@ -288,6 +294,15 @@ namespace BRTC
                 mRenderer
             );
             break;
+            case 5: // Rampa
+            mRamps.emplace_back
+            (
+                Vector(mTilePosition), 
+                Vector(tileSize, tileSize), 
+                mPlatformsTexture, 
+                tileId,
+                RampType::BOTTOM_LEFT
+            );
         }
     }
 
@@ -442,7 +457,7 @@ A função também lida com a transição entre os níveis.
         if (mPlayerActivated) 
         {
         mPlayer.update(deltaTime);
-        PhysicsEngine::HandleCollisions(mPlayer, mWalls, mPlatforms, mSolidPlatforms);
+        PhysicsEngine::HandleCollisions(mPlayer, mWalls, mPlatforms, mSolidPlatforms, mRamps);
         }
     }
 
@@ -479,15 +494,16 @@ A função também lida com a transição entre os níveis.
     void Game::updateCamera() 
     {
         Vector playerCenter = getPlayerCenter();
-        Vector cameraPosition = calculateCameraPosition(playerCenter);
-        cameraPosition.x = 
-            std::max(0.0f, std::min(cameraPosition.x, 
-            static_cast<float>(mapWidth) - effectiveScreenWidth));
-        cameraPosition.y = 
-            std::max(0.0f, std::min(cameraPosition.y, 
-            static_cast<float>(mapHeight) - effectiveScreenHeight));
-        applyCameraMargins(playerCenter, cameraPosition);
-        mCamera.setPosition(cameraPosition);
+        Vector desiredPosition = calculateCameraPosition(playerCenter);
+
+        desiredPosition.x = std::max(0.0f, std::min(desiredPosition.x, static_cast<float>(mapWidth) - effectiveScreenWidth));
+        desiredPosition.y = std::max(0.0f, std::min(desiredPosition.y, static_cast<float>(mapHeight) - effectiveScreenHeight));
+        
+        applyCameraMargins(playerCenter, desiredPosition);
+
+        Vector currentPos = mCamera.getPosition();
+        Vector newPosition = Vector( currentPos.x + (desiredPosition.x - currentPos.x)* mCameraSmoothSpeed * deltaTime, currentPos.y + (desiredPosition.y - currentPos.y) * mCameraSmoothSpeed * deltaTime);
+        mCamera.setPosition(newPosition);
     }
 
     Vector Game::getPlayerCenter() const 
@@ -537,7 +553,8 @@ A função também lida com a transição entre os níveis.
             crate, 
             mWalls, 
             mPlatforms, 
-            mSolidPlatforms
+            mSolidPlatforms,
+            mRamps
         );
         }
     }
@@ -633,14 +650,18 @@ A função também lida com a transição entre os níveis.
     void Game::renderGameObjects() 
     {
         Vector cameraPos = mCamera.getPosition();
+
+        Vector snappedCameraPos(std::floor(cameraPos.x), std::floor(cameraPos.y));
         Vector viewSize(effectiveScreenWidth, effectiveScreenHeight);
-        renderObjects(mDecorations, cameraPos, viewSize);
-        renderObjects(mPlatforms, cameraPos, viewSize);
-        renderObjects(mSolidPlatforms, cameraPos, viewSize);
-        renderObjects(mWalls, cameraPos, viewSize);
-        renderObjects(mCrates, cameraPos, viewSize);
-        renderObjects(mDoors, cameraPos, viewSize); 
-        mPlayer.render(mRenderer, cameraPos);
+
+        renderObjects(mDecorations, snappedCameraPos, viewSize);
+        renderObjects(mPlatforms, snappedCameraPos, viewSize);
+        renderObjects(mSolidPlatforms, snappedCameraPos, viewSize);
+        renderObjects(mWalls, snappedCameraPos, viewSize);
+        renderObjects(mCrates, snappedCameraPos, viewSize);
+        renderObjects(mDoors, snappedCameraPos, viewSize); 
+        renderObjects(mRamps, snappedCameraPos, viewSize);
+        mPlayer.render(mRenderer, snappedCameraPos);
     }
 
     template<typename T>

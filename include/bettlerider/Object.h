@@ -52,19 +52,31 @@ namespace BRTC
             virtual ~DynamicObject() = default;
             virtual void update(float deltaTime) = 0;
             virtual void handleEvent(SDL_Event& e) = 0;
-            bool isOnGround() { return mOnGround; };
-            bool isFalling()  { return mFalling; };
-            bool isPassingThroughPlatform() const { return mPassingThroughPlatform; };
-            void setVelocity(Vector velocity) { mVelocity = velocity; };
-            void setOnGround(bool onGround) {mOnGround = onGround; };
-            void setFalling(bool falling) {mFalling = falling; };
-            void setAboveCrate(bool aboveCrate) {mAboveCrate = aboveCrate; };
+            bool isOnGround() 
+                { return mOnGround; };
+            bool isFalling()  
+                { return mFalling; };
+            bool isPassingThroughPlatform() 
+                const { return mPassingThroughPlatform; };
+            bool isCollidingWithWall() 
+                { return mIsCollidingWithWall; };
+            void setVelocity(Vector velocity) 
+                { mVelocity = velocity; };
+            void setOnGround(bool onGround) 
+                {mOnGround = onGround; };
+            void setFalling(bool falling) 
+                {mFalling = falling; };
+            void setAboveCrate(bool aboveCrate) 
+                {mAboveCrate = aboveCrate; };
+            void setIsCollidingWithWall(bool isCollidingWithWall) 
+                { mIsCollidingWithWall = isCollidingWithWall; };
         protected:
             Vector mVelocity;
             bool mPassingThroughPlatform; 
             bool mAboveCrate; 
             bool mOnGround;   
             bool mFalling;    
+            bool mIsCollidingWithWall;
     };
 }
 #endif

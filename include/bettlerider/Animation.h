@@ -15,6 +15,7 @@ namespace BRTC
     SpritePtr sprite;     
     float duration;    
     SDL_Point offset; 
+    SDL_Point weaponOffset;
     };
     class Animation 
     {

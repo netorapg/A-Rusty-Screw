@@ -16,6 +16,7 @@
 
 #include "Platform.h"
 #include "SolidPlatform.h"
+#include "Ramp.h"
 #include "Wall.h"
 #include "Crate.h"
 #include "Door.h"
@@ -54,11 +55,12 @@ namespace BRTC
             bool increasing = true;
             bool mPlayerActivated;
 
-            const float PLAYER_ZOOM_FACTOR = 2.5f;
+            const float PLAYER_ZOOM_FACTOR = 3.5f;
             float effectiveScreenWidth = SCREEN_WIDTH / PLAYER_ZOOM_FACTOR;
             float effectiveScreenHeight = SCREEN_HEIGHT / PLAYER_ZOOM_FACTOR;
             float mapWidth;
             float mapHeight;
+            float mCameraSmoothSpeed = 5.0f;
 
             const Uint32 TRANSITION_DELAY = 500;
             const Uint32 HALF_TRANSITION = TRANSITION_DELAY / 2;
@@ -69,6 +71,7 @@ namespace BRTC
 
             std::list<Platform> mPlatforms;
             std::list<SolidPlatform> mSolidPlatforms;
+            std::list<Ramp> mRamps;
             std::list<Wall> mWalls;
             std::list<Crate> mCrates;
             std::list<Door> mDoors;
@@ -88,6 +91,7 @@ namespace BRTC
             Vector mTilePosition;
             Vector mAttributeSpawn;
             Vector mSpawnPosition;
+            Vector mCameraTargetPosition;
             
             void renderText(const char* text, int x, int y, TTF_Font* font);
             void loadGameLevelFromTMX(const std::string& filePath);

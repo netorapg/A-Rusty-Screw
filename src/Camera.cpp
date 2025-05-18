@@ -26,9 +26,13 @@ namespace BRTC
     void Camera::setPosition(const Vector& position) 
     {
         mPosition = position;
+        mPosition.x = std::round(position.x * 2.5f) / 2.5f;
+        mPosition.y = std::round(position.y * 2.5f) / 2.5f;
+
         mPosition.x = std::max(0.0f, mPosition.x);
         mPosition.y = std::max(0.0f, mPosition.y);
     }
+
     Vector Camera::getPosition() const 
     {
         return mPosition;

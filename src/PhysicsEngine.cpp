@@ -16,12 +16,40 @@ namespace BRTC
             dynamicPos.y + dynamicSize.y > staticPos.y
         );
     }
+
+    bool PhysicsEngine::CheckRampCollision(const Ramp& ramp, const Vector& point)
+    {
+        const Vector rampPos = ramp.getPosition();
+        const Vector rampSize = ramp.getSize();
+        Vector relative;
+        relative.x = point.x - rampPos.x;
+        relative.y = point.y - rampPos.y;
+
+        switch(ramp.getType()) {
+            case RampType::BOTTOM_LEFT:
+            return (relative.x >= 0) && (relative.y >= 0) &&
+                    ((relative.y / rampSize.y) <= (1 - relative.x / rampSize.x));
+            case RampType::BOTTOM_RIGHT:
+            return (relative.x <= rampSize.x) && (relative.y >= 0) &&
+                    ((relative.y / rampSize.y) <= (relative.x / rampSize.x));
+            case RampType::TOP_LEFT:
+            return (relative.x >= 0) && (relative.y <= rampSize.y) &&
+                    ((relative.y / rampSize.y) >= (1 - relative.x / rampSize.x));
+            case RampType::TOP_RIGHT:
+            return (relative.x <= rampSize.x) && (relative.y <= rampSize.y) &&
+                    ((relative.y / rampSize.y) >= (relative.x / rampSize.x));
+            default:
+            return false;
+        }
+    }
+    
     void PhysicsEngine::HandleCollisions
     (
         DynamicObject &dynamicObject,
         const std::list<Wall> &walls,
         const std::list<Platform> &platforms,
-        const std::list<SolidPlatform> &solidPlatforms 
+        const std::list<SolidPlatform> &solidPlatforms,
+        const std::list<Ramp> &ramps
     )
     {
         Vector position = dynamicObject.getPosition();
@@ -41,6 +69,7 @@ namespace BRTC
             position, 
             velocity
         );
+        bool hasRampCollision = handleRampCollisions(dynamicObject, ramps, position, velocity);
         if (!dynamicObject.isPassingThroughPlatform()) 
         {
             hasPlatformCollision |= handlePlatformCollisions
@@ -51,43 +80,72 @@ namespace BRTC
                 velocity
             );
         }
-        updateGroundState(dynamicObject, hasPlatformCollision);
+        updateGroundState(dynamicObject, hasPlatformCollision || hasRampCollision);
         dynamicObject.setPosition(position);
         dynamicObject.setVelocity(velocity);
     }
 
-    bool PhysicsEngine::handleWallCollisions
-    (
+    bool PhysicsEngine::handleWallCollisions(
         DynamicObject &dynamicObject,
         const std::list<Wall> &walls,
         Vector& position,
         Vector& velocity
-    )
-    {
-        bool collisionOcurred = false;
+    ) {
+        bool collisionOccurred = false;
         const Vector size = dynamicObject.getSize();
-
-        for (const auto& wall: walls) 
-        {
-            if (!CheckCollision(wall, dynamicObject)) continue;
-            collisionOcurred = true;
+    
+        for (const auto& wall : walls) {
+            if (!CheckCollision(dynamicObject, wall)) {
+                continue;
+            }
+    
+            collisionOccurred = true;
             const Vector wallPos = wall.getPosition();
             const Vector wallSize = wall.getSize();
-            if (velocity.x > 0)
-            {
+    
+            // Calcula a sobreposição em X e Y para determinar o lado da colisão
+            float overlapLeft = (position.x + size.x) - wallPos.x;
+            float overlapRight = (wallPos.x + wallSize.x) - position.x;
+            float overlapTop = (position.y + size.y) - wallPos.y;
+            float overlapBottom = (wallPos.y + wallSize.y) - position.y;
+    
+            // Determina qual é a menor sobreposição (lado da colisão)
+            bool fromLeft = overlapLeft < overlapRight;
+            bool fromTop = overlapTop < overlapBottom;
+    
+            // Se a colisão for mais horizontal (paredes laterais)
+            if (overlapLeft < overlapTop && overlapLeft < overlapBottom) {
+                // Colisão pela esquerda
                 position.x = wallPos.x - size.x;
+                velocity.x = 0;
+                std::cout << "Collision on LEFT side" << std::endl;
             }
-            else if (velocity.x < 0)
-            {
+            else if (overlapRight < overlapTop && overlapRight < overlapBottom) {
+                // Colisão pela direita
                 position.x = wallPos.x + wallSize.x;
+                velocity.x = 0;
+                std::cout << "Collision on RIGHT side" << std::endl;
             }
-            velocity.x = 0;
+            else if (overlapTop < overlapLeft && overlapTop < overlapRight) {
+                // Colisão por cima (opcional, se paredes tiverem topo)
+                position.y = wallPos.y - size.y;
+                velocity.y = 0;
+                std::cout << "Collision on TOP side" << std::endl;
+            }
+            else if (overlapBottom < overlapLeft && overlapBottom < overlapRight) {
+                // Colisão por baixo (opcional, se paredes tiverem base)
+                position.y = wallPos.y + wallSize.y;
+                velocity.y = 0;
+                std::cout << "Collision on BOTTOM side" << std::endl;
+            }
+    
+            dynamicObject.setIsCollidingWithWall(true);
         }
-        return collisionOcurred;
+    
+        return collisionOccurred;
     }
 
-    bool PhysicsEngine::handleSolidPlatformCollisions
-    (
+    bool PhysicsEngine::handleSolidPlatformCollisions(
         DynamicObject& dynamicObject,
         const std::list<SolidPlatform>& solidPlatforms,
         Vector& position,
@@ -95,26 +153,66 @@ namespace BRTC
     {
         bool collisionOccurred = false;
         const Vector size = dynamicObject.getSize();    
+        
         for (const auto& platform : solidPlatforms) 
         {
-            if (!CheckCollision(dynamicObject, platform)) continue;    
+            if (!CheckCollision(dynamicObject, platform)) continue;
+                
             collisionOccurred = true;
             const Vector platformPos = platform.getPosition();
             const Vector platformSize = platform.getSize();
-            if (velocity.y > 0) 
+            
+       
+            float overlapTop = (position.y + size.y) - platformPos.y;
+            float overlapBottom = (platformPos.y + platformSize.y) - position.y;
+            float overlapLeft = (position.x + size.x) - platformPos.x;
+            float overlapRight = (platformPos.x + platformSize.x) - position.x;
+            
+            
+            if (overlapTop < overlapBottom && 
+                overlapTop < overlapLeft && 
+                overlapTop < overlapRight && 
+                velocity.y >= 0) // Colisão pelo topo
             {
                 position.y = platformPos.y - size.y;
                 velocity.y = 0;
                 dynamicObject.setOnGround(true);
                 dynamicObject.setFalling(false);
+
+                continue;
             } 
-            else if (velocity.y < 0) 
+            else if (overlapBottom < overlapTop && 
+                     overlapBottom < overlapLeft && 
+                     overlapBottom < overlapRight && 
+                     velocity.y <= 0)
             {
                 position.y = platformPos.y + platformSize.y;
                 velocity.y = 0;
                 dynamicObject.setFalling(true);
             }
+  
+            /*else if (overlapLeft < overlapTop && 
+                     overlapLeft < overlapBottom && 
+                     overlapLeft < overlapRight &&
+                     position.y + size.y > platformSize.y  + 3.0f &&
+                     position.y < platformPos.y + platformSize.y - 3.0f &&
+                    std::abs(velocity.x) > 1.1f)
+            {
+                position.x = platformPos.x - size.x;
+                velocity.x = 0;
+            }
+            else if (overlapRight < overlapTop && 
+                     overlapRight < overlapBottom && 
+                     overlapRight < overlapLeft &&
+                     position.y + size.y > platformSize.y  + 3.0f &&
+                     position.y < platformPos.y + platformSize.y - 3.0f &&
+                    std::abs(velocity.x) > 1.1f)
+            {
+                position.x = platformPos.x + platformSize.x + 0.1f;
+                velocity.x = 0;
+            }*/
         }
+        
         return collisionOccurred;
     }
     
@@ -128,20 +226,77 @@ namespace BRTC
     {
         bool collisionOccurred = false;
         const Vector size = dynamicObject.getSize();
+        
         for (const auto& platform : platforms) 
         {
-            if (!CheckCollision(dynamicObject, platform)) continue;    
+            if (!CheckCollision(dynamicObject, platform)) continue;
+            
             collisionOccurred = true;
             const Vector platformPos = platform.getPosition();
             const Vector platformSize = platform.getSize();
-            if (velocity.y >= 0) 
+            
+        
+            float overlapTop = (position.y + size.y) - platformPos.y;
+            float overlapBottom = (platformPos.y + platformSize.y) - position.y;
+            float overlapLeft = (position.x + size.x) - platformPos.x;
+            float overlapRight = (platformPos.x + platformSize.x) - position.x; 
+            
+
+            if (overlapTop < overlapBottom && 
+                overlapTop < overlapLeft && 
+                overlapTop < overlapRight && 
+                velocity.y >= 0 && 
+                overlapTop > -5.0f)
             {
                 position.y = platformPos.y - size.y;
                 velocity.y = 0;
                 dynamicObject.setOnGround(true);
+
+                continue;
             }
         }
         return collisionOccurred;
+    }
+
+    bool PhysicsEngine::handleRampCollisions
+    (
+        DynamicObject& dynamicObject,
+        const std::list<Ramp>& ramps,
+        Vector& position,
+        Vector& velocity
+    )
+    {
+        bool collisionOcurred = false;
+        const Vector size = dynamicObject.getSize();
+
+        for (const auto& ramp: ramps)
+        {
+            if(!CheckCollision(dynamicObject, ramp)) continue;
+
+            collisionOcurred = true;
+            const Vector rampPos = ramp.getPosition();
+            const Vector rampSize = ramp.getSize();
+
+            float overlapTop = (position.y + size.y) - rampPos.y;
+            float overlapBottom = (rampPos.y + rampSize.y) - position.y;
+            float overlapLeft = (position.x + size.x) - rampPos.x;
+            float overlapRight = (rampPos.x + rampSize.x ) - position.x;
+
+            if (overlapTop < overlapBottom &&
+                overlapTop < overlapLeft &&
+                overlapTop < overlapRight &&
+                velocity.y >= 0 &&
+                overlapTop < -5.0f
+            )
+            {
+                position.y = rampPos.y - size.y;
+                velocity.y = 0;
+                dynamicObject.setOnGround(true);
+
+                continue;
+            }
+        }
+        return collisionOcurred;
     }
 
     void PhysicsEngine::updateGroundState
@@ -152,6 +307,7 @@ namespace BRTC
     {
         if (!hasPlatformCollision && dynamicObject.isOnGround()) 
         {
+           // dynamicObject.setIsCollidingWithWall(true);
             dynamicObject.setOnGround(false);
             dynamicObject.setFalling(true);
         }
