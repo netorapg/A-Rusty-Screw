@@ -2,8 +2,6 @@
 #define GAME_H
 
 #include <SDL2/SDL.h>
-#include "GameWorld.h"
-#include "GameManager.h"
 
 namespace BRTC {
     class Game {
@@ -19,9 +17,6 @@ namespace BRTC {
     private:
         SDL_Window* mWindow;
         SDL_Renderer* mRenderer;
-        
-        GameWorld mWorld;
-        GameManager mManager;
     };
 }
 
