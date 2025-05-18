@@ -8,7 +8,6 @@
 #include "Object.h"
 #include "Animation.h"
 #include "Sprite.h"
-#include "Weapon.h"
 #include "Globals.h"
 
 namespace BRTC 
@@ -40,8 +39,6 @@ namespace BRTC
             void handleWallJump(Vector& velocity);
             void handleEvent(SDL_Event& e) override;
             void setPassingThroughPlatform(bool enable);
-            void equipWeapon(std::shared_ptr<Weapon> weapon);
-            std::shared_ptr<Weapon> getWeapon() const { return mEquippedWeapon;}
             bool isFacingRight() const { return mFacingDirection == 1; }
             int getFacingDirection() const { return mFacingDirection; }
             int getWidth() const { return static_cast<int>(mSize.x); }
@@ -59,7 +56,6 @@ namespace BRTC
             const float DASH_SPEED = 500.0f;
             std::unordered_map<std::string, Animation> animations;
             std::string currentAnimation;
-            std::shared_ptr<Weapon> mEquippedWeapon;
             Vector mWeaponOffsetRight = {-1, -2};
             //Vector mWeaponOffsetLeft = {-5, 2};
             Vector mPunchOffset;
