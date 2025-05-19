@@ -43,6 +43,9 @@ namespace BRTC
             int getFacingDirection() const { return mFacingDirection; }
             int getWidth() const { return static_cast<int>(mSize.x); }
             int getHeight() const { return static_cast<int>(mSize.y); }
+
+            SDL_Rect getAttackHitbox() const { return mAttackHitbox; }
+            bool isAttacking() const { return mIsAttacking; }
         private:
            int mFacingDirection;
             bool mIsJumping;
@@ -61,6 +64,12 @@ namespace BRTC
             Vector mPunchOffset;
             Vector mStrongPunchOffset;
             //void mDashSpeed(int direction, float speedInX, int i);
+
+            SDL_Rect mAttackHitbox;
+            bool mShowAttackHitbox = true;
+            bool mIsAttacking = false;
+            float mAttackDuration = 0.0f;
+            const float ATTACK_DURATION = 0.3f;
             
             void updateWeaponPosition();
 

@@ -123,9 +123,11 @@ void Player::handleEvent( SDL_Event &e )
         break;
       case SDLK_j:
         mIspunching = false;
+        mIsAttacking = false;
         break;
       case SDLK_k:
         mIspunchingHarder = false;
+        mIsAttacking = false;
         break;   
     }
   }
@@ -228,6 +230,39 @@ void Player::update(float deltaTime)
     // Atualiza a posição e velocidade do jogador
     setVelocity(velocity);
     setPosition(position);
+
+
+    // Atualiza a hitbox de ataque
+    if (mIspunching || mIspunchingHarder) {
+      if (!mIsAttacking) {
+          mIsAttacking = true;
+          mAttackDuration = ATTACK_DURATION;
+          // Configura a hitbox de ataque baseada na direção do jogador
+          int hitboxWidth = 30;
+          int hitboxHeight = 20;
+          int offsetX = 10;
+
+          if (mFacingDirection == 1) { // Direita
+              mAttackHitbox.x = getPosition().x + getWidth() - offsetX;
+          } else { // Esquerda
+              mAttackHitbox.x = getPosition().x - hitboxWidth + offsetX; 
+          }
+
+          mAttackHitbox.y = getPosition().y + getHeight() / 2 - hitboxHeight / 2;
+          mAttackHitbox.w = hitboxWidth;
+          mAttackHitbox.h = hitboxHeight;
+      }
+    } else {
+        mIsAttacking = false;
+    }
+
+    // Atualiza a duração do ataque
+    if (mIsAttacking) {
+        mAttackDuration -= deltaTime;
+        if (mAttackDuration <= 0.0f) {
+            mIsAttacking = false;
+        }
+    }
 }
 
 void Player::DrawDebugRect
@@ -256,6 +291,28 @@ void Player::DrawDebugRect
   void Player::render(SDL_Renderer* renderer, Vector cameraPosition) 
 {
     Vector screenPos = getPosition() - cameraPosition;
+
+    // Desenha a hitbox de ataque se estiver atacando
+    if (mIsAttacking && mShowAttackHitbox && mShowDebugRects) {
+      SDL_Rect attackRectOnScreen = {
+        mAttackHitbox.x - static_cast<int>(cameraPosition.x),
+        mAttackHitbox.y - static_cast<int>(cameraPosition.y),
+        mAttackHitbox.w,
+        mAttackHitbox.h
+      };
+
+      DrawDebugRect
+      (
+        renderer, 
+        attackRectOnScreen.x, 
+        attackRectOnScreen.y, 
+        attackRectOnScreen.w, 
+        attackRectOnScreen.h, 
+        0, 255, 0
+      );
+
+    }
+
     SpritePtr currentSprite = animations[currentAnimation].getCurrentSprite();
     
     if(currentSprite) 
