@@ -258,46 +258,77 @@ namespace BRTC
         return collisionOccurred;
     }
 
-    bool PhysicsEngine::handleRampCollisions
-    (
-        DynamicObject& dynamicObject,
-        const std::list<Ramp>& ramps,
-        Vector& position,
-        Vector& velocity
-    )
-    {
-        bool collisionOcurred = false;
-        const Vector size = dynamicObject.getSize();
+bool PhysicsEngine::handleRampCollisions(
+    DynamicObject& dynamicObject,
+    const std::list<Ramp>& ramps,
+    Vector& position,
+    Vector& velocity)
+{
+    bool collisionOccurred = false;
+    const Vector size = dynamicObject.getSize();
+    const float feetOffset = 2.0f;
 
-        for (const auto& ramp: ramps)
-        {
-            if(!CheckCollision(dynamicObject, ramp)) continue;
+    for (const auto& ramp : ramps) {
+        if (!CheckCollision(dynamicObject, ramp)) continue;
 
-            collisionOcurred = true;
-            const Vector rampPos = ramp.getPosition();
-            const Vector rampSize = ramp.getSize();
+        const Vector rampPos = ramp.getPosition();
+        const Vector rampSize = ramp.getSize();
 
-            float overlapTop = (position.y + size.y) - rampPos.y;
-            float overlapBottom = (rampPos.y + rampSize.y) - position.y;
-            float overlapLeft = (position.x + size.x) - rampPos.x;
-            float overlapRight = (rampPos.x + rampSize.x ) - position.x;
+        Vector checkPoints[] = {
+            Vector(position.x + size.x * 0.25f, position.y + size.y - feetOffset),
+            Vector(position.x + size.x * 0.5f, position.y + size.y - feetOffset),
+            Vector(position.x + size.x * 0.75f, position.y + size.y - feetOffset)
+        };
 
-            if (overlapTop < overlapBottom &&
-                overlapTop < overlapLeft &&
-                overlapTop < overlapRight &&
-                velocity.y >= 0 &&
-                overlapTop < -5.0f
-            )
-            {
-                position.y = rampPos.y - size.y;
-                velocity.y = 0;
-                dynamicObject.setOnGround(true);
+        for (const auto& point : checkPoints) {
+            if (point.x < rampPos.x || point.x > rampPos.x + rampSize.x) continue;
 
-                continue;
+            float surfaceY = ramp.getSurfaceY(point.x);
+            if (point.y < surfaceY) continue;
+
+            collisionOccurred = true;
+            position.y = surfaceY - size.y + feetOffset;
+            dynamicObject.setOnGround(true);
+
+            // Calcula a direção tangente à rampa (perpendicular à normal)
+            Vector tangent;
+            switch(ramp.getType()) {
+                case RampType::BOTTOM_LEFT:
+                    tangent = Vector(rampSize.x, rampSize.y);
+                    break;
+                case RampType::BOTTOM_RIGHT:
+                    tangent = Vector(rampSize.x, -rampSize.y);
+                    break;
+                case RampType::TOP_LEFT:
+                    tangent = Vector(rampSize.x, -rampSize.y);
+                    break;
+                case RampType::TOP_RIGHT:
+                    tangent = Vector(rampSize.x, rampSize.y);
+                    break;
             }
+
+            // Normaliza a tangente
+            tangent = PhysicsEngine::normalize(tangent);
+
+            // Mantém a magnitude original da velocidade
+            float speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+            
+            // Aplica a velocidade na direção da tangente
+            velocity.x = tangent.x * speed;
+            velocity.y = tangent.y * speed;
+
+            // Se estiver parado, zera a velocidade vertical
+            if (std::abs(velocity.x) < 0.1f) {
+                velocity.y = 0;
+            }
+
+            break;
         }
-        return collisionOcurred;
     }
+
+    return collisionOccurred;
+}
+
 
     void PhysicsEngine::updateGroundState
     (

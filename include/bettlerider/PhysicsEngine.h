@@ -19,6 +19,15 @@ namespace BRTC
     public:
     static  bool CheckCollision(const Object& staticObj, const Object& dynamicObj);
     static  bool CheckRampCollision(const Ramp& ramp, const Vector& point);
+
+   static Vector normalize(const Vector& v) {
+        float length = std::sqrt(v.x * v.x + v.y * v.y);
+        if (length > 0.0f) {
+            return Vector(v.x / length, v.y / length);
+        }
+        return Vector(0, 0);
+    }
+
     static  void HandleCollisions
       (
         DynamicObject& dynamicObject,

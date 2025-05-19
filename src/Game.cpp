@@ -44,6 +44,7 @@ namespace BRTC
         mPlayerActivated = false;
         mActivationTime = SDL_GetTicks() + 500;
         centerCameraOnPlayer();
+        
     }
 
     void Game::initializeRenderSettings()
@@ -303,6 +304,7 @@ namespace BRTC
                 tileId,
                 RampType::BOTTOM_LEFT
             );
+            break;
         }
     }
 
