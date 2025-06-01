@@ -27,6 +27,7 @@ namespace BRTC
     mPlayerActivated(true), 
     mActivationTime(0),
     mPlatformsTexture(nullptr),
+    mScrewsTexture(nullptr),
     mMusic(nullptr),
     mJumpSound(nullptr),
     mFont(nullptr),
@@ -40,7 +41,14 @@ namespace BRTC
         loadTextures();
         loadParallaxLayers();
         initializeAudioSystem();
+          mScrewsTexture = IMG_LoadTexture(mRenderer, "../assets/screw.png");
+        if (!mScrewsTexture)
+        {
+            std::cerr << "Failed to load screws texture: " << IMG_GetError() << std::endl;
+        }
         loadInitialLevel();
+
+        
         mPlayerActivated = false;
         mActivationTime = SDL_GetTicks() + 500;
         centerCameraOnPlayer();
@@ -179,6 +187,7 @@ namespace BRTC
         mCrates.clear();
         mDoors.clear();
         mDecorations.clear();
+        mScrews.clear();
     }
 
     void Game::processMapLayers(XMLElement* map, int tileSize) 
@@ -336,6 +345,22 @@ namespace BRTC
         if (!type) return;
         if (strcmp(type, "player_spawn") == 0) { mPlayer.setPosition(Vector(mAttributeSpawn)); } 
         else if(strcmp(type, "door") == 0) { processDoorObject(obj, mAttributeSpawn, tileSize); }
+        else if (strcmp(type, "screw_flathead") == 0) {
+            mScrews.emplace_back(
+                Vector(mAttributeSpawn),
+                ScrewType::FLATHEAD,
+                mScrewsTexture,
+                mRenderer
+            );
+        }
+        else if (strcmp(type, "screw_phillips") == 0) {
+            mScrews.emplace_back(
+                Vector(mAttributeSpawn),
+                ScrewType::PHILLIPS,
+                mScrewsTexture,
+                mRenderer
+            );
+        }
     }
 
     void Game::processDoorObject
@@ -447,6 +472,7 @@ A função também lida com a transição entre os níveis.
         checkPlayerActivation();
         updatePlayer();
         checkLevelTransitions();
+        handleScrewCollisions();
     }
 
     void Game::checkPlayerActivation()
@@ -492,6 +518,34 @@ A função também lida com a transição entre os níveis.
             targetSpawn = spawn;
         }
     }
+
+    void Game::handleScrewCollisions() {
+    if (!mPlayer.isAttacking()) return;
+
+    SDL_Rect attackBox = mPlayer.getAttackHitbox();
+
+    for (auto it = mScrews.begin(); it != mScrews.end(); /*++it manual*/) {
+        if (it->isDestroyed()) {
+            ++it;
+            continue;
+        }
+
+        SDL_Rect screwBox = it->getBoundingBox();
+        bool overlap =
+            (attackBox.x < screwBox.x + screwBox.w) &&
+            (attackBox.x + attackBox.w > screwBox.x) &&
+            (attackBox.y < screwBox.y + screwBox.h) &&
+            (attackBox.y + attackBox.h > screwBox.y);
+
+        if (overlap) {
+            it->destroy();
+            it = mScrews.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
 
     void Game::updateCamera() 
     {
@@ -663,6 +717,13 @@ A função também lida com a transição entre os níveis.
         renderObjects(mCrates, snappedCameraPos, viewSize);
         renderObjects(mDoors, snappedCameraPos, viewSize); 
         renderObjects(mRamps, snappedCameraPos, viewSize);
+        
+        for (auto& screw : mScrews) {
+        if (!screw.isDestroyed() && screw.isVisible(cameraPos, viewSize)) {
+            screw.render(mRenderer, snappedCameraPos);
+        }
+    }
+
         mPlayer.render(mRenderer, snappedCameraPos);
     }
 

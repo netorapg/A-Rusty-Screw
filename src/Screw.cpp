@@ -1,50 +1,47 @@
 #include "../include/bettlerider/Screw.h"
 #include <stdexcept>
 
-namespace BRTC
+namespace BRTC 
 {
 
-    // Construtor: 
-    //  position    = posição (esquerda, topo) em coordenadas de mundo
-    //  type        = determina qual sub-rect do spritesheet usar
-    //  textureSheet= a SDL_Texture* já carregada contendo todos os parafusos
-    //  renderer    = necessário para criar o Sprite a partir do textureSheet
     Screw::Screw(const Vector& position,
                  ScrewType type,
                  SDL_Texture* textureSheet,
                  SDL_Renderer* renderer)
-        : StaticObject(position, Vector(16, 16)), // supondo que cada frame seja 16×16
+        : StaticObject(position, Vector(16.0f, 16.0f)), // supondo que cada sprite ocupe 16�16 px
           mType(type),
           mDestroyed(false)
     {
-        // Escolhe o srcRect dentro do spritesheet de acordo com mType
-        SDL_Rect src;
-        switch (mType) 
+        // Determina qual ret�ngulo do spritesheet vamos usar:
+        SDL_Rect srcRect;
+        switch (mType)
         {
             case ScrewType::FLATHEAD:
-                // Exemplo: no seu spritesheet, o parafuso “fenda” está em (0, 0, 16, 16)
-                src = SDL_Rect{ 0, 0, 16, 16 };
+                // Suponha que, no seu spritesheet "screws_spritesheet.png", 
+                // o parafuso tipo "fenda" esteja em (x=0, y=0, w=16, h=16)
+                srcRect = SDL_Rect{ 0, 0, 16, 16 };
                 break;
+
             case ScrewType::PHILLIPS:
-                // Exemplo: “estrela” está em (16, 0, 16, 16)
-                src = SDL_Rect{ 16, 0, 16, 16 };
+                // Suponha que o parafuso "estrela" esteja em (x=16, y=0, w=16, h=16)
+                srcRect = SDL_Rect{ 16, 0, 16, 16 };
                 break;
+
             default:
-                throw std::runtime_error("Screw: tipo de parafuso inválido");
+                throw std::runtime_error("Screw::Screw: tipo de parafuso inv�lido");
         }
 
-        // Cria um Sprite compartilhado que usa 'textureSheet' + 'src'
-        mSprite = std::make_shared<Sprite>(textureSheet, src);
+        // Cria o Sprite que ir� desenhar apenas esse sub-ret�ngulo do textureSheet
+        mSprite = std::make_shared<Sprite>(textureSheet, srcRect);
 
-        // Ajusta mSize para o tamanho real do sprite (caso queira variar)
-        mSize = Vector(static_cast<float>(src.w),
-                       static_cast<float>(src.h));
+        // Ajusta o mSize (caso queira variar, por hora mantemos 16�16)
+        mSize = Vector(static_cast<float>(srcRect.w),
+                       static_cast<float>(srcRect.h));
     }
 
     SDL_Rect Screw::getBoundingBox() const
     {
-        // Retângulo de colisão em coordenadas de mundo
-        return SDL_Rect{
+        return SDL_Rect {
             static_cast<int>(mPosition.x),
             static_cast<int>(mPosition.y),
             static_cast<int>(mSize.x),
@@ -54,18 +51,19 @@ namespace BRTC
 
     void Screw::render(SDL_Renderer* renderer, Vector cameraPosition)
     {
-        if (mDestroyed) return;
-
-        // Se não estiver visível na câmera, não desenha
-        if (!isVisible(cameraPosition, Vector(SCREEN_WIDTH, SCREEN_HEIGHT)))
+        if (mDestroyed) 
             return;
 
-        // Converte posição de mundo para posição na tela
+        // Se n�o est� vis�vel na janela, nem desenha
+        if (!isVisible(cameraPosition, Vector(SCREEN_WIDTH, SCREEN_HEIGHT))) 
+            return;
+
+        // Converte coordenadas de mundo para coordenadas de tela
         Vector screenPos = mPosition - cameraPosition;
         int dstX = static_cast<int>(screenPos.x);
         int dstY = static_cast<int>(screenPos.y);
 
-        // Desenha o sprite na tela (flip = false)
+        // Renderiza o sprite (flip = false, pois n�o queremos inverter)
         mSprite->draw(renderer, dstX, dstY, false);
     }
 

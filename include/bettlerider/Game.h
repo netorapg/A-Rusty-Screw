@@ -25,6 +25,7 @@
 #include "PhysicsEngine.h"
 #include "Camera.h"
 #include "Globals.h"
+#include "Screw.h"
 
 using namespace tinyxml2;
 
@@ -45,6 +46,7 @@ namespace BRTC
             SDL_Renderer* mRenderer;
             SDL_Texture* mBackgroundTexture;
             SDL_Texture* mPlatformsTexture;
+            SDL_Texture* mScrewsTexture;
             TTF_Font* mFont;
             TTF_Font* mSmallFont;
             Mix_Music* mMusic;
@@ -76,6 +78,7 @@ namespace BRTC
             std::list<Crate> mCrates;
             std::list<Door> mDoors;
             std::list<Decoration> mDecorations;
+            std::list<Screw> mScrews;
             std::string mPlatformsTexturePath;
             std::array<SDL_Texture*, 5> mParallaxLayers;
             std::array<float, 5> mParallaxFactors;
@@ -128,6 +131,8 @@ namespace BRTC
             void loadParallaxLayers();
             void loadInitialLevel();
             void centerCameraOnPlayer();
+            void loadScrews();
+            void handleScrewCollisions();
 
     };
 }
