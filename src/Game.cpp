@@ -597,7 +597,7 @@ A função também lida com a transição entre os níveis.
 
     void Game::prepareRender()
     {
-        SDL_SetRenderDrawColor(mRenderer, 0x00, 0x00, 0x00, 0x00);
+        SDL_SetRenderDrawColor(mRenderer, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
         SDL_RenderClear(mRenderer);
     }
@@ -681,7 +681,7 @@ A função também lida com a transição entre os níveis.
             { obj.render(mRenderer, cameraPos); }
         }
     }
-    void Game::finalizeRender() { SDL_RenderPresent(mRenderer); }
+    void Game::finalizeRender() { /*SDL_RenderPresent(mRenderer);*/ }
 
     void Game::resetGame()
     {
