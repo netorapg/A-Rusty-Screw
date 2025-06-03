@@ -7,7 +7,7 @@ namespace BRTC
   : DynamicObject
     ( 
       position, 
-      Vector( 32, 32) 
+      Vector( 20, 37) 
     ), 
     mFacingDirection(1),
     mIsJumping( false )
@@ -22,32 +22,35 @@ namespace BRTC
     { throw std::runtime_error("Failed to create texture form sprite sheet: " + std::string(IMG_GetError()));}
   
     Animation runAnim;
-      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 64, 0, 32, 32 }), 0.1f, { 0, 0 } } );
-      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 96, 0, 32, 32 }), 0.1f, { 0, 0 } } );
-      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 128, 0, 32, 32 }), 0.1f, { 0, 0 } } );
-      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 160, 0, 32, 32 }), 0.1f, { 0, 0 } } );
-      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 192, 0, 32, 32 }), 0.1f, { 0, 0 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 70, 0, 35, 37 }), 0.1f, { 0, 0 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 105, 0, 35, 37 }), 0.1f, { 0, 0 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 0, 35, 37 }), 0.1f, { 0, 0 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 175, 0, 35, 37 }), 0.1f, { 0, 0 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 37, 35, 37 }), 0.1f, { 0, 0 } } );
+
       runAnim.setLoop( true );
 
     Animation idleAnim;
-      idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 0, 32, 32 }), 0.2f, { 0, 0 } } );
-      idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 32, 0, 32, 32 }), 0.2f, { 0, 0 }}  );
+      idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 0, 35, 37 }), 0.2f, { 0, 0 } } );
+      idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 35, 0, 35, 37 }), 0.2f, { 0, 0 }}  );
       idleAnim.setLoop( true );
 
     Animation punchAnim;
-      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 64, 32, 32, 32 }), 0.09f, { 0, 0 } } );
-      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 96, 32, 32, 32 }), 0.09f, { 0, 0 } } );
-      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 128, 32, 42, 32 }), 0.09f, { 0, 0 } } );
+      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 37, 35, 37 }), 0.09f, { 0, 0 } } );
+      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 105, 37, 35, 37 }), 0.01f, { 0, 0 } } );
       punchAnim.setLoop( false );
 
     Animation strongPunchAnim;
-      strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 95, 107, 39, 42 }), 0.1f, { 0, 0 } } );
-      strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 141, 107, 40, 42 }), 0.1f, { 0, 0 } } );
+      strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 37, 35, 37 }), 0.1f, { 0, 0 } } );
+      strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 74, 36, 37 }), 0.1f, { 0, 0 } } );
+     // strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 70, 74, 37, 37 }), 0.1f, { 0, 0 } } );
+     // strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 74, 38, 37 }), 0.1f, { 0, 0 } } );
+      strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 210, 74, 40, 37 }), 0.1f, { 0, 0 } } );
       strongPunchAnim.setLoop( false );
 
     Animation jumpAnim;
-      jumpAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 32, 32, 32 }), 0.1f, { 0, 0 } } );
-      jumpAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 32, 32, 32, 32 }), 0.1f, { 0, 0 } } );
+      jumpAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 35, 37, 35, 37 }), 0.1f, { 0, 0 } } );
+      jumpAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 70, 37, 35, 37 }), 0.1f, { 0, 0 } } );
       jumpAnim.setLoop( true );
 
     animations["run"] = runAnim;
@@ -123,9 +126,11 @@ void Player::handleEvent( SDL_Event &e )
         break;
       case SDLK_j:
         mIspunching = false;
+        mIsAttacking = false;
         break;
       case SDLK_k:
         mIspunchingHarder = false;
+        mIsAttacking = false;
         break;   
     }
   }
@@ -228,6 +233,39 @@ void Player::update(float deltaTime)
     // Atualiza a posição e velocidade do jogador
     setVelocity(velocity);
     setPosition(position);
+
+
+    // Atualiza a hitbox de ataque
+    if (mIspunching || mIspunchingHarder) {
+      if (!mIsAttacking) {
+          mIsAttacking = true;
+          mAttackDuration = ATTACK_DURATION;
+          // Configura a hitbox de ataque baseada na direção do jogador
+          int hitboxWidth = 15;
+          int hitboxHeight = 20;
+          int offsetX = 1;
+
+          if (mFacingDirection == 1) { // Direita
+              mAttackHitbox.x = getPosition().x + getWidth() - offsetX;
+          } else { // Esquerda
+              mAttackHitbox.x = getPosition().x - hitboxWidth + offsetX; 
+          }
+
+          mAttackHitbox.y = getPosition().y + getHeight() / 2 - hitboxHeight / 2;
+          mAttackHitbox.w = hitboxWidth;
+          mAttackHitbox.h = hitboxHeight;
+      }
+    } else {
+        mIsAttacking = false;
+    }
+
+    // Atualiza a duração do ataque
+    if (mIsAttacking) {
+        mAttackDuration -= deltaTime;
+        if (mAttackDuration <= 0.0f) {
+            mIsAttacking = false;
+        }
+    }
 }
 
 void Player::DrawDebugRect
@@ -256,13 +294,35 @@ void Player::DrawDebugRect
   void Player::render(SDL_Renderer* renderer, Vector cameraPosition) 
 {
     Vector screenPos = getPosition() - cameraPosition;
+
+    // Desenha a hitbox de ataque se estiver atacando
+    if (mIsAttacking && mShowAttackHitbox && mShowDebugRects) {
+      SDL_Rect attackRectOnScreen = {
+        mAttackHitbox.x - static_cast<int>(cameraPosition.x),
+        mAttackHitbox.y - static_cast<int>(cameraPosition.y),
+        mAttackHitbox.w,
+        mAttackHitbox.h
+      };
+
+      DrawDebugRect
+      (
+        renderer, 
+        attackRectOnScreen.x, 
+        attackRectOnScreen.y, 
+        attackRectOnScreen.w, 
+        attackRectOnScreen.h, 
+        0, 255, 0
+      );
+
+    }
+
     SpritePtr currentSprite = animations[currentAnimation].getCurrentSprite();
     
     if(currentSprite) 
     {
         SDL_Point baseOffset = *animations[currentAnimation].getCurrentOffset();
         const SDL_Rect& frameRect = currentSprite->getSrcRect();
-        float baseWidth = 28;
+        float baseWidth = 20;
         float frameWidth = frameRect.w;
         float widthDifference = frameWidth - baseWidth;
         Vector renderOffset;

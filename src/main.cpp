@@ -1,153 +1,132 @@
-#include "../include/bettlerider/Game.h"
+#include "../include/bettlerider/GameManager.h"
 #include "../include/bettlerider/Globals.h"
 #include <SDL2/SDL.h>
 #include <iostream>
+#include <algorithm>
+#include <cstring>
 
-void applyCRTEffect(SDL_Renderer* renderer, SDL_Texture* source);
-SDL_Texture* crtEffectsTexture = nullptr;
-SDL_Texture* crtRenderTarget = nullptr;
-int main( int argc, char *args[] )
+void applyCRTEffect(SDL_Renderer* renderer);
+
+int main(int argc, char* argv[])
 {
-  //const int TARGET_FPS = 144;
-  //const int FRAME_DELAY = 1000 / TARGET_FPS;
-  if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
-  {
-    std::cerr 
-    << "SDL could not initialize! SDL_Error: " 
-    << SDL_GetError()
-    << std::endl;
-    return -1;
-  }
-  SDL_DisplayMode displayMode;
-  SDL_GetCurrentDisplayMode( 0, &displayMode );
-  SDL_Window *window = SDL_CreateWindow
-  ( 
-    "Bettle Rider",
-    SDL_WINDOWPOS_CENTERED,
-    SDL_WINDOWPOS_CENTERED,
-    BRTC::SCREEN_WIDTH,
-    BRTC::SCREEN_HEIGHT,
-    SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI 
-  );
-  if( window == nullptr )
-    {
-      std::cerr 
-      << "Window could not be created! SDL_Error: " 
-      << SDL_GetError()
-      << std::endl;
-      SDL_Quit();
-    return -1;
-  }
-  SDL_Renderer *renderer = SDL_CreateRenderer
-  (
-    window, 
-    -1, 
-    SDL_RENDERER_ACCELERATED | 
-    SDL_RENDERER_TARGETTEXTURE //| 
-    //SDL_RENDERER_PRESENTVSYNC
-  );
-  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
-  SDL_RenderSetLogicalSize(renderer, BRTC::SCREEN_WIDTH, BRTC::SCREEN_HEIGHT);
-  if( renderer == nullptr )
-  {
-    std::cerr 
-    << "Renderer could not be created! SDL_Error: " 
-    << SDL_GetError()
-    << std::endl;
-    SDL_DestroyWindow( window );
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::cerr << "SDL could not initialize! SDL_Error: "
+                  << SDL_GetError()
+                  << std::endl;
+        return -1;
+    }
+
+    SDL_Window* window = SDL_CreateWindow(
+        "Bettle Rider",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        BRTC::SCREEN_WIDTH,
+        BRTC::SCREEN_HEIGHT,
+        SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI
+    );
+    if (!window) {
+        std::cerr << "Window could not be created! SDL_Error: "
+                  << SDL_GetError() << std::endl;
+        SDL_Quit();
+        return -1;
+    }
+
+    SDL_Renderer* renderer = SDL_CreateRenderer(
+        window,
+        -1,
+        SDL_RENDERER_ACCELERATED |
+        SDL_RENDERER_PRESENTVSYNC 
+    );
+    if (!renderer) {
+        std::cerr << "Renderer could not be created! SDL_Error: "
+                  << SDL_GetError() << std::endl;
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return -1;
+    }
+
+    // Garantir que o "clear" apague sempre com preto 100% opaco
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+
+    // Ajustes de escala (caso use LogicalSize)
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+    SDL_RenderSetLogicalSize(renderer, BRTC::SCREEN_WIDTH, BRTC::SCREEN_HEIGHT);
+
+    BRTC::GameManager gameManager(window, renderer);
+    Uint64 lastTime = SDL_GetPerformanceCounter();
+
+    while (gameManager.isRunning()) {
+        // Calcula deltaTime
+        Uint64 currentTime = SDL_GetPerformanceCounter();
+        BRTC::deltaTime = float(currentTime - lastTime) /
+                          float(SDL_GetPerformanceFrequency());
+        lastTime = currentTime;
+
+        gameManager.handleEvents();
+        gameManager.update();
+
+        // ---------- 1) LIMPAR A TELA (janela) (preto opaco) ----------
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        // ---------- 2) RENDERIZAR O JOGO DIRETO NA JANELA ----------
+        gameManager.render();
+
+        // ---------- 3) APLICAR CRT (scanlines + vinheta) DIRECT NA JANELA ----------
+        applyCRTEffect(renderer);
+
+        // ---------- 4) APRESENTAR (com VSYNC) ----------
+        SDL_RenderPresent(renderer);
+
+        // OBS: não precisa de SDL_Delay, pois PRESENTVSYNC já "espera" o próximo VBlank.
+    }
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
     SDL_Quit();
-    return -1;
-  }
-
-  crtRenderTarget = SDL_CreateTexture(
-    renderer,
-    SDL_PIXELFORMAT_RGBA8888,
-    SDL_TEXTUREACCESS_TARGET,
-    BRTC::SCREEN_WIDTH,
-    BRTC::SCREEN_HEIGHT
-  );
-
-  crtEffectsTexture = SDL_CreateTexture(
-    renderer,
-    SDL_PIXELFORMAT_RGBA8888,
-    SDL_TEXTUREACCESS_TARGET,
-    BRTC::SCREEN_WIDTH,
-    BRTC::SCREEN_HEIGHT
-  );
-
-
-  Uint64 lastTime = SDL_GetPerformanceCounter();
-  float accumulatedTime = 0.0f;
-  BRTC::Game game( window, renderer );
-  while( game.isRunning() )
-  {
-    Uint32 frameStart = SDL_GetTicks();
-    Uint64 currentTime = SDL_GetPerformanceCounter();
-    BRTC::deltaTime = (float)(currentTime - lastTime) / (float)SDL_GetPerformanceFrequency();
-    lastTime = currentTime;
-    game.handleEvents();
-    game.update();
-
-    SDL_SetRenderTarget(renderer, crtRenderTarget);
-    SDL_RenderClear(renderer);
-    game.render();
-
-    SDL_SetRenderTarget(renderer, crtEffectsTexture);
-    SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, crtRenderTarget, NULL, NULL);
-    applyCRTEffect(renderer, crtRenderTarget);
-    SDL_SetRenderTarget(renderer, nullptr);
-    SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, crtEffectsTexture, NULL, NULL);
-    SDL_RenderPresent(renderer);
-    Uint32 frameTime = SDL_GetTicks() - frameStart;
-    //if (frameTime < FRAME_DELAY) { SDL_Delay(FRAME_DELAY - frameTime); }
-  }
-  SDL_DestroyTexture(crtEffectsTexture);
-  SDL_DestroyRenderer( renderer );
-  SDL_DestroyWindow( window );
-  SDL_Quit();
-  return 0;
+    return 0;
 }
-void applyCRTEffect(SDL_Renderer* renderer, SDL_Texture* source)
+
+void applyCRTEffect(SDL_Renderer* renderer)
 {
-    int width, height;
-    SDL_QueryTexture(source, NULL, NULL, &width, &height);
+    // Para obter w/h, podemos usar Globals ou
+    int width  = BRTC::SCREEN_WIDTH;
+    int height = BRTC::SCREEN_HEIGHT;
 
-    // Ajuste estes valores para controlar a intensidade dos efeitos
-    const Uint8 scanlineAlpha = 200;  // Mais suave que 100
-    const Uint8 vignetteAlpha = 80;  // Mais suave que 80
+    // Novos valores MUITO mais suaves:
+    const Uint8 scanlineAlpha = 15;   // quase transparente
+    const Uint8 vignetteAlpha = 30;   // vinheta leve
 
-    // Scanlines mais suaves
+    // Precisamos de blend apenas para o CRT, não para o game
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    // 1) Scanlines — cada linha par ganha um retângulo preto semitransparente
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, scanlineAlpha);
-    
-    for(int y = 0; y < height; y += 2) {
-        SDL_Rect scanline = {0, y, width, 1};
+    for (int y = 0; y < height; y += 2) {
+        SDL_Rect scanline = { 0, y, width, 1 };
         SDL_RenderFillRect(renderer, &scanline);
     }
 
-    // Vinhetagem gradiente (mais suave)
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    
-    // Crie um gradiente para as bordas
-    int borderSize = height/6;  // Um pouco maior mas mais suave
-    for(int i = 0; i < borderSize; i++) {
-        Uint8 alpha = (Uint8)(vignetteAlpha * (1.0 - (float)i/borderSize));
+    // 2) Vinheta gradiente — nas bordas, desenha retângulos cada vez mais transparentes
+    int borderSize = height / 6;
+    for (int i = 0; i < borderSize; i++) {
+        // a cada "i" aproximamos 1 pixel da borda, alfa cai linearmente
+        Uint8 alpha = static_cast<Uint8>(vignetteAlpha * (1.0f - float(i) / borderSize));
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
-        
-        // Topo
-        SDL_Rect top = {0, i, width, 1};
-        // Base
-        SDL_Rect bottom = {0, height - i - 1, width, 1};
-        // Esquerda
-        SDL_Rect left = {i, 0, 1, height};
-        // Direita
-        SDL_Rect right = {width - i - 1, 0, 1, height};
-        
+
+        // Topo e Base
+        SDL_Rect top    = { 0, i,         width, 1 };
+        SDL_Rect bottom = { 0, height - i - 1, width, 1 };
         SDL_RenderFillRect(renderer, &top);
         SDL_RenderFillRect(renderer, &bottom);
+
+        // Esquerda e Direita
+        SDL_Rect left  = { i, 0, 1, height };
+        SDL_Rect right = { width - i - 1, 0, 1, height };
         SDL_RenderFillRect(renderer, &left);
         SDL_RenderFillRect(renderer, &right);
     }
+
+    // Volta ao blend NONE, caso o game queira desenhar algo opaco depois
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }
