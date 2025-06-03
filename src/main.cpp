@@ -1,4 +1,4 @@
-#include "../include/bettlerider/Game.h"
+#include "../include/bettlerider/GameManager.h"
 #include "../include/bettlerider/Globals.h"
 #include <SDL2/SDL.h>
 #include <iostream>
@@ -6,7 +6,6 @@
 #include <cstring>
 
 void applyCRTEffect(SDL_Renderer* renderer);
-SDL_Texture* placeholder = nullptr; // n�o precisamos de source aqui
 
 int main(int argc, char* argv[])
 {
@@ -37,7 +36,6 @@ int main(int argc, char* argv[])
         -1,
         SDL_RENDERER_ACCELERATED |
         SDL_RENDERER_PRESENTVSYNC 
-       
     );
     if (!renderer) {
         std::cerr << "Renderer could not be created! SDL_Error: "
@@ -54,25 +52,25 @@ int main(int argc, char* argv[])
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
     SDL_RenderSetLogicalSize(renderer, BRTC::SCREEN_WIDTH, BRTC::SCREEN_HEIGHT);
 
-    BRTC::Game game(window, renderer);
+    BRTC::GameManager gameManager(window, renderer);
     Uint64 lastTime = SDL_GetPerformanceCounter();
 
-    while (game.isRunning()) {
+    while (gameManager.isRunning()) {
         // Calcula deltaTime
         Uint64 currentTime = SDL_GetPerformanceCounter();
         BRTC::deltaTime = float(currentTime - lastTime) /
                           float(SDL_GetPerformanceFrequency());
         lastTime = currentTime;
 
-        game.handleEvents();
-        game.update();
+        gameManager.handleEvents();
+        gameManager.update();
 
         // ---------- 1) LIMPAR A TELA (janela) (preto opaco) ----------
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
         // ---------- 2) RENDERIZAR O JOGO DIRETO NA JANELA ----------
-        game.render();
+        gameManager.render();
 
         // ---------- 3) APLICAR CRT (scanlines + vinheta) DIRECT NA JANELA ----------
         applyCRTEffect(renderer);
@@ -80,7 +78,7 @@ int main(int argc, char* argv[])
         // ---------- 4) APRESENTAR (com VSYNC) ----------
         SDL_RenderPresent(renderer);
 
-        // OBS: n�o precisa de SDL_Delay, pois PRESENTVSYNC j� \u201cespera\u201d o pr�ximo VBlank.
+        // OBS: não precisa de SDL_Delay, pois PRESENTVSYNC já "espera" o próximo VBlank.
     }
 
     SDL_DestroyRenderer(renderer);
@@ -88,7 +86,6 @@ int main(int argc, char* argv[])
     SDL_Quit();
     return 0;
 }
-
 
 void applyCRTEffect(SDL_Renderer* renderer)
 {
@@ -100,20 +97,20 @@ void applyCRTEffect(SDL_Renderer* renderer)
     const Uint8 scanlineAlpha = 15;   // quase transparente
     const Uint8 vignetteAlpha = 30;   // vinheta leve
 
-    // Precisamos de blend apenas para o CRT, n�o para o game
+    // Precisamos de blend apenas para o CRT, não para o game
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    // 1) Scanlines \u2014 cada linha par ganha um ret�ngulo preto semitransparente
+    // 1) Scanlines — cada linha par ganha um retângulo preto semitransparente
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, scanlineAlpha);
     for (int y = 0; y < height; y += 2) {
         SDL_Rect scanline = { 0, y, width, 1 };
         SDL_RenderFillRect(renderer, &scanline);
     }
 
-    // 2) Vinheta gradiente \u2014 nas bordas, desenha ret�ngulos cada vez mais transparentes
+    // 2) Vinheta gradiente — nas bordas, desenha retângulos cada vez mais transparentes
     int borderSize = height / 6;
     for (int i = 0; i < borderSize; i++) {
-        // a cada \u201ci\u201d aproximamos 1 pixel da borda, alfa cai linearmente
+        // a cada "i" aproximamos 1 pixel da borda, alfa cai linearmente
         Uint8 alpha = static_cast<Uint8>(vignetteAlpha * (1.0f - float(i) / borderSize));
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
 
