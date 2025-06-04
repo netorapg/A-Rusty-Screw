@@ -41,6 +41,9 @@ namespace ARSCREW
         // Retorna o retângulo AABB em coordenadas de mundo para checar colisão
         SDL_Rect getBoundingBox() const;
 
+        // Getter para o tipo de parafuso
+        ScrewType getType() const { return mType; }
+        
       private:
         ScrewType   mType;
         SpritePtr   mSprite;     // Aponta para a sub-região certa do spritesheet

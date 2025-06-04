@@ -89,6 +89,7 @@ namespace ARSCREW
         if (!mPlayer.isAttacking()) return;
 
         SDL_Rect attackBox = mPlayer.getAttackHitbox();
+        AttackType playerAttackType = mPlayer.getCurrentAttackType();
 
         for (auto it = mScrews.begin(); it != mScrews.end();)
         {
@@ -107,8 +108,34 @@ namespace ARSCREW
 
             if (overlap)
             {
-                it->destroy();
-                it = mScrews.erase(it);
+                // Verifica se o tipo de ataque é compatível com o tipo de parafuso
+                ScrewType screwType = it->getType();
+                bool canDestroy = false;
+                
+                if (playerAttackType == AttackType::CUTTING && screwType == ScrewType::FLATHEAD)
+                {
+                    canDestroy = true;
+                    std::cout << "Flathead screw destroyed with cutting attack!" << std::endl;
+                }
+                else if (playerAttackType == AttackType::PIERCING && screwType == ScrewType::PHILLIPS)
+                {
+                    canDestroy = true;
+                    std::cout << "Phillips screw destroyed with piercing attack!" << std::endl;
+                }
+                else
+                {
+                    std::cout << "Wrong tool! Can't destroy this screw type." << std::endl;
+                }
+                
+                if (canDestroy)
+                {
+                    it->destroy();
+                    it = mScrews.erase(it);
+                }
+                else
+                {
+                    ++it;
+                }
             }
             else
             {
@@ -156,9 +183,6 @@ namespace ARSCREW
             }
         }
     }
-
-    // ... implementar os métodos de processamento TMX (processMapLayers, etc.)
-    // Copiando a implementação existente dos métodos TMX da classe Game original
     
     void GameWorld::processMapLayers(XMLElement* map, int tileSize)
     {

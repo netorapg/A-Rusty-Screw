@@ -27,7 +27,6 @@ namespace ARSCREW
       runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 0, 35, 37 }), 0.1f, { 0, 0 } } );
       runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 175, 0, 35, 37 }), 0.1f, { 0, 0 } } );
       runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 37, 35, 37 }), 0.1f, { 0, 0 } } );
-
       runAnim.setLoop( true );
 
     Animation idleAnim;
@@ -35,18 +34,18 @@ namespace ARSCREW
       idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 35, 0, 35, 37 }), 0.2f, { 0, 0 }}  );
       idleAnim.setLoop( true );
 
-    Animation punchAnim;
-      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 37, 35, 37 }), 0.09f, { 0, 0 } } );
-      punchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 105, 37, 35, 37 }), 0.01f, { 0, 0 } } );
-      punchAnim.setLoop( false );
+    // Animação de ataque cortante (ataque normal)
+    Animation cuttingAttackAnim;
+      cuttingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 37, 35, 37 }), 0.09f, { 0, 0 } } );
+      cuttingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 105, 37, 35, 37 }), 0.01f, { 0, 0 } } );
+      cuttingAttackAnim.setLoop( false );
 
-    Animation strongPunchAnim;
-      strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 37, 35, 37 }), 0.1f, { 0, 0 } } );
-      strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 74, 36, 37 }), 0.1f, { 0, 0 } } );
-     // strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 70, 74, 37, 37 }), 0.1f, { 0, 0 } } );
-     // strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 74, 38, 37 }), 0.1f, { 0, 0 } } );
-      strongPunchAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 210, 74, 40, 37 }), 0.1f, { 0, 0 } } );
-      strongPunchAnim.setLoop( false );
+    // Animação de ataque perfurante (ataque forte)
+    Animation piercingAttackAnim;
+      piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 37, 35, 37 }), 0.1f, { 0, 0 } } );
+      piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 74, 36, 37 }), 0.1f, { 0, 0 } } );
+      piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 210, 74, 40, 37 }), 0.1f, { 0, 0 } } );
+      piercingAttackAnim.setLoop( false );
 
     Animation jumpAnim;
       jumpAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 35, 37, 35, 37 }), 0.1f, { 0, 0 } } );
@@ -56,8 +55,8 @@ namespace ARSCREW
     animations["run"] = runAnim;
     animations["idle"] = idleAnim;
     animations["jump"] = jumpAnim;
-    animations["punch"] = punchAnim;
-    animations["strongPunch"] = strongPunchAnim;
+    animations["cuttingAttack"] = cuttingAttackAnim;
+    animations["piercingAttack"] = piercingAttackAnim;
     currentAnimation = "idle";
 }
 
@@ -91,20 +90,40 @@ void Player::handleEvent( SDL_Event &e )
         }
         break;
       case SDLK_j:
-        mIspunching = true;
+        // Único botão de ataque - usa o tipo atual
+        if (!mIsAttacking) {
+            mIsAttacking = true;
+            mAttackDuration = ATTACK_DURATION;
+            
+            // Configura a hitbox de ataque
+            int hitboxWidth = 15;
+            int hitboxHeight = 20;
+            int offsetX = 1;
+
+            if (mFacingDirection == 1) { // Direita
+                mAttackHitbox.x = getPosition().x + getWidth() - offsetX;
+            } else { // Esquerda
+                mAttackHitbox.x = getPosition().x - hitboxWidth + offsetX; 
+            }
+
+            mAttackHitbox.y = getPosition().y + getHeight() / 2 - hitboxHeight / 2;
+            mAttackHitbox.w = hitboxWidth;
+            mAttackHitbox.h = hitboxHeight;
+        }
         break;
-      case SDLK_k:
-        mIspunchingHarder = true;
+      case SDLK_q:
+        // Troca entre tipos de ataque
+        switchAttackType();
         break;
-        case SDLK_e:
-        if (!mIsDashing && isOnGround() && !isCollidingWithWall()) { // Apenas inicia o dash se não estiver dashing
+      case SDLK_e:
+        if (!mIsDashing && isOnGround() && !isCollidingWithWall()) {
             mIsDashing = true;
             mDashTimer = DASH_DURATION;
             if (mFacingDirection == 1) {
-                velocity.x += DASH_SPEED; // Dash para a direita
+                velocity.x += DASH_SPEED;
             } 
             else if (mFacingDirection == -1) {
-                velocity.x += -DASH_SPEED; // Dash para a esquerda
+                velocity.x += -DASH_SPEED;
             }
         }
         break;
@@ -124,17 +143,20 @@ void Player::handleEvent( SDL_Event &e )
       case SDLK_s:
         setPassingThroughPlatform( false );
         break;
-      case SDLK_j:
-        mIspunching = false;
-        mIsAttacking = false;
-        break;
-      case SDLK_k:
-        mIspunchingHarder = false;
-        mIsAttacking = false;
-        break;   
     }
   }
   setVelocity( velocity );
+}
+
+void Player::switchAttackType()
+{
+    if (mCurrentAttackType == AttackType::CUTTING) {
+        mCurrentAttackType = AttackType::PIERCING;
+        std::cout << "Switched to PIERCING attack (for Phillips screws)" << std::endl;
+    } else {
+        mCurrentAttackType = AttackType::CUTTING;
+        std::cout << "Switched to CUTTING attack (for Flathead screws)" << std::endl;
+    }
 }
 
 void Player::handleWallJump(Vector& velocity)
@@ -158,33 +180,25 @@ void Player::handleWallJump(Vector& velocity)
 
 void Player::update(float deltaTime) 
 {
-
-   // std::cout << "player tocando na parede: "<< isCollidingWithWall() << std::endl;
-  //  std::cout << "player no chao"<< isOnGround() << std::endl;
     Vector velocity = getVelocity();
     Vector position = getPosition();
-
-
-
-   
 
     if (mIsDashing) {
       mDashTimer -= deltaTime;
       if (mFacingDirection == 1) {
           velocity.x = 0.0f;
-          velocity.x += DASH_SPEED; // Dash para a direita
+          velocity.x += DASH_SPEED;
           position += velocity * deltaTime;
       } else if (mFacingDirection == -1) {
           velocity.x = 0.0f;
-          velocity.x += -DASH_SPEED; // Dash para a esquerda
+          velocity.x += -DASH_SPEED;
           position += velocity * deltaTime;
       }
       if (mDashTimer <= 0.0f) {
           mIsDashing = false;
-          velocity.x = 0.0f; // Para o movimento horizontal após o dash
+          velocity.x = 0.0f;
       }
     }
-
 
     // Aplica a gravidade
     velocity.y += GRAVITY * deltaTime;
@@ -208,10 +222,13 @@ void Player::update(float deltaTime)
     // Atualiza a animação com base no estado atual
     std::string newAnimation;
     if (isOnGround()) {
-        if (mIspunching) {
-            newAnimation = "punch";
-        } else if (mIspunchingHarder) {
-            newAnimation = "strongPunch";
+        if (mIsAttacking) {
+            // Escolhe a animação baseada no tipo de ataque atual
+            if (mCurrentAttackType == AttackType::CUTTING) {
+                newAnimation = "cuttingAttack";
+            } else {
+                newAnimation = "piercingAttack";
+            }
         } else if (velocity.x != 0.0f || mIsDashing) {
             newAnimation = "run";
         } else {
@@ -233,31 +250,6 @@ void Player::update(float deltaTime)
     // Atualiza a posição e velocidade do jogador
     setVelocity(velocity);
     setPosition(position);
-
-
-    // Atualiza a hitbox de ataque
-    if (mIspunching || mIspunchingHarder) {
-      if (!mIsAttacking) {
-          mIsAttacking = true;
-          mAttackDuration = ATTACK_DURATION;
-          // Configura a hitbox de ataque baseada na direção do jogador
-          int hitboxWidth = 15;
-          int hitboxHeight = 20;
-          int offsetX = 1;
-
-          if (mFacingDirection == 1) { // Direita
-              mAttackHitbox.x = getPosition().x + getWidth() - offsetX;
-          } else { // Esquerda
-              mAttackHitbox.x = getPosition().x - hitboxWidth + offsetX; 
-          }
-
-          mAttackHitbox.y = getPosition().y + getHeight() / 2 - hitboxHeight / 2;
-          mAttackHitbox.w = hitboxWidth;
-          mAttackHitbox.h = hitboxHeight;
-      }
-    } else {
-        mIsAttacking = false;
-    }
 
     // Atualiza a duração do ataque
     if (mIsAttacking) {
@@ -304,16 +296,14 @@ void Player::DrawDebugRect
         mAttackHitbox.h
       };
 
-      DrawDebugRect
-      (
-        renderer, 
-        attackRectOnScreen.x, 
-        attackRectOnScreen.y, 
-        attackRectOnScreen.w, 
-        attackRectOnScreen.h, 
-        0, 255, 0
-      );
-
+      // Cor diferente baseada no tipo de ataque
+      if (mCurrentAttackType == AttackType::CUTTING) {
+          DrawDebugRect(renderer, attackRectOnScreen.x, attackRectOnScreen.y, 
+                       attackRectOnScreen.w, attackRectOnScreen.h, 255, 0, 0); // Vermelho para cortante
+      } else {
+          DrawDebugRect(renderer, attackRectOnScreen.x, attackRectOnScreen.y, 
+                       attackRectOnScreen.w, attackRectOnScreen.h, 0, 0, 255); // Azul para perfurante
+      }
     }
 
     SpritePtr currentSprite = animations[currentAnimation].getCurrentSprite();
