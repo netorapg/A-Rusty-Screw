@@ -5,7 +5,8 @@
 #include <memory>
 #include <array>
 
-namespace BRTC {
+namespace ARSCREW
+{
     class Sprite 
     {
         public:

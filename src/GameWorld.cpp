@@ -1,11 +1,11 @@
-#include "../include/bettlerider/GameWorld.h"
-#include "../include/bettlerider/PhysicsEngine.h"
-#include "../include/bettlerider/Globals.h"
+#include "../include/arscrew/GameWorld.h"
+#include "../include/arscrew/PhysicsEngine.h"
+#include "../include/arscrew/Globals.h"
 #include <iostream>
 #include <sstream>
 #include <algorithm>
 
-namespace BRTC
+namespace ARSCREW
 {
     GameWorld::GameWorld(SDL_Renderer* renderer)
         : mRenderer(renderer)

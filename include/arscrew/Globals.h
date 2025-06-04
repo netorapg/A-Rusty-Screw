@@ -8,7 +8,7 @@
 #include "../../my-lib-master/include/my-lib/math-vector.h"
 
 
-namespace BRTC
+namespace ARSCREW
 {
     using Vector = Mylib::Math::Vector<float, 2>;
     inline SDL_Renderer* renderer;

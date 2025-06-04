@@ -1,6 +1,6 @@
-#include "../include/bettlerider/PhysicsEngine.h"
+#include "../include/arscrew/PhysicsEngine.h"
 
-namespace BRTC
+namespace ARSCREW
 {
     bool PhysicsEngine::CheckCollision(const Object& staticObj, const Object& dynamicObj)
    {

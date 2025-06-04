@@ -7,7 +7,7 @@
 #include "Sprite.h"
 #include "Animation.h"
 
-namespace BRTC 
+namespace ARSCREW
 {
     enum class RampType
     {

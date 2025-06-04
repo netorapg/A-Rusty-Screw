@@ -1,6 +1,6 @@
-#include "../include/bettlerider/Animation.h"
+#include "../include/arscrew/Animation.h"
 
-namespace BRTC
+namespace ARSCREW
 {
     bool Animation::isLooping() const { return loop;}
     bool Animation::isFinished() const { return finished;}

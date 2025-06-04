@@ -1,6 +1,6 @@
-#include "../include/bettlerider/Player.h"
+#include "../include/arscrew/Player.h"
 
-namespace BRTC
+namespace ARSCREW
 {
 
   Player::Player( Vector position, SDL_Renderer *renderer )

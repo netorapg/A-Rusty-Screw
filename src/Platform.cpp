@@ -1,6 +1,6 @@
-#include "../include/bettlerider/Platform.h"
+#include "../include/arscrew/Platform.h"
 
-namespace BRTC 
+namespace ARSCREW
 {
     Platform::Platform
     (

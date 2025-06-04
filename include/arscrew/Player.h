@@ -10,7 +10,7 @@
 #include "Sprite.h"
 #include "Globals.h"
 
-namespace BRTC 
+namespace ARSCREW
 {
     class Player : public DynamicObject 
     {

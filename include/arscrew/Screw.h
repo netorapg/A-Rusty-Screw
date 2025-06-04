@@ -5,7 +5,7 @@
 #include "Sprite.h"      // contém Sprite, SpritePtr
 #include <SDL2/SDL.h>
 
-namespace BRTC 
+namespace ARSCREW
 {
     // Enum para os tipos de parafuso (cada tipo usará uma sub-região diferente do spritesheet)
     enum class ScrewType 

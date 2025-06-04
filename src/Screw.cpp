@@ -1,7 +1,7 @@
-#include "../include/bettlerider/Screw.h"
+#include "../include/arscrew/Screw.h"
 #include <stdexcept>
 
-namespace BRTC 
+namespace ARSCREW 
 {
 
     Screw::Screw(const Vector& position,

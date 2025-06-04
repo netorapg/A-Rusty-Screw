@@ -1,7 +1,7 @@
 #include <iostream>
-#include "../include/bettlerider/Weapon.h"
+#include "../include/arscrew/Weapon.h"
 
-namespace BRTC
+namespace ARSCREW
 {
     Weapon::Weapon(Vector position, Vector size, SDL_Renderer* renderer, const std::string& texturePath)
         : DynamicObject(position, size)

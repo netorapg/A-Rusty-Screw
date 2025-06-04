@@ -22,7 +22,7 @@
 
 using namespace tinyxml2;
 
-namespace BRTC
+namespace ARSCREW
 {
     class GameWorld
     {

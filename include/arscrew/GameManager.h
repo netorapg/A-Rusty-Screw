@@ -11,7 +11,7 @@
 #include "GameWorld.h"
 #include "Globals.h"
 
-namespace BRTC
+namespace ARSCREW
 {
     class GameManager
     {

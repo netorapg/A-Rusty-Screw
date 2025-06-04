@@ -1,9 +1,9 @@
-#include "../include/bettlerider/GameManager.h"
-#include "../include/bettlerider/PhysicsEngine.h"
+#include "../include/arscrew/GameManager.h"
+#include "../include/arscrew/PhysicsEngine.h"
 #include <iostream>
 #include <algorithm>
 
-namespace BRTC
+namespace ARSCREW
 {
     GameManager::GameManager(SDL_Window* window, SDL_Renderer* renderer)
         : mWindow(window)

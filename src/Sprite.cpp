@@ -1,8 +1,8 @@
 #include <SDL2/SDL_image.h>
 #include <stdexcept>
-#include "../include/bettlerider/Sprite.h"
+#include "../include/arscrew/Sprite.h"
 
-namespace BRTC 
+namespace ARSCREW 
 {   
     Sprite::Sprite(SDL_Renderer* renderer, const std::string& texturePath) 
     {

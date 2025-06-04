@@ -7,7 +7,7 @@
 #include "Animation.h"
 
 
-namespace BRTC 
+namespace ARSCREW
 {
     class Weapon : public DynamicObject
     {
