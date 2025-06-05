@@ -34,17 +34,17 @@ namespace ARSCREW
       idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 35, 0, 35, 37 }), 0.2f, { 0, 0 }}  );
       idleAnim.setLoop( true );
 
-    // Animação de ataque cortante (ataque normal)
+    
     Animation cuttingAttackAnim;
       cuttingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 37, 35, 37 }), 0.09f, { 0, 0 } } );
-      cuttingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 105, 37, 35, 37 }), 0.01f, { 0, 0 } } );
+      cuttingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 178, 53, 40, 27 }), 0.01f, { 0, 10 } } );
       cuttingAttackAnim.setLoop( false );
 
-    // Animação de ataque perfurante (ataque forte)
+    
     Animation piercingAttackAnim;
-      piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 37, 35, 37 }), 0.1f, { 0, 0 } } );
+      //piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 37, 35, 37 }), 0.1f, { 0, 0 } } );
       piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 74, 36, 37 }), 0.1f, { 0, 0 } } );
-      piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 210, 74, 40, 37 }), 0.1f, { 0, 0 } } );
+      piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 270, 84, 56, 27 }), 0.1f, { 0, 10 } } );
       piercingAttackAnim.setLoop( false );
 
     Animation jumpAnim;
@@ -90,15 +90,27 @@ void Player::handleEvent( SDL_Event &e )
         }
         break;
       case SDLK_j:
-        // Único botão de ataque - usa o tipo atual
         if (!mIsAttacking) {
             mIsAttacking = true;
             mAttackDuration = ATTACK_DURATION;
+            float hitboxWidth;
+            float hitboxHeight;
+            float offsetX;
+            float offsetY; // Novo offset Y
             
-            // Configura a hitbox de ataque
-            int hitboxWidth = 15;
-            int hitboxHeight = 20;
-            int offsetX = 1;
+            if (mCurrentAttackType == AttackType::CUTTING) {
+                // Ataque cortante (vertical)
+                hitboxWidth = 20; 
+                hitboxHeight = 20; 
+                offsetX = 1;
+                offsetY = 2; // Ligeiramente para cima
+            } else {
+                // Ataque perfurante (horizontal)
+                hitboxWidth = 35; 
+                hitboxHeight = 10; 
+                offsetX = 1;
+                offsetY = 5.5; 
+            }
 
             if (mFacingDirection == 1) { // Direita
                 mAttackHitbox.x = getPosition().x + getWidth() - offsetX;
@@ -106,7 +118,8 @@ void Player::handleEvent( SDL_Event &e )
                 mAttackHitbox.x = getPosition().x - hitboxWidth + offsetX; 
             }
 
-            mAttackHitbox.y = getPosition().y + getHeight() / 2 - hitboxHeight / 2;
+            // Aplica o offset Y customizado para cada tipo de ataque
+            mAttackHitbox.y = getPosition().y + getHeight() / 2 - hitboxHeight / 2 + offsetY;
             mAttackHitbox.w = hitboxWidth;
             mAttackHitbox.h = hitboxHeight;
         }
@@ -251,6 +264,8 @@ void Player::update(float deltaTime)
     setVelocity(velocity);
     setPosition(position);
 
+    updateHurtbox();
+
     // Atualiza a duração do ataque
     if (mIsAttacking) {
         mAttackDuration -= deltaTime;
@@ -260,8 +275,43 @@ void Player::update(float deltaTime)
     }
 }
 
-void Player::DrawDebugRect
-  (
+void Player::updateHurtbox()
+{
+    // Usa sempre a posição base do jogador, não dependente do sprite
+    Vector position = getPosition();
+    
+    // Dimensões da hurtbox baseadas na collision box do jogador
+    float playerWidth = getWidth();   // 20
+    float playerHeight = getHeight(); // 37
+    
+    // Fatores de escala para tornar a hurtbox menor que a collision box
+    float hurtboxWidthScale = 0.7f;   // 60% da largura da collision box
+    float hurtboxHeightScale = 0.7f;  // 70% da altura da collision box
+    
+    // Offsets personalizados para posicionar a hurtbox
+    float hurtboxXOffset = 0.0f;
+    float hurtboxYOffset = 5.0f; // Ligeiramente para baixo
+    
+    // Calcula as dimensões da hurtbox
+    float hurtboxWidth = playerWidth * hurtboxWidthScale;
+    float hurtboxHeight = playerHeight * hurtboxHeightScale;
+    
+    // Centraliza a hurtbox na collision box do jogador
+    float centeringOffsetX = (playerWidth - hurtboxWidth) / 2.0f;
+    float centeringOffsetY = (playerHeight - hurtboxHeight) / 2.0f;
+    
+    // Define a posição da hurtbox sempre baseada na collision box
+    mHurtbox.x = position.x + centeringOffsetX + hurtboxXOffset;
+    mHurtbox.y = position.y + centeringOffsetY + hurtboxYOffset;
+    
+    // Define as dimensões da hurtbox
+    mHurtbox.w = static_cast<int>(hurtboxWidth);
+    mHurtbox.h = static_cast<int>(hurtboxHeight);
+}
+
+
+void Player::DrawDebugOutline
+(
     SDL_Renderer* renderer, 
     int x, 
     int y, 
@@ -269,15 +319,24 @@ void Player::DrawDebugRect
     int h, 
     Uint8 r, 
     Uint8 g, 
-    Uint8 b
-  ) 
-  {
-  SDL_Rect rect = {x, y, w, h};
-  SDL_SetRenderDrawColor(renderer, r, g, b, 128);
-  SDL_RenderFillRect(renderer, &rect);
-  SDL_SetRenderDrawColor(renderer, r, g, b, 255);
-  SDL_RenderDrawRect(renderer, &rect);
-  }
+    Uint8 b,
+    int thickness
+) 
+{
+    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+    
+    // Desenha múltiplas linhas para criar espessura
+    for (int i = 0; i < thickness; i++) {
+        // Linha superior
+        SDL_RenderDrawLine(renderer, x - i, y - i, x + w + i, y - i);
+        // Linha inferior  
+        SDL_RenderDrawLine(renderer, x - i, y + h + i, x + w + i, y + h + i);
+        // Linha esquerda
+        SDL_RenderDrawLine(renderer, x - i, y - i, x - i, y + h + i);
+        // Linha direita
+        SDL_RenderDrawLine(renderer, x + w + i, y - i, x + w + i, y + h + i);
+    }
+}
 
   void Player::updateWeaponPosition() {
    
@@ -287,24 +346,38 @@ void Player::DrawDebugRect
 {
     Vector screenPos = getPosition() - cameraPosition;
 
+     // Desenha a hurtbox do jogador
+    if (mShowHurtbox && mShowDebugRects) {
+        SDL_Rect hurtboxOnScreen = {
+            mHurtbox.x - static_cast<int>(cameraPosition.x),
+            mHurtbox.y - static_cast<int>(cameraPosition.y),
+            mHurtbox.w,
+            mHurtbox.h
+        };
+        
+        DrawDebugOutline(renderer, hurtboxOnScreen.x, hurtboxOnScreen.y, 
+                        hurtboxOnScreen.w, hurtboxOnScreen.h, 255, 255, 0, 2); // Amarelo para hurtbox
+    }
+
     // Desenha a hitbox de ataque se estiver atacando
     if (mIsAttacking && mShowAttackHitbox && mShowDebugRects) {
-      SDL_Rect attackRectOnScreen = {
-        mAttackHitbox.x - static_cast<int>(cameraPosition.x),
-        mAttackHitbox.y - static_cast<int>(cameraPosition.y),
-        mAttackHitbox.w,
-        mAttackHitbox.h
-      };
+        SDL_Rect attackRectOnScreen = {
+            mAttackHitbox.x - static_cast<int>(cameraPosition.x),
+            mAttackHitbox.y - static_cast<int>(cameraPosition.y),
+            mAttackHitbox.w,
+            mAttackHitbox.h
+        };
 
-      // Cor diferente baseada no tipo de ataque
-      if (mCurrentAttackType == AttackType::CUTTING) {
-          DrawDebugRect(renderer, attackRectOnScreen.x, attackRectOnScreen.y, 
-                       attackRectOnScreen.w, attackRectOnScreen.h, 255, 0, 0); // Vermelho para cortante
-      } else {
-          DrawDebugRect(renderer, attackRectOnScreen.x, attackRectOnScreen.y, 
-                       attackRectOnScreen.w, attackRectOnScreen.h, 0, 0, 255); // Azul para perfurante
-      }
+        // Cor diferente baseada no tipo de ataque
+        if (mCurrentAttackType == AttackType::CUTTING) {
+            DrawDebugOutline(renderer, attackRectOnScreen.x, attackRectOnScreen.y, 
+                           attackRectOnScreen.w, attackRectOnScreen.h, 0, 255, 0, 2); // Verde para cortante
+        } else {
+            DrawDebugOutline(renderer, attackRectOnScreen.x, attackRectOnScreen.y, 
+                           attackRectOnScreen.w, attackRectOnScreen.h, 0, 0, 255, 2); // Azul para perfurante
+        }
     }
+
 
     SpritePtr currentSprite = animations[currentAnimation].getCurrentSprite();
     
@@ -324,16 +397,17 @@ void Player::DrawDebugRect
         { renderOffset.x += widthDifference * 0.0f; }
         renderOffset.x += baseOffset.x;
         renderOffset.y += baseOffset.y;
+          // Desenha a collision box tradicional (menor que a hurtbox)
         if (mShowDebugRects) 
         {
-            DrawDebugRect
+            DrawDebugOutline
             (
                 renderer, 
                 static_cast<int>(screenPos.x), 
                 static_cast<int>(screenPos.y), 
                 getWidth(), 
                 getHeight(), 
-                255, 0, 0
+                255, 0, 0, 1  // Vermelho para collision box
             );
         }
         currentSprite->draw(renderer, renderOffset.x, renderOffset.y, mFacingDirection == -1);

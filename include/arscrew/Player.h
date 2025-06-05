@@ -52,6 +52,7 @@ namespace ARSCREW
             int getHeight() const { return static_cast<int>(mSize.y); }
 
             SDL_Rect getAttackHitbox() const { return mAttackHitbox; }
+            SDL_Rect getHurtbox() const { return mHurtbox; }
             bool isAttacking() const { return mIsAttacking; }
             AttackType getCurrentAttackType() const { return mCurrentAttackType; }
             
@@ -78,22 +79,25 @@ namespace ARSCREW
             Vector mStrongPunchOffset;
 
             SDL_Rect mAttackHitbox;
+            SDL_Rect mHurtbox;
             bool mShowAttackHitbox = true;
-            
+            bool mShowHurtbox = true;
+
             void updateWeaponPosition();
             void switchAttackType();
-
-            void DrawDebugRect
-            (
-                SDL_Renderer* renderer, 
-                int x, 
-                int y, 
-                int w, 
-                int h, 
-                Uint8 r, 
-                Uint8 g, 
-                Uint8 b
-            );
+            void updateHurtbox();
+           void DrawDebugOutline
+    (
+        SDL_Renderer* renderer, 
+        int x, 
+        int y, 
+        int w, 
+        int h, 
+        Uint8 r, 
+        Uint8 g, 
+        Uint8 b,
+        int thickness = 1  // Espessura da linha
+    );
     };
 }
 #endif
