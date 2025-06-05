@@ -15,6 +15,8 @@ namespace ARSCREW
         , mapHeight(0)
         , mPlayer(Vector(0, 0), renderer)
         , mCamera(SCREEN_WIDTH / 3.5f, SCREEN_HEIGHT / 3.5f)
+        , mScrewRespawnEnabled(true)
+        , mScrewRespawnTime(10.0f)
     {
         loadTextures();
     }
@@ -82,6 +84,12 @@ namespace ARSCREW
             crate.update(deltaTime);
             PhysicsEngine::HandleCollisions(crate, mWalls, mPlatforms, mSolidPlatforms, mRamps);
         }
+        
+        // Atualizar parafusos (para o sistema de respawn)
+        for (auto& screw : mScrews)
+        {
+            screw.update(deltaTime);
+        }
     }
 
     void GameWorld::handleScrewCollisions()
@@ -91,13 +99,9 @@ namespace ARSCREW
         SDL_Rect attackBox = mPlayer.getAttackHitbox();
         AttackType playerAttackType = mPlayer.getCurrentAttackType();
 
-        for (auto it = mScrews.begin(); it != mScrews.end();)
+        for (auto it = mScrews.begin(); it != mScrews.end(); ++it)
         {
-            if (it->isDestroyed())
-            {
-                ++it;
-                continue;
-            }
+            if (it->isDestroyed()) continue;
 
             SDL_Rect screwBox = it->getBoundingBox();
             bool overlap =
@@ -108,7 +112,6 @@ namespace ARSCREW
 
             if (overlap)
             {
-                // Verifica se o tipo de ataque é compatível com o tipo de parafuso
                 ScrewType screwType = it->getType();
                 bool canDestroy = false;
                 
@@ -129,24 +132,34 @@ namespace ARSCREW
                 
                 if (canDestroy)
                 {
-                    if  (!mPlayer.isOnGround()) {
+                    if (!mPlayer.isOnGround()) {
                         Vector velocity = mPlayer.getVelocity();
                         velocity.y = -300.0f;
                         mPlayer.setVelocity(velocity);
-                        
+                        std::cout << "Air screw hit! Player boosted upward!" << std::endl;
                     }
-                    it->destroy();
-                    it = mScrews.erase(it);
-                }
-                else
-                {
-                    ++it;
+                    
+                    it->destroy(); // Agora apenas marca como destruído, não remove da lista
                 }
             }
-            else
-            {
-                ++it;
-            }
+        }
+    }
+
+    void GameWorld::setScrewRespawnEnabled(bool enabled)
+    {
+        mScrewRespawnEnabled = enabled;
+        for (auto& screw : mScrews)
+        {
+            screw.setRespawnEnabled(enabled);
+        }
+    }
+
+    void GameWorld::setScrewRespawnTime(float time)
+    {
+        mScrewRespawnTime = time;
+        for (auto& screw : mScrews)
+        {
+            screw.setRespawnTime(time);
         }
     }
 
@@ -312,10 +325,14 @@ namespace ARSCREW
         else if (strcmp(type, "screw_flathead") == 0)
         {
             mScrews.emplace_back(Vector(mAttributeSpawn), ScrewType::FLATHEAD, mScrewsTexture, mRenderer);
+            mScrews.back().setRespawnEnabled(mScrewRespawnEnabled);
+            mScrews.back().setRespawnTime(mScrewRespawnTime);
         }
         else if (strcmp(type, "screw_phillips") == 0)
         {
             mScrews.emplace_back(Vector(mAttributeSpawn), ScrewType::PHILLIPS, mScrewsTexture, mRenderer);
+            mScrews.back().setRespawnEnabled(mScrewRespawnEnabled);
+            mScrews.back().setRespawnTime(mScrewRespawnTime);
         }
     }
 

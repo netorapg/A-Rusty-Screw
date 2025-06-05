@@ -53,6 +53,12 @@ namespace ARSCREW
         
         void handleScrewCollisions();
         
+        // Controle do sistema de respawn dos parafusos
+        void setScrewRespawnEnabled(bool enabled);
+        bool isScrewRespawnEnabled() const { return mScrewRespawnEnabled; }
+        void setScrewRespawnTime(float time);
+        float getScrewRespawnTime() const { return mScrewRespawnTime; }
+
     private:
         SDL_Renderer* mRenderer;
         SDL_Texture* mPlatformsTexture;
@@ -79,6 +85,10 @@ namespace ARSCREW
         Vector mTilePosition;
         Vector mAttributeSpawn;
         Vector mSpawnPosition;
+        
+        // Sistema de respawn dos parafusos
+        bool mScrewRespawnEnabled;
+        float mScrewRespawnTime;
         
         // Métodos de carregamento TMX
         void processMapLayers(XMLElement* map, int tileSize);

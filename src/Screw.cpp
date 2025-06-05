@@ -10,7 +10,10 @@ namespace ARSCREW
                  SDL_Renderer* renderer)
         : StaticObject(position, Vector(16.0f, 16.0f)), // supondo que cada sprite ocupe 16�16 px
           mType(type),
-          mDestroyed(false)
+          mDestroyed(false),
+          mRespawnEnabled(true),
+          mRespawnTime(10.0f), // 10 segundos por padrão
+          mRespawnTimer(0.0f)
     {
         // Determina qual ret�ngulo do spritesheet vamos usar:
         SDL_Rect srcRect;
@@ -37,6 +40,25 @@ namespace ARSCREW
         // Ajusta o mSize (caso queira variar, por hora mantemos 16�16)
         mSize = Vector(static_cast<float>(srcRect.w),
                        static_cast<float>(srcRect.h));
+    }
+
+    void Screw::update(float deltaTime)
+    {
+        if (mDestroyed && mRespawnEnabled && mRespawnTimer > 0.0f)
+        {
+            mRespawnTimer -= deltaTime;
+            if (mRespawnTimer <= 0.0f)
+            {
+                respawn();
+            }
+        }
+    }
+
+    void Screw::respawn()
+    {
+        mDestroyed = false;
+        mRespawnTimer = 0.0f;
+        std::cout << "Screw respawned!" << std::endl;
     }
 
     SDL_Rect Screw::getBoundingBox() const

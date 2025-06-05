@@ -1,28 +1,21 @@
 #ifndef __BETTLE_RIDER_SCREW_H__
 #define __BETTLE_RIDER_SCREW_H__
 
-#include "Object.h"      // contém StaticObject, Vector, etc.
-#include "Sprite.h"      // contém Sprite, SpritePtr
+#include "Object.h"
+#include "Sprite.h"
 #include <SDL2/SDL.h>
 
 namespace ARSCREW
 {
-    // Enum para os tipos de parafuso (cada tipo usará uma sub-região diferente do spritesheet)
     enum class ScrewType 
     {
-        FLATHEAD,   // "fenda"
-        PHILLIPS    // "estrela"
-        // Se quiser adicionar outros tipos, basta incluir aqui e ajustar em Screw.cpp
+        FLATHEAD,
+        PHILLIPS
     };
 
     class Screw : public StaticObject 
     {
       public:
-        // Construtor recebe:
-        //  - position: posição (x,y) em coordenadas de mundo
-        //  - type: tipo de parafuso (FLATHEAD ou PHILLIPS)
-        //  - textureSheet: o SDL_Texture* já carregado contendo ambas as imagens de screws
-        //  - renderer: necessário para criar o Sprite a partir do textureSheet
         Screw(const Vector& position,
               ScrewType type,
               SDL_Texture* textureSheet,
@@ -30,26 +23,36 @@ namespace ARSCREW
 
         virtual ~Screw() = default;
 
-        // Renderiza o sprite na tela, ajustando pela posição da câmera
         virtual void render(SDL_Renderer* renderer, Vector cameraPosition) override;
+        
+        // Atualiza o timer de respawn
+        void update(float deltaTime);
 
-        // Marca o parafuso como destruído (não será renderizado nem colidido)
-        void destroy() { mDestroyed = true; }
-
+        void destroy() { mDestroyed = true; mRespawnTimer = mRespawnTime; }
         bool isDestroyed() const { return mDestroyed; }
 
-        // Retorna o retângulo AABB em coordenadas de mundo para checar colisão
         SDL_Rect getBoundingBox() const;
-
-        // Getter para o tipo de parafuso
         ScrewType getType() const { return mType; }
+        
+        // Controle do sistema de respawn
+        void setRespawnEnabled(bool enabled) { mRespawnEnabled = enabled; }
+        bool isRespawnEnabled() const { return mRespawnEnabled; }
+        void setRespawnTime(float time) { mRespawnTime = time; }
+        float getRespawnTime() const { return mRespawnTime; }
         
       private:
         ScrewType   mType;
-        SpritePtr   mSprite;     // Aponta para a sub-região certa do spritesheet
-        bool        mDestroyed;  // Se true, o screwing não será mais desenhado
+        SpritePtr   mSprite;
+        bool        mDestroyed;
+        
+        // Sistema de respawn
+        bool        mRespawnEnabled;
+        float       mRespawnTime;
+        float       mRespawnTimer;
+        
+        void respawn();
     };
 
-} // namespace BRTC
+} // namespace ARSCREW
 
 #endif // __BETTLE_RIDER_SCREW_H__
