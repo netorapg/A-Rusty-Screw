@@ -42,7 +42,6 @@ namespace ARSCREW
 
     
     Animation piercingAttackAnim;
-      //piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 37, 35, 37 }), 0.1f, { 0, 0 } } );
       piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 74, 36, 37 }), 0.1f, { 0, 0 } } );
       piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 270, 84, 56, 27 }), 0.1f, { 0, 10 } } );
       piercingAttackAnim.setLoop( false );
@@ -96,36 +95,32 @@ void Player::handleEvent( SDL_Event &e )
             float hitboxWidth;
             float hitboxHeight;
             float offsetX;
-            float offsetY; // Novo offset Y
+            float offsetY;
             
             if (mCurrentAttackType == AttackType::CUTTING) {
-                // Ataque cortante (vertical)
                 hitboxWidth = 20; 
                 hitboxHeight = 20; 
                 offsetX = 1;
-                offsetY = 2; // Ligeiramente para cima
+                offsetY = 2;
             } else {
-                // Ataque perfurante (horizontal)
                 hitboxWidth = 35; 
                 hitboxHeight = 10; 
                 offsetX = 1;
                 offsetY = 5.5; 
             }
 
-            if (mFacingDirection == 1) { // Direita
+            if (mFacingDirection == 1) {
                 mAttackHitbox.x = getPosition().x + getWidth() - offsetX;
-            } else { // Esquerda
+            } else {
                 mAttackHitbox.x = getPosition().x - hitboxWidth + offsetX; 
             }
 
-            // Aplica o offset Y customizado para cada tipo de ataque
             mAttackHitbox.y = getPosition().y + getHeight() / 2 - hitboxHeight / 2 + offsetY;
             mAttackHitbox.w = hitboxWidth;
             mAttackHitbox.h = hitboxHeight;
         }
         break;
       case SDLK_q:
-        // Troca entre tipos de ataque
         switchAttackType();
         break;
       case SDLK_e:
@@ -213,13 +208,10 @@ void Player::update(float deltaTime)
       }
     }
 
-    // Aplica a gravidade
     velocity.y += GRAVITY * deltaTime;
 
-    // Atualiza a posição com base na velocidade
     position += velocity * deltaTime;
 
-    // Verifica se o jogador está no chão
     if (isOnGround()) {
         setIsCollidingWithWall(false);
         mIsJumping = false;
@@ -232,11 +224,9 @@ void Player::update(float deltaTime)
         mIsJumping = true;
     }
 
-    // Atualiza a animação com base no estado atual
     std::string newAnimation;
     if (isOnGround()) {
         if (mIsAttacking) {
-            // Escolhe a animação baseada no tipo de ataque atual
             if (mCurrentAttackType == AttackType::CUTTING) {
                 newAnimation = "cuttingAttack";
             } else {
@@ -251,22 +241,18 @@ void Player::update(float deltaTime)
         newAnimation = "jump";
     }
 
-    // Transição suave entre animações
     if (newAnimation != currentAnimation) {
         animations[newAnimation].reset();
         currentAnimation = newAnimation;
     }
 
-    // Atualiza a animação atual
     animations[currentAnimation].update(deltaTime);
 
-    // Atualiza a posição e velocidade do jogador
     setVelocity(velocity);
     setPosition(position);
 
     updateHurtbox();
 
-    // Atualiza a duração do ataque
     if (mIsAttacking) {
         mAttackDuration -= deltaTime;
         if (mAttackDuration <= 0.0f) {
@@ -277,34 +263,26 @@ void Player::update(float deltaTime)
 
 void Player::updateHurtbox()
 {
-    // Usa sempre a posição base do jogador, não dependente do sprite
     Vector position = getPosition();
     
-    // Dimensões da hurtbox baseadas na collision box do jogador
-    float playerWidth = getWidth();   // 20
-    float playerHeight = getHeight(); // 37
+    float playerWidth = getWidth();
+    float playerHeight = getHeight();
     
-    // Fatores de escala para tornar a hurtbox menor que a collision box
-    float hurtboxWidthScale = 0.7f;   // 60% da largura da collision box
-    float hurtboxHeightScale = 0.7f;  // 70% da altura da collision box
+    float hurtboxWidthScale = 0.7f;
+    float hurtboxHeightScale = 0.7f;
     
-    // Offsets personalizados para posicionar a hurtbox
     float hurtboxXOffset = 0.0f;
-    float hurtboxYOffset = 5.0f; // Ligeiramente para baixo
+    float hurtboxYOffset = 5.0f;
     
-    // Calcula as dimensões da hurtbox
     float hurtboxWidth = playerWidth * hurtboxWidthScale;
     float hurtboxHeight = playerHeight * hurtboxHeightScale;
     
-    // Centraliza a hurtbox na collision box do jogador
     float centeringOffsetX = (playerWidth - hurtboxWidth) / 2.0f;
     float centeringOffsetY = (playerHeight - hurtboxHeight) / 2.0f;
     
-    // Define a posição da hurtbox sempre baseada na collision box
     mHurtbox.x = position.x + centeringOffsetX + hurtboxXOffset;
     mHurtbox.y = position.y + centeringOffsetY + hurtboxYOffset;
     
-    // Define as dimensões da hurtbox
     mHurtbox.w = static_cast<int>(hurtboxWidth);
     mHurtbox.h = static_cast<int>(hurtboxHeight);
 }
@@ -325,15 +303,10 @@ void Player::DrawDebugOutline
 {
     SDL_SetRenderDrawColor(renderer, r, g, b, 255);
     
-    // Desenha múltiplas linhas para criar espessura
     for (int i = 0; i < thickness; i++) {
-        // Linha superior
         SDL_RenderDrawLine(renderer, x - i, y - i, x + w + i, y - i);
-        // Linha inferior  
         SDL_RenderDrawLine(renderer, x - i, y + h + i, x + w + i, y + h + i);
-        // Linha esquerda
         SDL_RenderDrawLine(renderer, x - i, y - i, x - i, y + h + i);
-        // Linha direita
         SDL_RenderDrawLine(renderer, x + w + i, y - i, x + w + i, y + h + i);
     }
 }
@@ -346,7 +319,6 @@ void Player::DrawDebugOutline
 {
     Vector screenPos = getPosition() - cameraPosition;
 
-     // Desenha a hurtbox do jogador
     if (mShowHurtbox && mShowDebugRects) {
         SDL_Rect hurtboxOnScreen = {
             mHurtbox.x - static_cast<int>(cameraPosition.x),
@@ -356,10 +328,9 @@ void Player::DrawDebugOutline
         };
         
         DrawDebugOutline(renderer, hurtboxOnScreen.x, hurtboxOnScreen.y, 
-                        hurtboxOnScreen.w, hurtboxOnScreen.h, 255, 255, 0, 2); // Amarelo para hurtbox
+                        hurtboxOnScreen.w, hurtboxOnScreen.h, 255, 255, 0, 2);
     }
 
-    // Desenha a hitbox de ataque se estiver atacando
     if (mIsAttacking && mShowAttackHitbox && mShowDebugRects) {
         SDL_Rect attackRectOnScreen = {
             mAttackHitbox.x - static_cast<int>(cameraPosition.x),
@@ -368,13 +339,12 @@ void Player::DrawDebugOutline
             mAttackHitbox.h
         };
 
-        // Cor diferente baseada no tipo de ataque
         if (mCurrentAttackType == AttackType::CUTTING) {
             DrawDebugOutline(renderer, attackRectOnScreen.x, attackRectOnScreen.y, 
-                           attackRectOnScreen.w, attackRectOnScreen.h, 0, 255, 0, 2); // Verde para cortante
+                           attackRectOnScreen.w, attackRectOnScreen.h, 0, 255, 0, 2);
         } else {
             DrawDebugOutline(renderer, attackRectOnScreen.x, attackRectOnScreen.y, 
-                           attackRectOnScreen.w, attackRectOnScreen.h, 0, 0, 255, 2); // Azul para perfurante
+                           attackRectOnScreen.w, attackRectOnScreen.h, 0, 0, 255, 2);
         }
     }
 
@@ -397,7 +367,7 @@ void Player::DrawDebugOutline
         { renderOffset.x += widthDifference * 0.0f; }
         renderOffset.x += baseOffset.x;
         renderOffset.y += baseOffset.y;
-          // Desenha a collision box tradicional (menor que a hurtbox)
+        
         if (mShowDebugRects) 
         {
             DrawDebugOutline
@@ -407,7 +377,7 @@ void Player::DrawDebugOutline
                 static_cast<int>(screenPos.y), 
                 getWidth(), 
                 getHeight(), 
-                255, 0, 0, 1  // Vermelho para collision box
+                255, 0, 0, 1
             );
         }
         currentSprite->draw(renderer, renderOffset.x, renderOffset.y, mFacingDirection == -1);
@@ -419,4 +389,3 @@ void Player::DrawDebugOutline
     mPassingThroughPlatform = enable;
   }
 }
-

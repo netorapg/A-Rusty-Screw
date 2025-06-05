@@ -129,6 +129,12 @@ namespace ARSCREW
                 
                 if (canDestroy)
                 {
+                    if  (!mPlayer.isOnGround()) {
+                        Vector velocity = mPlayer.getVelocity();
+                        velocity.y = -300.0f;
+                        mPlayer.setVelocity(velocity);
+                        
+                    }
                     it->destroy();
                     it = mScrews.erase(it);
                 }
