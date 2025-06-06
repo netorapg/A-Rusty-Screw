@@ -16,6 +16,13 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    if (TTF_Init() == -1) {
+        std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: "
+                  << TTF_GetError() << std::endl;
+        SDL_Quit();
+        return -1;
+    }
+
     SDL_Window* window = SDL_CreateWindow(
         "Bettle Rider",
         SDL_WINDOWPOS_CENTERED,

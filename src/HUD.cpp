@@ -30,9 +30,9 @@ namespace ARSCREW
     {
         // Tenta carregar fontes diferentes, com fallback
         const char* fontPaths[] = {
-            "../assets/fonts/pixel.ttf",
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-            "/System/Library/Fonts/Arial.ttf"
+            "../assets/fonts/Arial.ttf",
+            "../assets/fonts/Megadeth.ttf",
+            "../assets/fonts/METALORD.TTF",
         };
         
         for (const char* fontPath : fontPaths)

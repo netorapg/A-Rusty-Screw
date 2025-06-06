@@ -13,6 +13,7 @@ namespace ARSCREW
         , mMusic(nullptr)
         , mJumpSound(nullptr)
         , mWorld(renderer)
+        , mHUD(renderer)
         , mQuit(false)
         , mPlayerActivated(false)
         , mActivationTime(0)
@@ -125,6 +126,11 @@ namespace ARSCREW
                 else
                     SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
             }
+
+            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_F1)
+            {
+                mHUD.setVisible(!mHUD.isVisible());
+            }
         }
     }
 
@@ -136,6 +142,7 @@ namespace ARSCREW
             updateGameState();
             updateCamera();
             mWorld.updateWorld(deltaTime);
+            mHUD.update(deltaTime);
         }
     }
 
@@ -280,8 +287,15 @@ namespace ARSCREW
         Vector cameraPos = mWorld.getCamera().getPosition();
         Vector viewSize(effectiveScreenWidth, effectiveScreenHeight);
         mWorld.renderWorld(mRenderer, cameraPos, viewSize);
-        
+        renderHUD();
         finalizeRender();
+    }
+
+    void GameManager::renderHUD()
+    {
+        SDL_RenderSetScale(mRenderer, 1.0f, 1.0f);
+        mHUD.render(mRenderer, mWorld.getPlayer());
+        SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
     }
 
     void GameManager::renderTransitionEffect()

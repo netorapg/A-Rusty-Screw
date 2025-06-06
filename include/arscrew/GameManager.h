@@ -9,6 +9,7 @@
 #include <array>
 
 #include "GameWorld.h"
+#include "HUD.h"
 #include "Globals.h"
 
 namespace ARSCREW
@@ -34,6 +35,7 @@ namespace ARSCREW
         Mix_Chunk* mJumpSound;
         
         GameWorld mWorld;
+        HUD mHUD;
         
         bool mQuit;
         bool mPlayerActivated;
@@ -88,6 +90,7 @@ namespace ARSCREW
         void prepareRender();
         void renderBackground();
         void renderParallaxLayer(int layerIndex, const Vector& cameraPos);
+        void renderHUD();
         void finalizeRender();
     };
 }

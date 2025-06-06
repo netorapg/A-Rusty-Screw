@@ -56,6 +56,7 @@ namespace ARSCREW
             bool isAttacking() const { return mIsAttacking; }
             AttackType getCurrentAttackType() const { return mCurrentAttackType; }
             
+            
         private:
             int mFacingDirection;
             bool mIsJumping;
