@@ -15,6 +15,7 @@ namespace ARSCREW
         , mapHeight(0)
         , mPlayer(Vector(0, 0), renderer)
         , mCamera(SCREEN_WIDTH / 3.5f, SCREEN_HEIGHT / 3.5f)
+        , mChicken(Vector(0, 0), renderer)
         , mScrewRespawnEnabled(true)
         , mScrewRespawnTime(10.0f)
     {
@@ -85,6 +86,9 @@ namespace ARSCREW
             PhysicsEngine::HandleCollisions(crate, mWalls, mPlatforms, mSolidPlatforms, mRamps);
         }
         
+        mChicken.update(deltaTime);
+        mChicken.followPlayer(mPlayer, deltaTime);
+        PhysicsEngine::HandleCollisions(mChicken, mWalls, mPlatforms, mSolidPlatforms, mRamps);
         // Atualizar parafusos (para o sistema de respawn)
         for (auto& screw : mScrews)
         {
@@ -188,6 +192,7 @@ namespace ARSCREW
             }
         }
 
+        mChicken.render(renderer, snappedCameraPos);
         mPlayer.render(renderer, snappedCameraPos);
     }
 
@@ -317,6 +322,7 @@ namespace ARSCREW
         if (strcmp(type, "player_spawn") == 0)
         {
             mPlayer.setPosition(Vector(mAttributeSpawn));
+            mChicken.setPosition(Vector(mAttributeSpawn.x - 30, mAttributeSpawn.y));
         }
         else if (strcmp(type, "door") == 0)
         {

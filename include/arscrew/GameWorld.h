@@ -18,6 +18,7 @@
 #include "Player.h"
 #include "Camera.h"
 #include "Screw.h"
+#include "Chicken.h"
 #include "Globals.h"
 
 using namespace tinyxml2;
@@ -38,8 +39,10 @@ namespace ARSCREW
         // Getters para acesso às entidades
         const Player& getPlayer() const { return mPlayer; }
         const Camera& getCamera() const { return mCamera; }
+        const Chicken& getChicken() const { return mChicken; }
         Player& getPlayer() { return mPlayer; }
         Camera& getCamera() { return mCamera; }
+        Chicken& getChicken() { return mChicken; }
         std::list<Platform>& getPlatforms() { return mPlatforms; }
         std::list<SolidPlatform>& getSolidPlatforms() { return mSolidPlatforms; }
         std::list<Wall>& getWalls() { return mWalls; }
@@ -80,6 +83,7 @@ namespace ARSCREW
         
         Player mPlayer;
         Camera mCamera;
+        Chicken mChicken;
         
         // Variáveis auxiliares
         Vector mTilePosition;

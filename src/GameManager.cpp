@@ -30,8 +30,7 @@ namespace ARSCREW
         initializeAudioSystem();
         
         // Carregar nível inicial
-        mWorld.loadLevelFromTMX("../map/level1.tmx");
-        
+        mWorld.loadLevelFromTMX("../map/level6.tmx");
         mPlayerActivated = false;
         mActivationTime = SDL_GetTicks() + 500;
         centerCameraOnPlayer();
