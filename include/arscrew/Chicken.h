@@ -33,6 +33,7 @@ namespace ARSCREW
 
         int mFacingDirection;
         bool mIsMoving;
+        bool mIsFlying;
 
         float mFollowSpeed;
         float mFollowDistance;
@@ -41,7 +42,7 @@ namespace ARSCREW
         std::unordered_map<std::string, Animation> mAnimations;
         std::string mCurrentAnimation;
 
-        const float DEFAULT_FOLLOW_SPEED = 80.0f;
+        const float DEFAULT_FOLLOW_SPEED = 120.0f;
         const float DEFAULT_FOLLOW_DISTANCE = 50.0f;
         const float STOP_DISTANCE = 30.0f;
 

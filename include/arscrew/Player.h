@@ -47,6 +47,7 @@ namespace ARSCREW
             void handleEvent(SDL_Event& e) override;
             void setPassingThroughPlatform(bool enable);
             bool isFacingRight() const { return mFacingDirection == 1; }
+            bool isOnGround() const { return mOnGround; }
             int getFacingDirection() const { return mFacingDirection; }
             int getWidth() const { return static_cast<int>(mSize.x); }
             int getHeight() const { return static_cast<int>(mSize.y); }
