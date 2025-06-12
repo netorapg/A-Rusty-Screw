@@ -1,6 +1,6 @@
-#include "../include/bettlerider/SolidPlatform.h"
+#include "../include/arscrew/SolidPlatform.h"
 
-namespace BRTC 
+namespace ARSCREW 
 {
     SolidPlatform::SolidPlatform
     (

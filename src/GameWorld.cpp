@@ -1,11 +1,11 @@
-#include "../include/bettlerider/GameWorld.h"
-#include "../include/bettlerider/PhysicsEngine.h"
-#include "../include/bettlerider/Globals.h"
+#include "../include/arscrew/GameWorld.h"
+#include "../include/arscrew/PhysicsEngine.h"
+#include "../include/arscrew/Globals.h"
 #include <iostream>
 #include <sstream>
 #include <algorithm>
 
-namespace BRTC
+namespace ARSCREW
 {
     GameWorld::GameWorld(SDL_Renderer* renderer)
         : mRenderer(renderer)
@@ -15,6 +15,9 @@ namespace BRTC
         , mapHeight(0)
         , mPlayer(Vector(0, 0), renderer)
         , mCamera(SCREEN_WIDTH / 3.5f, SCREEN_HEIGHT / 3.5f)
+        , mChicken(Vector(0, 0), renderer)
+        , mScrewRespawnEnabled(true)
+        , mScrewRespawnTime(10.0f)
     {
         loadTextures();
     }
@@ -72,6 +75,7 @@ namespace BRTC
         mDoors.clear();
         mDecorations.clear();
         mScrews.clear();
+        mEnemies.clear();
     }
 
     void GameWorld::updateWorld(float deltaTime)
@@ -82,6 +86,20 @@ namespace BRTC
             crate.update(deltaTime);
             PhysicsEngine::HandleCollisions(crate, mWalls, mPlatforms, mSolidPlatforms, mRamps);
         }
+        
+        mChicken.update(deltaTime);
+        mChicken.followPlayer(mPlayer, deltaTime);
+        PhysicsEngine::HandleCollisions(mChicken, mWalls, mPlatforms, mSolidPlatforms, mRamps);
+        // Atualizar parafusos (para o sistema de respawn)
+        for (auto& screw : mScrews)
+        {
+            screw.update(deltaTime);
+        }
+        for (auto& enemy : mEnemies)
+        {
+            enemy.updateWithPlayer(mPlayer, deltaTime);
+            PhysicsEngine::HandleCollisions(enemy, mWalls, mPlatforms, mSolidPlatforms, mRamps);
+        }
     }
 
     void GameWorld::handleScrewCollisions()
@@ -89,14 +107,11 @@ namespace BRTC
         if (!mPlayer.isAttacking()) return;
 
         SDL_Rect attackBox = mPlayer.getAttackHitbox();
+        AttackType playerAttackType = mPlayer.getCurrentAttackType();
 
-        for (auto it = mScrews.begin(); it != mScrews.end();)
+        for (auto it = mScrews.begin(); it != mScrews.end(); ++it)
         {
-            if (it->isDestroyed())
-            {
-                ++it;
-                continue;
-            }
+            if (it->isDestroyed()) continue;
 
             SDL_Rect screwBox = it->getBoundingBox();
             bool overlap =
@@ -107,13 +122,54 @@ namespace BRTC
 
             if (overlap)
             {
-                it->destroy();
-                it = mScrews.erase(it);
+                ScrewType screwType = it->getType();
+                bool canDestroy = false;
+                
+                if (playerAttackType == AttackType::CUTTING && screwType == ScrewType::FLATHEAD)
+                {
+                    canDestroy = true;
+                    std::cout << "Flathead screw destroyed with cutting attack!" << std::endl;
+                }
+                else if (playerAttackType == AttackType::PIERCING && screwType == ScrewType::PHILLIPS)
+                {
+                    canDestroy = true;
+                    std::cout << "Phillips screw destroyed with piercing attack!" << std::endl;
+                }
+                else
+                {
+                    std::cout << "Wrong tool! Can't destroy this screw type." << std::endl;
+                }
+                
+                if (canDestroy)
+                {
+                    if (!mPlayer.isOnGround()) {
+                        Vector velocity = mPlayer.getVelocity();
+                        velocity.y = -300.0f;
+                        mPlayer.setVelocity(velocity);
+                        std::cout << "Air screw hit! Player boosted upward!" << std::endl;
+                    }
+                    
+                    it->destroy(); // Agora apenas marca como destruído, não remove da lista
+                }
             }
-            else
-            {
-                ++it;
-            }
+        }
+    }
+
+    void GameWorld::setScrewRespawnEnabled(bool enabled)
+    {
+        mScrewRespawnEnabled = enabled;
+        for (auto& screw : mScrews)
+        {
+            screw.setRespawnEnabled(enabled);
+        }
+    }
+
+    void GameWorld::setScrewRespawnTime(float time)
+    {
+        mScrewRespawnTime = time;
+        for (auto& screw : mScrews)
+        {
+            screw.setRespawnTime(time);
         }
     }
 
@@ -142,6 +198,15 @@ namespace BRTC
             }
         }
 
+        for (auto& enemy : mEnemies)
+        {
+            if (enemy.isVisible(cameraPos, viewSize))
+            {
+                enemy.render(renderer, snappedCameraPos);
+            }
+        }
+
+        mChicken.render(renderer, snappedCameraPos);
         mPlayer.render(renderer, snappedCameraPos);
     }
 
@@ -156,9 +221,6 @@ namespace BRTC
             }
         }
     }
-
-    // ... implementar os métodos de processamento TMX (processMapLayers, etc.)
-    // Copiando a implementação existente dos métodos TMX da classe Game original
     
     void GameWorld::processMapLayers(XMLElement* map, int tileSize)
     {
@@ -274,6 +336,7 @@ namespace BRTC
         if (strcmp(type, "player_spawn") == 0)
         {
             mPlayer.setPosition(Vector(mAttributeSpawn));
+            mChicken.setPosition(Vector(mAttributeSpawn.x - 30, mAttributeSpawn.y));
         }
         else if (strcmp(type, "door") == 0)
         {
@@ -282,10 +345,20 @@ namespace BRTC
         else if (strcmp(type, "screw_flathead") == 0)
         {
             mScrews.emplace_back(Vector(mAttributeSpawn), ScrewType::FLATHEAD, mScrewsTexture, mRenderer);
+            mScrews.back().setRespawnEnabled(mScrewRespawnEnabled);
+            mScrews.back().setRespawnTime(mScrewRespawnTime);
         }
         else if (strcmp(type, "screw_phillips") == 0)
         {
             mScrews.emplace_back(Vector(mAttributeSpawn), ScrewType::PHILLIPS, mScrewsTexture, mRenderer);
+            mScrews.back().setRespawnEnabled(mScrewRespawnEnabled);
+            mScrews.back().setRespawnTime(mScrewRespawnTime);
+        }
+        else if (strcmp(type, "enemy_spawn") == 0)
+        {
+            mEnemies.emplace_back(Vector(mAttributeSpawn), mRenderer);
+            std::cout << "Enemy spawned at: " << mAttributeSpawn.x << ", " << mAttributeSpawn.y << std::endl;
+
         }
     }
 

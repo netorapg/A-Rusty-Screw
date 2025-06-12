@@ -1,6 +1,6 @@
-#include "../include/bettlerider/Wall.h"
+#include "../include/arscrew/Wall.h"
 
-namespace BRTC
+namespace ARSCREW
 {
     Wall::Wall
     (

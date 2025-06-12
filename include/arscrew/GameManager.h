@@ -9,9 +9,10 @@
 #include <array>
 
 #include "GameWorld.h"
+#include "HUD.h"
 #include "Globals.h"
 
-namespace BRTC
+namespace ARSCREW
 {
     class GameManager
     {
@@ -34,6 +35,7 @@ namespace BRTC
         Mix_Chunk* mJumpSound;
         
         GameWorld mWorld;
+        HUD mHUD;
         
         bool mQuit;
         bool mPlayerActivated;
@@ -88,6 +90,7 @@ namespace BRTC
         void prepareRender();
         void renderBackground();
         void renderParallaxLayer(int layerIndex, const Vector& cameraPos);
+        void renderHUD();
         void finalizeRender();
     };
 }

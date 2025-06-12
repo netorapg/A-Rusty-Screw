@@ -1,9 +1,9 @@
-#include "../include/bettlerider/GameManager.h"
-#include "../include/bettlerider/PhysicsEngine.h"
+#include "../include/arscrew/GameManager.h"
+#include "../include/arscrew/PhysicsEngine.h"
 #include <iostream>
 #include <algorithm>
 
-namespace BRTC
+namespace ARSCREW
 {
     GameManager::GameManager(SDL_Window* window, SDL_Renderer* renderer)
         : mWindow(window)
@@ -13,6 +13,7 @@ namespace BRTC
         , mMusic(nullptr)
         , mJumpSound(nullptr)
         , mWorld(renderer)
+        , mHUD(renderer)
         , mQuit(false)
         , mPlayerActivated(false)
         , mActivationTime(0)
@@ -29,8 +30,7 @@ namespace BRTC
         initializeAudioSystem();
         
         // Carregar nível inicial
-        mWorld.loadLevelFromTMX("../map/level1.tmx");
-        
+        mWorld.loadLevelFromTMX("../map/level7.tmx");
         mPlayerActivated = false;
         mActivationTime = SDL_GetTicks() + 500;
         centerCameraOnPlayer();
@@ -125,6 +125,11 @@ namespace BRTC
                 else
                     SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
             }
+
+            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_F1)
+            {
+                mHUD.setVisible(!mHUD.isVisible());
+            }
         }
     }
 
@@ -136,6 +141,7 @@ namespace BRTC
             updateGameState();
             updateCamera();
             mWorld.updateWorld(deltaTime);
+            mHUD.update(deltaTime);
         }
     }
 
@@ -280,8 +286,15 @@ namespace BRTC
         Vector cameraPos = mWorld.getCamera().getPosition();
         Vector viewSize(effectiveScreenWidth, effectiveScreenHeight);
         mWorld.renderWorld(mRenderer, cameraPos, viewSize);
-        
+        renderHUD();
         finalizeRender();
+    }
+
+    void GameManager::renderHUD()
+    {
+        SDL_RenderSetScale(mRenderer, 1.0f, 1.0f);
+        mHUD.render(mRenderer, mWorld.getPlayer());
+        SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
     }
 
     void GameManager::renderTransitionEffect()

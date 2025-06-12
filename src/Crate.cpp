@@ -1,6 +1,6 @@
-#include "../include/bettlerider/Crate.h"
+#include "../include/arscrew/Crate.h"
 
-namespace BRTC
+namespace ARSCREW
 {
     Crate::Crate
     (
@@ -35,8 +35,8 @@ namespace BRTC
     {
         Vector velocity = getVelocity();
         Vector position = getPosition();   
-        velocity.y += BRTC::GRAVITY * deltaTime;
-        velocity.x *= BRTC::FRICTION;
+        velocity.y += ARSCREW::GRAVITY * deltaTime;
+        velocity.x *= ARSCREW::FRICTION;
         position += velocity * deltaTime;
         setVelocity(velocity);
         setPosition(position);

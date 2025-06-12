@@ -1,5 +1,6 @@
-#ifndef WALL_H
-#define WALL_H
+// Decoration.h
+#ifndef DECORATION_H
+#define DECORATION_H
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -7,14 +8,14 @@
 #include "Sprite.h"
 #include "Animation.h"
 
-namespace BRTC
+namespace ARSCREW
 {
-    class Wall : public StaticObject
+    class Decoration : public StaticObject 
     {
         private:
-            Animation mAnimation;
+            Animation mAnimation;   
         public:
-            Wall
+            Decoration
             (
                 const Vector position, 
                 const Vector size, 

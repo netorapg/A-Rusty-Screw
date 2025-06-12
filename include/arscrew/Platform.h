@@ -1,5 +1,5 @@
-#ifndef SOLIDPLATFORM_H
-#define SOLIDPLATFORM_H
+#ifndef PLATFORM_H
+#define PLATFORM_H
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -7,14 +7,14 @@
 #include "Sprite.h"
 #include "Animation.h"
 
-namespace BRTC 
+namespace ARSCREW
 {
-    class SolidPlatform : public StaticObject 
+    class Platform : public StaticObject 
     {
         private:
             Animation mAnimation;
         public:
-            SolidPlatform
+            Platform
             (
                 const Vector position, 
                 const Vector size, 

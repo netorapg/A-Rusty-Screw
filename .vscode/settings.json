@@ -65,7 +65,9 @@
         "format": "cpp",
         "iomanip": "cpp",
         "span": "cpp",
-        "text_encoding": "cpp"
+        "text_encoding": "cpp",
+        "queue": "cpp",
+        "ranges": "cpp"
     },
     "editor.formatOnSave": false,
     "editor.formatOnSaveMode": "modificationsIfAvailable"

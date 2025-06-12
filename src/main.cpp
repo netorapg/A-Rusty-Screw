@@ -1,5 +1,5 @@
-#include "../include/bettlerider/GameManager.h"
-#include "../include/bettlerider/Globals.h"
+#include "../include/arscrew/GameManager.h"
+#include "../include/arscrew/Globals.h"
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <algorithm>
@@ -16,12 +16,19 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    if (TTF_Init() == -1) {
+        std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: "
+                  << TTF_GetError() << std::endl;
+        SDL_Quit();
+        return -1;
+    }
+
     SDL_Window* window = SDL_CreateWindow(
         "Bettle Rider",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        BRTC::SCREEN_WIDTH,
-        BRTC::SCREEN_HEIGHT,
+        ARSCREW::SCREEN_WIDTH,
+        ARSCREW::SCREEN_HEIGHT,
         SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI
     );
     if (!window) {
@@ -50,15 +57,15 @@ int main(int argc, char* argv[])
 
     // Ajustes de escala (caso use LogicalSize)
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
-    SDL_RenderSetLogicalSize(renderer, BRTC::SCREEN_WIDTH, BRTC::SCREEN_HEIGHT);
+    SDL_RenderSetLogicalSize(renderer, ARSCREW::SCREEN_WIDTH, ARSCREW::SCREEN_HEIGHT);
 
-    BRTC::GameManager gameManager(window, renderer);
+    ARSCREW::GameManager gameManager(window, renderer);
     Uint64 lastTime = SDL_GetPerformanceCounter();
 
     while (gameManager.isRunning()) {
         // Calcula deltaTime
         Uint64 currentTime = SDL_GetPerformanceCounter();
-        BRTC::deltaTime = float(currentTime - lastTime) /
+        ARSCREW::deltaTime = float(currentTime - lastTime) /
                           float(SDL_GetPerformanceFrequency());
         lastTime = currentTime;
 
@@ -90,8 +97,8 @@ int main(int argc, char* argv[])
 void applyCRTEffect(SDL_Renderer* renderer)
 {
     // Para obter w/h, podemos usar Globals ou
-    int width  = BRTC::SCREEN_WIDTH;
-    int height = BRTC::SCREEN_HEIGHT;
+    int width  = ARSCREW::SCREEN_WIDTH;
+    int height = ARSCREW::SCREEN_HEIGHT;
 
     // Novos valores MUITO mais suaves:
     const Uint8 scanlineAlpha = 15;   // quase transparente

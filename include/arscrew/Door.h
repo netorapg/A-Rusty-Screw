@@ -8,7 +8,7 @@
 #include "Sprite.h"
 #include "Animation.h"
 
-namespace BRTC
+namespace ARSCREW
 {
     class Door : public StaticObject 
     {

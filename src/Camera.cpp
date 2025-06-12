@@ -1,6 +1,6 @@
-#include "../include/bettlerider/Camera.h"
+#include "../include/arscrew/Camera.h"
 
-namespace BRTC
+namespace ARSCREW
 {
     Camera::Camera
     (

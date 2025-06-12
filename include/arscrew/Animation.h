@@ -8,7 +8,7 @@
 #include "Sprite.h"
 #include "Globals.h"
 
-namespace BRTC
+namespace ARSCREW
 {
     struct AnimationFrame 
     {

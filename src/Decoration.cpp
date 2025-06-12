@@ -1,6 +1,6 @@
-#include "../include/bettlerider/Decoration.h"
+#include "../include/arscrew/Decoration.h"
 
-namespace BRTC 
+namespace ARSCREW 
 {
     Decoration::Decoration
     (

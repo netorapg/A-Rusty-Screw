@@ -18,11 +18,13 @@
 #include "Player.h"
 #include "Camera.h"
 #include "Screw.h"
+#include "Chicken.h"
+#include "Enemy.h"
 #include "Globals.h"
 
 using namespace tinyxml2;
 
-namespace BRTC
+namespace ARSCREW
 {
     class GameWorld
     {
@@ -38,8 +40,10 @@ namespace BRTC
         // Getters para acesso às entidades
         const Player& getPlayer() const { return mPlayer; }
         const Camera& getCamera() const { return mCamera; }
+        const Chicken& getChicken() const { return mChicken; }
         Player& getPlayer() { return mPlayer; }
         Camera& getCamera() { return mCamera; }
+        Chicken& getChicken() { return mChicken; }
         std::list<Platform>& getPlatforms() { return mPlatforms; }
         std::list<SolidPlatform>& getSolidPlatforms() { return mSolidPlatforms; }
         std::list<Wall>& getWalls() { return mWalls; }
@@ -47,12 +51,19 @@ namespace BRTC
         std::list<Crate>& getCrates() { return mCrates; }
         std::list<Door>& getDoors() { return mDoors; }
         std::list<Screw>& getScrews() { return mScrews; }
+        std::list<Enemy>& getEnemies() { return mEnemies; }
         
         float getMapWidth() const { return mapWidth; }
         float getMapHeight() const { return mapHeight; }
         
         void handleScrewCollisions();
         
+        // Controle do sistema de respawn dos parafusos
+        void setScrewRespawnEnabled(bool enabled);
+        bool isScrewRespawnEnabled() const { return mScrewRespawnEnabled; }
+        void setScrewRespawnTime(float time);
+        float getScrewRespawnTime() const { return mScrewRespawnTime; }
+
     private:
         SDL_Renderer* mRenderer;
         SDL_Texture* mPlatformsTexture;
@@ -71,14 +82,20 @@ namespace BRTC
         std::list<Door> mDoors;
         std::list<Decoration> mDecorations;
         std::list<Screw> mScrews;
+        std::list<Enemy> mEnemies;
         
         Player mPlayer;
         Camera mCamera;
+        Chicken mChicken;
         
         // Variáveis auxiliares
         Vector mTilePosition;
         Vector mAttributeSpawn;
         Vector mSpawnPosition;
+        
+        // Sistema de respawn dos parafusos
+        bool mScrewRespawnEnabled;
+        float mScrewRespawnTime;
         
         // Métodos de carregamento TMX
         void processMapLayers(XMLElement* map, int tileSize);

@@ -4,7 +4,7 @@
 #include <SDL.h>
 #include "Globals.h"
 
-namespace BRTC
+namespace ARSCREW
 {
     class Camera
     {
