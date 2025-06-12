@@ -14,8 +14,8 @@ namespace ARSCREW
     inline SDL_Renderer* renderer;
     inline constexpr float GRAVITY = 580.0f; 
     inline constexpr float FRICTION = 0.85f;
-    inline constexpr float JUMP_FORCE = -400.0f;
-    inline constexpr float MOVE_SPEED = 300.0f;
+    inline constexpr float JUMP_FORCE = -250.0f;
+    inline constexpr float MOVE_SPEED = 200.0f;
     inline float deltaTime = 0.0f;
     inline const int SCREEN_WIDTH = 1280;
     inline const int SCREEN_HEIGHT = 720;

@@ -19,6 +19,7 @@
 #include "Camera.h"
 #include "Screw.h"
 #include "Chicken.h"
+#include "Enemy.h"
 #include "Globals.h"
 
 using namespace tinyxml2;
@@ -50,6 +51,7 @@ namespace ARSCREW
         std::list<Crate>& getCrates() { return mCrates; }
         std::list<Door>& getDoors() { return mDoors; }
         std::list<Screw>& getScrews() { return mScrews; }
+        std::list<Enemy>& getEnemies() { return mEnemies; }
         
         float getMapWidth() const { return mapWidth; }
         float getMapHeight() const { return mapHeight; }
@@ -80,6 +82,7 @@ namespace ARSCREW
         std::list<Door> mDoors;
         std::list<Decoration> mDecorations;
         std::list<Screw> mScrews;
+        std::list<Enemy> mEnemies;
         
         Player mPlayer;
         Camera mCamera;

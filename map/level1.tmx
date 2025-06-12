@@ -37,6 +37,7 @@
  </layer>
  <objectgroup id="5" name="Spawns">
   <object id="20" type="player_spawn" x="160" y="736"/>
+  <object id="30" type="enemy_spawn" x="400" y="700"/>
   <object id="22" type="door" x="1280" y="576">
    <properties>
     <property name="spawn_x" type="float" value="3"/>

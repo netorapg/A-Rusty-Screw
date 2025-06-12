@@ -75,6 +75,7 @@ namespace ARSCREW
         mDoors.clear();
         mDecorations.clear();
         mScrews.clear();
+        mEnemies.clear();
     }
 
     void GameWorld::updateWorld(float deltaTime)
@@ -93,6 +94,11 @@ namespace ARSCREW
         for (auto& screw : mScrews)
         {
             screw.update(deltaTime);
+        }
+        for (auto& enemy : mEnemies)
+        {
+            enemy.updateWithPlayer(mPlayer, deltaTime);
+            PhysicsEngine::HandleCollisions(enemy, mWalls, mPlatforms, mSolidPlatforms, mRamps);
         }
     }
 
@@ -189,6 +195,14 @@ namespace ARSCREW
             if (!screw.isDestroyed() && screw.isVisible(cameraPos, viewSize))
             {
                 screw.render(renderer, snappedCameraPos);
+            }
+        }
+
+        for (auto& enemy : mEnemies)
+        {
+            if (enemy.isVisible(cameraPos, viewSize))
+            {
+                enemy.render(renderer, snappedCameraPos);
             }
         }
 
@@ -339,6 +353,12 @@ namespace ARSCREW
             mScrews.emplace_back(Vector(mAttributeSpawn), ScrewType::PHILLIPS, mScrewsTexture, mRenderer);
             mScrews.back().setRespawnEnabled(mScrewRespawnEnabled);
             mScrews.back().setRespawnTime(mScrewRespawnTime);
+        }
+        else if (strcmp(type, "enemy_spawn") == 0)
+        {
+            mEnemies.emplace_back(Vector(mAttributeSpawn), mRenderer);
+            std::cout << "Enemy spawned at: " << mAttributeSpawn.x << ", " << mAttributeSpawn.y << std::endl;
+
         }
     }
 
