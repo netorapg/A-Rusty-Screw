@@ -23,11 +23,7 @@ namespace ARSCREW
     {
         SDL_Texture* spriteSheetTexture;
         public:
-            Player
-            (
-                Vector position, 
-                SDL_Renderer* renderer
-            );
+            Player(Vector position, SDL_Renderer* renderer);
             ~Player() 
             {
                 animations.clear();
@@ -37,12 +33,7 @@ namespace ARSCREW
                 }
             }
             void update(float deltaTime) override;
-            void render
-            (
-                SDL_Renderer* renderer, 
-                Vector cameraPosition
-            ) 
-            override;
+            void render(SDL_Renderer* renderer, Vector cameraPosition) override;
             void handleWallJump(Vector& velocity);
             void handleEvent(SDL_Event& e) override;
             void setPassingThroughPlatform(bool enable);
@@ -57,6 +48,13 @@ namespace ARSCREW
             bool isAttacking() const { return mIsAttacking; }
             AttackType getCurrentAttackType() const { return mCurrentAttackType; }
             
+            // Sistema de vida e dano
+            void takeDamage(int damage);
+            void heal(int healAmount);
+            int getCurrentHealth() const { return mCurrentHealth; }
+            int getMaxHealth() const { return mMaxHealth; }
+            bool isDead() const { return mCurrentHealth <= 0; }
+            bool isInvulnerable() const { return mInvulnerabilityTimer > 0.0f; }
             
         private:
             int mFacingDirection;
@@ -72,7 +70,16 @@ namespace ARSCREW
             // Sistema de ataque
             AttackType mCurrentAttackType = AttackType::CUTTING;
             float mAttackDuration = 0.0f;
-            const float ATTACK_DURATION = 0.3f;
+            const float ATTACK_DURATION = 0.2f;
+            
+            // Sistema de vida e dano
+            int mMaxHealth = 100;
+            int mCurrentHealth = 100;
+            float mInvulnerabilityTimer = 0.0f;
+            const float INVULNERABILITY_DURATION = 1.0f; // 1 segundo de invulnerabilidade após tomar dano
+            bool mIsFlashing = false;
+            float mFlashTimer = 0.0f;
+            const float FLASH_INTERVAL = 0.1f; // Piscar a cada 0.1 segundos
             
             std::unordered_map<std::string, Animation> animations;
             std::string currentAnimation;
@@ -88,18 +95,9 @@ namespace ARSCREW
             void updateWeaponPosition();
             void switchAttackType();
             void updateHurtbox();
-           void DrawDebugOutline
-    (
-        SDL_Renderer* renderer, 
-        int x, 
-        int y, 
-        int w, 
-        int h, 
-        Uint8 r, 
-        Uint8 g, 
-        Uint8 b,
-        int thickness = 1  // Espessura da linha
-    );
+            void updateAttackHitbox(); // Adicionar este método
+            void updateInvulnerability(float deltaTime);
+            void DrawDebugOutline(SDL_Renderer* renderer, int x, int y, int w, int h, Uint8 r, Uint8 g, Uint8 b, int thickness = 1);
     };
 }
 #endif

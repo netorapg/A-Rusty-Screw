@@ -57,6 +57,7 @@ namespace ARSCREW
         float getMapHeight() const { return mapHeight; }
         
         void handleScrewCollisions();
+        void handleEnemyCollisions();
         
         // Controle do sistema de respawn dos parafusos
         void setScrewRespawnEnabled(bool enabled);

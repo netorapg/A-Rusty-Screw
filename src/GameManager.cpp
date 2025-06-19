@@ -151,6 +151,7 @@ namespace ARSCREW
         updatePlayer();
         checkLevelTransitions();
         mWorld.handleScrewCollisions();
+        mWorld.handleEnemyCollisions();
     }
 
     void GameManager::checkPlayerActivation()
