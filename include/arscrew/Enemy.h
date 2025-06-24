@@ -43,8 +43,8 @@ namespace ARSCREW
         const float ATTACK_COOLDOWN = 1.5f;
         int mDamage;        // Adicionar dano do inimigo
 
-        int mMaxHealth = 1000;
-        int mCurrentHealth = 1000;
+        int mMaxHealth = 100;
+        int mCurrentHealth = 100;
         float mInvulnerabilityTimer = 0.0f;
         const float INVULNERABILITY_DURATION = 1.0f; // 1 segundo
         bool mIsFlashing = false;
