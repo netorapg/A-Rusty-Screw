@@ -92,6 +92,7 @@ namespace ARSCREW
         void renderParallaxLayer(int layerIndex, const Vector& cameraPos);
         void renderHUD();
         void finalizeRender();
+        void playJumpSound();
     };
 }
 

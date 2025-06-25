@@ -23,7 +23,7 @@
     <property name="target" value="../map/mapabanca1.tmx"/>
    </properties>
   </object>
-  <object id="2" type="door" x="576.225" y="21.9282">
+  <object id="2" type="door" x="546.725" y="0.6782" width="59.625" height="9.5">
    <properties>
     <property name="spawn_x" type="float" value="2"/>
     <property name="spawn_y" type="float" value="16"/>

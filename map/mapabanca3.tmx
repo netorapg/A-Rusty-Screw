@@ -30,7 +30,7 @@
   <object id="2" type="screw_flathead" x="336.466" y="239.365"/>
   <object id="3" type="screw_flathead" x="414.749" y="256.677"/>
   <object id="4" type="screw_flathead" x="488.515" y="223.558"/>
-  <object id="5" type="door" x="65.4866" y="619.488">
+  <object id="5" type="door" x="36.615" y="610.113" width="54.625" height="18.5">
    <properties>
     <property name="spawn_x" type="float" value="17"/>
     <property name="spawn_y" type="float" value="2"/>
