@@ -50,7 +50,7 @@ namespace ARSCREW
         int alpha;
         
         // Configurações de renderização
-        const float PLAYER_ZOOM_FACTOR = 3.5f;
+        const float PLAYER_ZOOM_FACTOR = 3.0f;
         float effectiveScreenWidth;
         float effectiveScreenHeight;
         float mCameraSmoothSpeed = 5.0f;

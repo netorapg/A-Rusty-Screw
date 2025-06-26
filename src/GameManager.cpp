@@ -82,7 +82,7 @@ namespace ARSCREW
         }
         
         // Carregar música de fundo
-        mMusic = Mix_LoadMUS("../assets/backgroundsong.mp3");
+        mMusic = Mix_LoadMUS("");
         if (!mMusic)
         {
             std::cerr << "Failed to load background music: " << Mix_GetError() << std::endl;
@@ -341,7 +341,8 @@ namespace ARSCREW
         
         Vector cameraPos = mWorld.getCamera().getPosition();
         Vector viewSize(effectiveScreenWidth, effectiveScreenHeight);
-        mWorld.renderWorld(mRenderer, cameraPos, viewSize);
+        Vector snappedCameraPos(std::floor(cameraPos.x), std::floor(cameraPos.y));
+        mWorld.renderWorld(mRenderer, snappedCameraPos, viewSize);
         renderHUD();
         finalizeRender();
     }

@@ -153,64 +153,70 @@ namespace ARSCREW
     {
         bool collisionOccurred = false;
         const Vector size = dynamicObject.getSize();    
-        
+
         for (const auto& platform : solidPlatforms) 
         {
             if (!CheckCollision(dynamicObject, platform)) continue;
-                
+            
             collisionOccurred = true;
             const Vector platformPos = platform.getPosition();
             const Vector platformSize = platform.getSize();
             
-       
             float overlapTop = (position.y + size.y) - platformPos.y;
             float overlapBottom = (platformPos.y + platformSize.y) - position.y;
             float overlapLeft = (position.x + size.x) - platformPos.x;
             float overlapRight = (platformPos.x + platformSize.x) - position.x;
             
+            // Adiciona uma pequena tolerância para evitar travamentos
+            const float tolerance = 2.0f;
             
-            if (overlapTop < overlapBottom && 
-                overlapTop < overlapLeft && 
-                overlapTop < overlapRight && 
-                velocity.y >= 0) // Colisão pelo topo
+            // Prioriza colisões verticais quando a diferença é pequena
+            bool isVerticalCollision = (overlapTop <= overlapLeft + tolerance && 
+                                  overlapTop <= overlapRight + tolerance) ||
+                                 (overlapBottom <= overlapLeft + tolerance && 
+                                  overlapBottom <= overlapRight + tolerance);
+            
+            // Colisão vertical (topo da plataforma) - priorizada
+            if (isVerticalCollision && 
+                overlapTop < overlapBottom && 
+                velocity.y >= 0 && 
+                overlapTop > 0)
             {
                 position.y = platformPos.y - size.y;
                 velocity.y = 0;
                 dynamicObject.setOnGround(true);
                 dynamicObject.setFalling(false);
-
                 continue;
             } 
-            else if (overlapBottom < overlapTop && 
-                     overlapBottom < overlapLeft && 
-                     overlapBottom < overlapRight && 
-                     velocity.y <= 0)
+            // Colisão vertical (parte inferior da plataforma)
+            else if (isVerticalCollision &&
+                     overlapBottom < overlapTop && 
+                     velocity.y <= 0 && 
+                     overlapBottom > 0)
             {
                 position.y = platformPos.y + platformSize.y;
                 velocity.y = 0;
                 dynamicObject.setFalling(true);
+                continue;
             }
-  
-            /*else if (overlapLeft < overlapTop && 
-                     overlapLeft < overlapBottom && 
-                     overlapLeft < overlapRight &&
-                     position.y + size.y > platformSize.y  + 3.0f &&
-                     position.y < platformPos.y + platformSize.y - 3.0f &&
-                    std::abs(velocity.x) > 1.1f)
+            // Colisão horizontal (lado esquerdo da plataforma)
+            else if (overlapLeft < overlapTop - tolerance && 
+                     overlapLeft < overlapBottom - tolerance && 
+                     overlapLeft < overlapRight)
             {
                 position.x = platformPos.x - size.x;
                 velocity.x = 0;
+                dynamicObject.setIsCollidingWithWall(true);
             }
-            else if (overlapRight < overlapTop && 
-                     overlapRight < overlapBottom && 
-                     overlapRight < overlapLeft &&
-                     position.y + size.y > platformSize.y  + 3.0f &&
-                     position.y < platformPos.y + platformSize.y - 3.0f &&
-                    std::abs(velocity.x) > 1.1f)
+            // Colisão horizontal (lado direito da plataforma)
+            else if (overlapRight < overlapTop - tolerance && 
+                     overlapRight < overlapBottom - tolerance && 
+                     overlapRight < overlapLeft)
             {
-                position.x = platformPos.x + platformSize.x + 0.1f;
+                position.x = platformPos.x + platformSize.x;
                 velocity.x = 0;
-            }*/
+                dynamicObject.setIsCollidingWithWall(true);
+            }
         }
         
         return collisionOccurred;
