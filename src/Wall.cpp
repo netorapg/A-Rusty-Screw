@@ -40,6 +40,8 @@ namespace ARSCREW
         SpritePtr currentSprite = mAnimation.getCurrentSprite();
         if (currentSprite) 
         {
+          //  int finalScreenX = static_cast<int>(screenPosition.x);
+          //  int finalScreenY = static_cast<int>(screenPosition.y);
             currentSprite->draw(renderer, screenPosition.x, screenPosition.y);
         }
     }
