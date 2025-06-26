@@ -1,5 +1,5 @@
-#ifndef PHYSICS_ENGINE_H
-#define PHYSICS_ENGINE_H
+#ifndef COLLISION_ENGINE_H
+#define COLLISION_ENGINE_H
 
 #include <list>
 #include <iostream>
@@ -14,7 +14,7 @@
 
 namespace ARSCREW
 {
-  class PhysicsEngine
+  class CollisionEngine
   {
     public:
     static  bool CheckCollision(const Object& staticObj, const Object& dynamicObj);

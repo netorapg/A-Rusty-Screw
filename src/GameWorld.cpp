@@ -1,5 +1,5 @@
 #include "../include/arscrew/GameWorld.h"
-#include "../include/arscrew/PhysicsEngine.h"
+#include "../include/arscrew/CollisionEngine.h"
 #include "../include/arscrew/Globals.h"
 #include <iostream>
 #include <sstream>
@@ -84,12 +84,12 @@ namespace ARSCREW
         for (auto& crate : mCrates)
         {
             crate.update(deltaTime);
-            PhysicsEngine::HandleCollisions(crate, mWalls, mPlatforms, mSolidPlatforms, mRamps);
+            CollisionEngine::HandleCollisions(crate, mWalls, mPlatforms, mSolidPlatforms, mRamps);
         }
         
         mChicken.update(deltaTime);
         mChicken.followPlayer(mPlayer, deltaTime);
-        PhysicsEngine::HandleCollisions(mChicken, mWalls, mPlatforms, mSolidPlatforms, mRamps);
+        CollisionEngine::HandleCollisions(mChicken, mWalls, mPlatforms, mSolidPlatforms, mRamps);
         // Atualizar parafusos (para o sistema de respawn)
         for (auto& screw : mScrews)
         {
@@ -101,7 +101,7 @@ namespace ARSCREW
             if (!enemy.isDestroyed())
             {
                 enemy.updateWithPlayer(mPlayer, deltaTime);
-                PhysicsEngine::HandleCollisions(enemy, mWalls, mPlatforms, mSolidPlatforms, mRamps);
+                CollisionEngine::HandleCollisions(enemy, mWalls, mPlatforms, mSolidPlatforms, mRamps);
             }
         }
         

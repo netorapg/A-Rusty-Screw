@@ -1,5 +1,5 @@
 #include "../include/arscrew/GameManager.h"
-#include "../include/arscrew/PhysicsEngine.h"
+#include "../include/arscrew/CollisionEngine.h"
 #include <iostream>
 #include <algorithm>
 
@@ -219,7 +219,7 @@ namespace ARSCREW
                 wasJumping = false;
             }
             
-            PhysicsEngine::HandleCollisions(
+            CollisionEngine::HandleCollisions(
                 mWorld.getPlayer(),
                 mWorld.getWalls(),
                 mWorld.getPlatforms(),
@@ -233,7 +233,7 @@ namespace ARSCREW
     {
         std::string levelToLoad;
         Vector spawnPosition;
-        if (PhysicsEngine::HandlePlayerCollisions(
+        if (CollisionEngine::HandlePlayerCollisions(
             mWorld.getPlayer(),
             spawnPosition,
             mWorld.getDoors(),
