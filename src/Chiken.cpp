@@ -80,12 +80,6 @@ namespace ARSCREW
 
     }
 
-    void Chicken::handleEvent(SDL_Event& e)
-    {
-        // Currently no specific events to handle for Chicken
-        // This can be extended later if needed
-    }
-
     void Chicken::update(float deltaTime)
     {
         Vector velocity = getVelocity();

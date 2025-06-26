@@ -74,7 +74,6 @@ namespace ARSCREW
         // Métodos herdados
         void update(float deltaTime) override;
         void render(SDL_Renderer* renderer, Vector cameraPosition) override;
-        void handleEvent(SDL_Event& e) override;
         SDL_Rect getBoundingBox() const;
         
         // Métodos específicos do inimigo
@@ -98,6 +97,7 @@ namespace ARSCREW
         
         // Adicionar métodos que faltam
         void destroy() { mIsDestroyed = true; }
+        void toggleDebugDisplay() { mShowDebugRects = !mShowDebugRects; }
     };
 }
 #endif // ENEMY_H

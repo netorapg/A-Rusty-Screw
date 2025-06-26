@@ -20,7 +20,7 @@ namespace ARSCREW
         , mDamage(10)          
         , mAttackDuration(0.0f)
         , mAttackCooldown(0.0f)
-        , mShowDebugRects(false)
+        , mShowDebugRects(true)
     {
         // Carrega a textura do inimigo (você pode usar a mesma do player por enquanto)
         mSpriteSheetTexture = IMG_LoadTexture(renderer, "../assets/enemy_sprite.png");
@@ -386,15 +386,6 @@ void Enemy::render(SDL_Renderer* renderer, Vector cameraPosition)
         }
     }
 }
-   
-    void Enemy::handleEvent(SDL_Event& e)
-    {
-        // Implementar se necessário eventos específicos do inimigo
-        if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_LCTRL)
-        {
-            mShowDebugRects = !mShowDebugRects;
-        }
-    }
 
     void Enemy::DrawDebugRect(SDL_Renderer* renderer, int x, int y, int w, int h, Uint8 r, Uint8 g, Uint8 b)
     {

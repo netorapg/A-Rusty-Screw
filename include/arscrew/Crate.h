@@ -7,7 +7,6 @@
 #include "Globals.h"
 #include "SolidPlatform.h"
 #include "Platform.h"
-#include "Wall.h"
 
 namespace ARSCREW
 {
@@ -19,7 +18,6 @@ namespace ARSCREW
             void render(SDL_Renderer* renderer, Vector cameraPosition) override;
             void update(float deltaTime) override;
             void applyForce(Vector force);
-            void handleEvent(SDL_Event& e) override {}
     };
 }
 #endif

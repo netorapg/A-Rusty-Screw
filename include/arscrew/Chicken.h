@@ -22,7 +22,6 @@ namespace ARSCREW
 
         void update(float deltaTime) override;
         void render(SDL_Renderer* renderer, Vector cameraPosition) override;
-        void handleEvent(SDL_Event& e) override;
 
         void followPlayer(const Player& player, float deltaTime);
         void setFollowSpeed(float speed) { mFollowSpeed = speed; }

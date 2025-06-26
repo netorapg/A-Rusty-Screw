@@ -46,7 +46,6 @@ namespace ARSCREW
     void CollisionEngine::HandleCollisions
     (
         DynamicObject &dynamicObject,
-        const std::list<Wall> &walls,
         const std::list<Platform> &platforms,
         const std::list<SolidPlatform> &solidPlatforms,
         const std::list<Ramp> &ramps
@@ -55,24 +54,13 @@ namespace ARSCREW
         Vector position = dynamicObject.getPosition();
         const Vector size = dynamicObject.getSize();
         Vector velocity = dynamicObject.getVelocity();    
-        bool hasPlatformCollision = handleWallCollisions
-        (
-            dynamicObject, 
-            walls, 
-            position, 
-            velocity
-        );
-        hasPlatformCollision |= handleSolidPlatformCollisions
-        (
-            dynamicObject, 
-            solidPlatforms, 
-            position, 
-            velocity
-        );
-        bool hasRampCollision = handleRampCollisions(dynamicObject, ramps, position, velocity);
+        
+        bool hasPlatformCollision = false;
+        
+        // Só processar colisões com plataformas normais se NÃO estiver passando através
         if (!dynamicObject.isPassingThroughPlatform()) 
         {
-            hasPlatformCollision |= handlePlatformCollisions
+            hasPlatformCollision = handlePlatformCollisions
             (
                 dynamicObject, 
                 platforms, 
@@ -80,70 +68,22 @@ namespace ARSCREW
                 velocity
             );
         }
+        
+        // Sempre processar colisões com plataformas sólidas
+        hasPlatformCollision |= handleSolidPlatformCollisions
+        (
+            dynamicObject, 
+            solidPlatforms, 
+            position, 
+            velocity
+        );
+        
+        bool hasRampCollision = handleRampCollisions(dynamicObject, ramps, position, velocity);
         updateGroundState(dynamicObject, hasPlatformCollision || hasRampCollision);
         dynamicObject.setPosition(position);
         dynamicObject.setVelocity(velocity);
     }
 
-    bool CollisionEngine::handleWallCollisions(
-        DynamicObject &dynamicObject,
-        const std::list<Wall> &walls,
-        Vector& position,
-        Vector& velocity
-    ) {
-        bool collisionOccurred = false;
-        const Vector size = dynamicObject.getSize();
-    
-        for (const auto& wall : walls) {
-            if (!CheckCollision(dynamicObject, wall)) {
-                continue;
-            }
-    
-            collisionOccurred = true;
-            const Vector wallPos = wall.getPosition();
-            const Vector wallSize = wall.getSize();
-    
-            // Calcula a sobreposição em X e Y para determinar o lado da colisão
-            float overlapLeft = (position.x + size.x) - wallPos.x;
-            float overlapRight = (wallPos.x + wallSize.x) - position.x;
-            float overlapTop = (position.y + size.y) - wallPos.y;
-            float overlapBottom = (wallPos.y + wallSize.y) - position.y;
-    
-            // Determina qual é a menor sobreposição (lado da colisão)
-            bool fromLeft = overlapLeft < overlapRight;
-            bool fromTop = overlapTop < overlapBottom;
-    
-            // Se a colisão for mais horizontal (paredes laterais)
-            if (overlapLeft < overlapTop && overlapLeft < overlapBottom) {
-                // Colisão pela esquerda
-                position.x = wallPos.x - size.x;
-                velocity.x = 0;
-                std::cout << "Collision on LEFT side" << std::endl;
-            }
-            else if (overlapRight < overlapTop && overlapRight < overlapBottom) {
-                // Colisão pela direita
-                position.x = wallPos.x + wallSize.x;
-                velocity.x = 0;
-                std::cout << "Collision on RIGHT side" << std::endl;
-            }
-            else if (overlapTop < overlapLeft && overlapTop < overlapRight) {
-                // Colisão por cima (opcional, se paredes tiverem topo)
-                position.y = wallPos.y - size.y;
-                velocity.y = 0;
-                std::cout << "Collision on TOP side" << std::endl;
-            }
-            else if (overlapBottom < overlapLeft && overlapBottom < overlapRight) {
-                // Colisão por baixo (opcional, se paredes tiverem base)
-                position.y = wallPos.y + wallSize.y;
-                velocity.y = 0;
-                std::cout << "Collision on BOTTOM side" << std::endl;
-            }
-    
-            dynamicObject.setIsCollidingWithWall(true);
-        }
-    
-        return collisionOccurred;
-    }
 
     bool CollisionEngine::handleSolidPlatformCollisions(
         DynamicObject& dynamicObject,
