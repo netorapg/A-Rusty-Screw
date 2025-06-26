@@ -51,7 +51,6 @@ namespace ARSCREW
             Vector getVelocity() const { return mVelocity; };
             virtual ~DynamicObject() = default;
             virtual void update(float deltaTime) = 0;
-            virtual void handleEvent(SDL_Event& e) = 0;
             bool isOnGround() 
                 { return mOnGround; };
             bool isFalling()  

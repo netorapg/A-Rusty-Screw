@@ -142,7 +142,8 @@ namespace ARSCREW
             if (e.type == SDL_QUIT)
                 mQuit = true;
             
-            mWorld.getPlayer().handleEvent(e);
+            // Delegar eventos para o GameWorld
+            mWorld.handleInput(e);
 
             if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_r)
                 resetGame();

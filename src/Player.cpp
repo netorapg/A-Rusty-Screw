@@ -59,79 +59,74 @@ namespace ARSCREW
     currentAnimation = "idle";
 }
 
-void Player::handleEvent( SDL_Event &e )
+void Player::moveLeft()
+{
+    if (!mIsDashing) {
+        Vector velocity = getVelocity();
+        velocity.x = -MOVE_SPEED;
+        mFacingDirection = -1;
+        setVelocity(velocity);
+    }
+}
+
+void Player::moveRight()
+{
+    if (!mIsDashing) {
+        Vector velocity = getVelocity();
+        velocity.x = MOVE_SPEED;
+        mFacingDirection = 1;
+        setVelocity(velocity);
+    }
+}
+
+void Player::stopHorizontalMovement()
+{
+    if (!mIsDashing) {
+        Vector velocity = getVelocity();
+        velocity.x = 0;
+        setVelocity(velocity);
+    }
+}
+
+void Player::jump()
 {
     Vector velocity = getVelocity();
     
-    if( e.type == SDL_KEYDOWN && e.key.repeat == 0 )
-    {
-        switch( e.key.keysym.sym )
-        {
-            case SDLK_d:
-                if (!mIsDashing) { // Só mover se não estiver dashando
-                    velocity.x = MOVE_SPEED;
-                    mFacingDirection = 1;
-                }
-                break;
-            case SDLK_a:
-                if (!mIsDashing) { // Só mover se não estiver dashando
-                    velocity.x = -MOVE_SPEED;
-                    mFacingDirection = -1;
-                }
-                break;
-            case SDLK_SPACE:
-                if(isOnGround())
-                {
-                    velocity.y = JUMP_FORCE;
-                    mIsJumping = true;
-                }
-                handleWallJump(velocity);
-                break;
-            case SDLK_s:
-                if( isOnGround() ) {
-                    setPassingThroughPlatform(true);
-                }
-                break;
-            case SDLK_j:
-                if (!mIsAttacking) {
-                    mIsAttacking = true;
-                    mAttackDuration = ATTACK_DURATION;
-                    updateAttackHitbox();
-                }
-                break;
-            case SDLK_q:
-                switchAttackType();
-                break;
-            case SDLK_e:
-                // Condições mais específicas para o dash
-                if (!mIsDashing && isOnGround() && !isCollidingWithWall()) {
-                    mIsDashing = true;
-                    mDashTimer = DASH_DURATION;
-                    std::cout << "Dash initiated! Direction: " << mFacingDirection << std::endl;
-                }
-                break;
-            case SDLK_LCTRL:
-                mShowDebugRects = !mShowDebugRects;
-                break;
-        }
-    }
-    else if( e.type == SDL_KEYUP )
-    {
-        switch( e.key.keysym.sym )
-        {
-            case SDLK_a:
-            case SDLK_d:
-                if (!mIsDashing) { // Só parar se não estiver dashando
-                    velocity.x = 0;
-                }
-                break;
-            case SDLK_s:
-                setPassingThroughPlatform(false);
-                break;
-        }
+    if (isOnGround()) {
+        velocity.y = JUMP_FORCE;
+        mIsJumping = true;
     }
     
-    setVelocity( velocity );
+    handleWallJump(velocity);
+}
+
+void Player::startAttack()
+{
+    if (!mIsAttacking) {
+        mIsAttacking = true;
+        mAttackDuration = ATTACK_DURATION;
+        updateAttackHitbox();
+    }
+}
+
+void Player::startDash()
+{
+    // Condições mais específicas para o dash
+    if (!mIsDashing && isOnGround() && !isCollidingWithWall()) {
+        mIsDashing = true;
+        mDashTimer = DASH_DURATION;
+        std::cout << "Dash initiated! Direction: " << mFacingDirection << std::endl;
+    }
+}
+
+void Player::toggleDebugDisplay()
+{
+    mShowDebugRects = !mShowDebugRects;
+}
+
+void Player::passThroughPlatform(bool enable)
+{
+    setPassingThroughPlatform(enable);
 }
 
 void Player::switchAttackType()

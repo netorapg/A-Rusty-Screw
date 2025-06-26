@@ -35,8 +35,18 @@ namespace ARSCREW
             void update(float deltaTime) override;
             void render(SDL_Renderer* renderer, Vector cameraPosition) override;
             void handleWallJump(Vector& velocity);
-            void handleEvent(SDL_Event& e) override;
             void setPassingThroughPlatform(bool enable);
+            
+            // Métodos para controle direto do jogador
+            void moveLeft();
+            void moveRight();
+            void stopHorizontalMovement();
+            void jump();
+            void startAttack();
+            void switchAttackType();
+            void startDash();
+            void toggleDebugDisplay();
+            void passThroughPlatform(bool enable);
             bool isFacingRight() const { return mFacingDirection == 1; }
             bool isOnGround() const { return mOnGround; }
             int getFacingDirection() const { return mFacingDirection; }
@@ -93,7 +103,6 @@ namespace ARSCREW
             bool mShowHurtbox = true;
 
             void updateWeaponPosition();
-            void switchAttackType();
             void updateHurtbox();
             void updateAttackHitbox(); // Adicionar este método
             void updateInvulnerability(float deltaTime);

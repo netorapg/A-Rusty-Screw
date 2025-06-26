@@ -111,6 +111,61 @@ namespace ARSCREW
         });
     }
 
+    void GameWorld::handleInput(SDL_Event& e)
+    {
+        // Tratar eventos do jogador
+        if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
+        {
+            switch (e.key.keysym.sym)
+            {
+                case SDLK_d:
+                    mPlayer.moveRight();
+                    break;
+                case SDLK_a:
+                    mPlayer.moveLeft();
+                    break;
+                case SDLK_SPACE:
+                    mPlayer.jump();
+                    break;
+                case SDLK_s:
+                    if (mPlayer.isOnGround()) {
+                        mPlayer.passThroughPlatform(true);
+                    }
+                    break;
+                case SDLK_j:
+                    mPlayer.startAttack();
+                    break;
+                case SDLK_q:
+                    mPlayer.switchAttackType();
+                    break;
+                case SDLK_e:
+                    mPlayer.startDash();
+                    break;
+                case SDLK_LCTRL:
+                    // Toggle debug para player e inimigos
+                    mPlayer.toggleDebugDisplay();
+                    for (auto& enemy : mEnemies)
+                    {
+                        enemy.toggleDebugDisplay();
+                    }
+                    break;
+            }
+        }
+        else if (e.type == SDL_KEYUP)
+        {
+            switch (e.key.keysym.sym)
+            {
+                case SDLK_a:
+                case SDLK_d:
+                    mPlayer.stopHorizontalMovement();
+                    break;
+                case SDLK_s:
+                    mPlayer.passThroughPlatform(false);
+                    break;
+            }
+        }
+    }
+
     void GameWorld::handleScrewCollisions()
     {
         if (!mPlayer.isAttacking()) return;

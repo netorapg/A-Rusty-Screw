@@ -36,6 +36,7 @@ namespace ARSCREW
         void clearLevelData();
         void updateWorld(float deltaTime);
         void renderWorld(SDL_Renderer* renderer, const Vector& cameraPos, const Vector& viewSize);
+        void handleInput(SDL_Event& e);
     
         // Getters para acesso às entidades
         const Player& getPlayer() const { return mPlayer; }
