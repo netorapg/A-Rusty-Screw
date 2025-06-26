@@ -1,5 +1,5 @@
 #include "../include/arscrew/GameManager.h"
-#include "../include/arscrew/PhysicsEngine.h"
+#include "../include/arscrew/CollisionEngine.h"
 #include <iostream>
 #include <algorithm>
 
@@ -29,8 +29,15 @@ namespace ARSCREW
         loadParallaxLayers();
         initializeAudioSystem();
         
+        // Iniciar música de fundo
+        if (mMusic)
+        {
+            Mix_PlayMusic(mMusic, -1); // -1 = loop infinito
+            Mix_VolumeMusic(64); // Volume 50% (0-128)
+        }
+        
         // Carregar nível inicial
-        mWorld.loadLevelFromTMX("../map/level7.tmx");
+        mWorld.loadLevelFromTMX("../map/mapabanca1.tmx");
         mPlayerActivated = false;
         mActivationTime = SDL_GetTicks() + 500;
         centerCameraOnPlayer();
@@ -42,7 +49,16 @@ namespace ARSCREW
         {
             if (mParallaxLayers[i]) SDL_DestroyTexture(mParallaxLayers[i]);
         }
+        
+        // Liberar recursos de áudio
+        if (mMusic)
+        {
+            Mix_FreeMusic(mMusic);
+            mMusic = nullptr;
+        }
         Mix_FreeChunk(mJumpSound);
+        Mix_CloseAudio();
+        
         TTF_CloseFont(mFont);
         TTF_CloseFont(mSmallFont);
         TTF_Quit();
@@ -63,6 +79,20 @@ namespace ARSCREW
         if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
         {
             std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
+        }
+        
+        // Carregar música de fundo
+        mMusic = Mix_LoadMUS("../assets/backgroundsong.mp3");
+        if (!mMusic)
+        {
+            std::cerr << "Failed to load background music: " << Mix_GetError() << std::endl;
+        }
+        
+        // Carregar som de pulo
+        mJumpSound = Mix_LoadWAV("../assets/jump.wav");
+        if (!mJumpSound)
+        {
+            std::cerr << "Failed to load jump sound: " << Mix_GetError() << std::endl;
         }
     }
 
@@ -151,6 +181,7 @@ namespace ARSCREW
         updatePlayer();
         checkLevelTransitions();
         mWorld.handleScrewCollisions();
+        mWorld.handleEnemyCollisions();
     }
 
     void GameManager::checkPlayerActivation()
@@ -162,8 +193,33 @@ namespace ARSCREW
     {
         if (mPlayerActivated)
         {
+            static bool wasJumping = false; // Flag para controlar se já tocou o som
+            
+            // Verificar se o jogador está no chão antes da atualização
+            bool wasOnGround = mWorld.getPlayer().isOnGround();
+            Vector oldVelocity = mWorld.getPlayer().getVelocity();
+            
             mWorld.getPlayer().update(deltaTime);
-            PhysicsEngine::HandleCollisions(
+            
+            // Verificar se o jogador está no chão após a atualização
+            bool isOnGround = mWorld.getPlayer().isOnGround();
+            Vector newVelocity = mWorld.getPlayer().getVelocity();
+            
+            // Se estava no chão e agora não está (começou a pular) E não estava pulando antes
+            if (wasOnGround && newVelocity.y < 0 && !wasJumping)
+            {
+                std::cout << "Jump detected! Playing jump sound..." << std::endl;
+                playJumpSound();
+                wasJumping = true; // Marca que já tocou o som
+            }
+            
+            // Reset da flag quando volta ao chão
+            if (isOnGround)
+            {
+                wasJumping = false;
+            }
+            
+            CollisionEngine::HandleCollisions(
                 mWorld.getPlayer(),
                 mWorld.getWalls(),
                 mWorld.getPlatforms(),
@@ -177,7 +233,7 @@ namespace ARSCREW
     {
         std::string levelToLoad;
         Vector spawnPosition;
-        if (PhysicsEngine::HandlePlayerCollisions(
+        if (CollisionEngine::HandlePlayerCollisions(
             mWorld.getPlayer(),
             spawnPosition,
             mWorld.getDoors(),
@@ -375,6 +431,27 @@ namespace ARSCREW
         mWorld.getPlayer().setVelocity(Vector(0, 0));
         mWorld.getCamera().setPosition(Vector(0, 0));
         std::cout << "Resetting game..." << std::endl;
+    }
+
+    void GameManager::playJumpSound()
+    {
+        if (mJumpSound)
+        {
+            std::cout << "Attempting to play jump sound..." << std::endl;
+            int channel = Mix_PlayChannel(-1, mJumpSound, 0);
+            if (channel == -1)
+            {
+                std::cerr << "Failed to play jump sound: " << Mix_GetError() << std::endl;
+            }
+            else
+            {
+                std::cout << "Jump sound playing on channel: " << channel << std::endl;
+            }
+        }
+        else
+        {
+            std::cout << "Jump sound not loaded!" << std::endl;
+        }
     }
 
     bool GameManager::isRunning() { return !mQuit; }

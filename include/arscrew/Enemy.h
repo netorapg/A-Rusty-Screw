@@ -36,10 +36,20 @@ namespace ARSCREW
         
         // Sistema de ataque
         bool mIsAttacking;
+        bool mIsDestroyed;  // Corrigir nome da variável
         float mAttackDuration;
         float mAttackCooldown;
         const float ATTACK_DURATION = 0.5f;
         const float ATTACK_COOLDOWN = 1.5f;
+        int mDamage;        // Adicionar dano do inimigo
+
+        int mMaxHealth = 100;
+        int mCurrentHealth = 100;
+        float mInvulnerabilityTimer = 0.0f;
+        const float INVULNERABILITY_DURATION = 1.0f; // 1 segundo
+        bool mIsFlashing = false;
+        float mFlashTimer = 0.0f;
+        const float FLASH_INTERVAL = 0.1f;
         
         // Hitboxes
         SDL_Rect mAttackHitbox;
@@ -53,10 +63,11 @@ namespace ARSCREW
         void updateAnimation(float deltaTime);
         void updateHitboxes();
         void updateAttack(float deltaTime);
+        void updateInvulnerability(float deltaTime);
         
         void DrawDebugRect(SDL_Renderer* renderer, int x, int y, int w, int h, Uint8 r, Uint8 g, Uint8 b);
-
-    public:
+        
+        public:
         Enemy(Vector position, SDL_Renderer* renderer);
         ~Enemy();
         
@@ -64,6 +75,7 @@ namespace ARSCREW
         void update(float deltaTime) override;
         void render(SDL_Renderer* renderer, Vector cameraPosition) override;
         void handleEvent(SDL_Event& e) override;
+        SDL_Rect getBoundingBox() const;
         
         // Métodos específicos do inimigo
         void updateWithPlayer(const Player& player, float deltaTime);
@@ -72,8 +84,20 @@ namespace ARSCREW
         SDL_Rect getAttackHitbox() const { return mAttackHitbox; }
         SDL_Rect getHurtbox() const { return mHurtbox; }
         bool isAttacking() const { return mIsAttacking; }
+        bool isDestroyed() const { return mIsDestroyed; }
         EnemyState getCurrentState() const { return mCurrentState; }
         int getFacingDirection() const { return mFacingDirection; }
+        int getDamage() const { return mDamage; }
+
+        void takeDamage(int damage);
+        void heal(int healAmount);
+        int getCurrentHealth() const { return mCurrentHealth; }
+        int getMaxHealth() const { return mMaxHealth; }
+        bool isDead() const { return mCurrentHealth <= 0; }
+        bool isInvulnerable() const { return mInvulnerabilityTimer > 0.0f; }
+        
+        // Adicionar métodos que faltam
+        void destroy() { mIsDestroyed = true; }
     };
 }
 #endif // ENEMY_H

@@ -1,8 +1,8 @@
-#include "../include/arscrew/PhysicsEngine.h"
+#include "../include/arscrew/CollisionEngine.h"
 
 namespace ARSCREW
 {
-    bool PhysicsEngine::CheckCollision(const Object& staticObj, const Object& dynamicObj)
+    bool CollisionEngine::CheckCollision(const Object& staticObj, const Object& dynamicObj)
    {
         const Vector staticPos = staticObj.getPosition();
         const Vector dynamicPos = dynamicObj.getPosition();
@@ -17,7 +17,7 @@ namespace ARSCREW
         );
     }
 
-    bool PhysicsEngine::CheckRampCollision(const Ramp& ramp, const Vector& point)
+    bool CollisionEngine::CheckRampCollision(const Ramp& ramp, const Vector& point)
     {
         const Vector rampPos = ramp.getPosition();
         const Vector rampSize = ramp.getSize();
@@ -43,7 +43,7 @@ namespace ARSCREW
         }
     }
     
-    void PhysicsEngine::HandleCollisions
+    void CollisionEngine::HandleCollisions
     (
         DynamicObject &dynamicObject,
         const std::list<Wall> &walls,
@@ -85,7 +85,7 @@ namespace ARSCREW
         dynamicObject.setVelocity(velocity);
     }
 
-    bool PhysicsEngine::handleWallCollisions(
+    bool CollisionEngine::handleWallCollisions(
         DynamicObject &dynamicObject,
         const std::list<Wall> &walls,
         Vector& position,
@@ -145,7 +145,7 @@ namespace ARSCREW
         return collisionOccurred;
     }
 
-    bool PhysicsEngine::handleSolidPlatformCollisions(
+    bool CollisionEngine::handleSolidPlatformCollisions(
         DynamicObject& dynamicObject,
         const std::list<SolidPlatform>& solidPlatforms,
         Vector& position,
@@ -216,7 +216,7 @@ namespace ARSCREW
         return collisionOccurred;
     }
     
-    bool PhysicsEngine::handlePlatformCollisions
+    bool CollisionEngine::handlePlatformCollisions
     (
         DynamicObject& dynamicObject,
         const std::list<Platform>& platforms,
@@ -258,7 +258,7 @@ namespace ARSCREW
         return collisionOccurred;
     }
 
-bool PhysicsEngine::handleRampCollisions(
+bool CollisionEngine::handleRampCollisions(
     DynamicObject& dynamicObject,
     const std::list<Ramp>& ramps,
     Vector& position,
@@ -308,7 +308,7 @@ bool PhysicsEngine::handleRampCollisions(
             }
 
             // Normaliza a tangente
-            tangent = PhysicsEngine::normalize(tangent);
+            tangent = CollisionEngine::normalize(tangent);
 
             // Mantém a magnitude original da velocidade
             float speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
@@ -330,7 +330,7 @@ bool PhysicsEngine::handleRampCollisions(
 }
 
 
-    void PhysicsEngine::updateGroundState
+    void CollisionEngine::updateGroundState
     (
         DynamicObject& dynamicObject, 
         bool hasPlatformCollision
@@ -344,7 +344,7 @@ bool PhysicsEngine::handleRampCollisions(
         }
     }
 
-    bool PhysicsEngine::HandlePlayerCollisions
+    bool CollisionEngine::HandlePlayerCollisions
     (
         Player& player,
         Vector& spawnPosition,
@@ -359,7 +359,7 @@ bool PhysicsEngine::handleRampCollisions(
         return false;
     }
 
-    bool PhysicsEngine::checkDoorCollisions
+    bool CollisionEngine::checkDoorCollisions
     (
         const Player& player,
         const std::list<Door>& doors,
@@ -376,7 +376,7 @@ bool PhysicsEngine::handleRampCollisions(
         return false;
     }
     
-    void PhysicsEngine::handleCrateCollisions
+    void CollisionEngine::handleCrateCollisions
     (
         Player& player,
         std::list<Crate>& crates
@@ -435,7 +435,7 @@ bool PhysicsEngine::handleRampCollisions(
         player.setOnGround(wasOnGround || standingOnCrate);
     }
     
-    void PhysicsEngine::handleVerticalCrateCollision
+    void CollisionEngine::handleVerticalCrateCollision
     (
         Player& player,
         const Vector& cratePos,
@@ -454,7 +454,7 @@ bool PhysicsEngine::handleRampCollisions(
         }
     }
     
-    void PhysicsEngine::handleHorizontalCrateCollision
+    void CollisionEngine::handleHorizontalCrateCollision
     (
         Player& player,
         Crate& crate,

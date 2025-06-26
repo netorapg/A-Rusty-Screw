@@ -61,99 +61,77 @@ namespace ARSCREW
 
 void Player::handleEvent( SDL_Event &e )
 {
-  Vector velocity = getVelocity();
-  if( e.type == SDL_KEYDOWN && e.key.repeat == 0 )
-  {
-    switch( e.key.keysym.sym )
+    Vector velocity = getVelocity();
+    
+    if( e.type == SDL_KEYDOWN && e.key.repeat == 0 )
     {
-      case SDLK_d:
-        velocity.x = MOVE_SPEED;
-        mFacingDirection = 1;
-        break;
-      case SDLK_a:
-        velocity.x = -MOVE_SPEED;
-        mFacingDirection = -1;
-        break;
-      case SDLK_SPACE:
-        if(isOnGround())
+        switch( e.key.keysym.sym )
         {
-          setOnGround( false );
-          velocity.y = JUMP_FORCE;
+            case SDLK_d:
+                if (!mIsDashing) { // Só mover se não estiver dashando
+                    velocity.x = MOVE_SPEED;
+                    mFacingDirection = 1;
+                }
+                break;
+            case SDLK_a:
+                if (!mIsDashing) { // Só mover se não estiver dashando
+                    velocity.x = -MOVE_SPEED;
+                    mFacingDirection = -1;
+                }
+                break;
+            case SDLK_SPACE:
+                if(isOnGround())
+                {
+                    velocity.y = JUMP_FORCE;
+                    mIsJumping = true;
+                }
+                handleWallJump(velocity);
+                break;
+            case SDLK_s:
+                if( isOnGround() ) {
+                    setPassingThroughPlatform(true);
+                }
+                break;
+            case SDLK_j:
+                if (!mIsAttacking) {
+                    mIsAttacking = true;
+                    mAttackDuration = ATTACK_DURATION;
+                    updateAttackHitbox();
+                }
+                break;
+            case SDLK_q:
+                switchAttackType();
+                break;
+            case SDLK_e:
+                // Condições mais específicas para o dash
+                if (!mIsDashing && isOnGround() && !isCollidingWithWall()) {
+                    mIsDashing = true;
+                    mDashTimer = DASH_DURATION;
+                    std::cout << "Dash initiated! Direction: " << mFacingDirection << std::endl;
+                }
+                break;
+            case SDLK_LCTRL:
+                mShowDebugRects = !mShowDebugRects;
+                break;
         }
-        handleWallJump(velocity);
-      break;
-      case SDLK_s:
-        if( isOnGround() ) {
-          setPassingThroughPlatform( true );
-          setOnGround( false );
-        }
-        break;
-      case SDLK_j:
-        if (!mIsAttacking) {
-            mIsAttacking = true;
-            mAttackDuration = ATTACK_DURATION;
-            float hitboxWidth;
-            float hitboxHeight;
-            float offsetX;
-            float offsetY;
-            
-            if (mCurrentAttackType == AttackType::CUTTING) {
-                hitboxWidth = 20; 
-                hitboxHeight = 20; 
-                offsetX = 1;
-                offsetY = 2;
-            } else {
-                hitboxWidth = 35; 
-                hitboxHeight = 10; 
-                offsetX = 1;
-                offsetY = 5.5; 
-            }
-
-            if (mFacingDirection == 1) {
-                mAttackHitbox.x = getPosition().x + getWidth() - offsetX;
-            } else {
-                mAttackHitbox.x = getPosition().x - hitboxWidth + offsetX; 
-            }
-
-            mAttackHitbox.y = getPosition().y + getHeight() / 2 - hitboxHeight / 2 + offsetY;
-            mAttackHitbox.w = hitboxWidth;
-            mAttackHitbox.h = hitboxHeight;
-        }
-        break;
-      case SDLK_q:
-        switchAttackType();
-        break;
-      case SDLK_e:
-        if (!mIsDashing && isOnGround() && !isCollidingWithWall()) {
-            mIsDashing = true;
-            mDashTimer = DASH_DURATION;
-            if (mFacingDirection == 1) {
-                velocity.x += DASH_SPEED;
-            } 
-            else if (mFacingDirection == -1) {
-                velocity.x += -DASH_SPEED;
-            }
-        }
-        break;
-      case SDLK_LCTRL:
-        mShowDebugRects = !mShowDebugRects;
-        break;
     }
-  }
-  else if( e.type == SDL_KEYUP )
-  {
-    switch( e.key.keysym.sym )
+    else if( e.type == SDL_KEYUP )
     {
-      case SDLK_a:
-      case SDLK_d:
-        velocity.x = 0.0f;
-        break;
-      case SDLK_s:
-        setPassingThroughPlatform( false );
-        break;
+        switch( e.key.keysym.sym )
+        {
+            case SDLK_a:
+            case SDLK_d:
+                if (!mIsDashing) { // Só parar se não estiver dashando
+                    velocity.x = 0;
+                }
+                break;
+            case SDLK_s:
+                setPassingThroughPlatform(false);
+                break;
+        }
     }
-  }
-  setVelocity( velocity );
+    
+    setVelocity( velocity );
 }
 
 void Player::switchAttackType()
@@ -191,27 +169,34 @@ void Player::update(float deltaTime)
     Vector velocity = getVelocity();
     Vector position = getPosition();
 
+    // Atualizar invulnerabilidade
+    updateInvulnerability(deltaTime);
+
+    // Lógica do dash
     if (mIsDashing) {
-      mDashTimer -= deltaTime;
-      if (mFacingDirection == 1) {
-          velocity.x = 0.0f;
-          velocity.x += DASH_SPEED;
-          position += velocity * deltaTime;
-      } else if (mFacingDirection == -1) {
-          velocity.x = 0.0f;
-          velocity.x += -DASH_SPEED;
-          position += velocity * deltaTime;
-      }
-      if (mDashTimer <= 0.0f) {
-          mIsDashing = false;
-          velocity.x = 0.0f;
-      }
+        mDashTimer -= deltaTime;
+        if (mFacingDirection == 1) {
+            velocity.x = 0.0f;
+            velocity.x += DASH_SPEED;
+            position += velocity * deltaTime;
+        } else if (mFacingDirection == -1) {
+            velocity.x = 0.0f;
+            velocity.x += -DASH_SPEED;
+            position += velocity * deltaTime;
+        }
+        if (mDashTimer <= 0.0f) {
+            mIsDashing = false;
+            velocity.x = 0.0f;
+        }
     }
 
+    // Aplicar gravidade
     velocity.y += GRAVITY * deltaTime;
 
+    // Atualizar posição
     position += velocity * deltaTime;
 
+    // Verificar se está no chão
     if (isOnGround()) {
         setIsCollidingWithWall(false);
         mIsJumping = false;
@@ -224,6 +209,7 @@ void Player::update(float deltaTime)
         mIsJumping = true;
     }
 
+    // Lógica de animação
     std::string newAnimation;
     if (isOnGround()) {
         if (mIsAttacking) {
@@ -248,11 +234,13 @@ void Player::update(float deltaTime)
 
     animations[currentAnimation].update(deltaTime);
 
+    // Aplicar mudanças
     setVelocity(velocity);
     setPosition(position);
 
     updateHurtbox();
 
+    // Atualizar ataque
     if (mIsAttacking) {
         mAttackDuration -= deltaTime;
         if (mAttackDuration <= 0.0f) {
@@ -261,61 +249,73 @@ void Player::update(float deltaTime)
     }
 }
 
-void Player::updateHurtbox()
+void Player::takeDamage(int damage)
 {
-    Vector position = getPosition();
-    
-    float playerWidth = getWidth();
-    float playerHeight = getHeight();
-    
-    float hurtboxWidthScale = 0.7f;
-    float hurtboxHeightScale = 0.7f;
-    
-    float hurtboxXOffset = 0.0f;
-    float hurtboxYOffset = 5.0f;
-    
-    float hurtboxWidth = playerWidth * hurtboxWidthScale;
-    float hurtboxHeight = playerHeight * hurtboxHeightScale;
-    
-    float centeringOffsetX = (playerWidth - hurtboxWidth) / 2.0f;
-    float centeringOffsetY = (playerHeight - hurtboxHeight) / 2.0f;
-    
-    mHurtbox.x = position.x + centeringOffsetX + hurtboxXOffset;
-    mHurtbox.y = position.y + centeringOffsetY + hurtboxYOffset;
-    
-    mHurtbox.w = static_cast<int>(hurtboxWidth);
-    mHurtbox.h = static_cast<int>(hurtboxHeight);
-}
-
-
-void Player::DrawDebugOutline
-(
-    SDL_Renderer* renderer, 
-    int x, 
-    int y, 
-    int w, 
-    int h, 
-    Uint8 r, 
-    Uint8 g, 
-    Uint8 b,
-    int thickness
-) 
-{
-    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
-    
-    for (int i = 0; i < thickness; i++) {
-        SDL_RenderDrawLine(renderer, x - i, y - i, x + w + i, y - i);
-        SDL_RenderDrawLine(renderer, x - i, y + h + i, x + w + i, y + h + i);
-        SDL_RenderDrawLine(renderer, x - i, y - i, x - i, y + h + i);
-        SDL_RenderDrawLine(renderer, x + w + i, y - i, x + w + i, y + h + i);
+    // Só toma dano se não estiver invulnerável
+    if (mInvulnerabilityTimer <= 0.0f && !isDead())
+    {
+        mCurrentHealth -= damage;
+        if (mCurrentHealth < 0) {
+            mCurrentHealth = 0;
+        }
+        
+        // Ativar invulnerabilidade
+        mInvulnerabilityTimer = INVULNERABILITY_DURATION;
+        mIsFlashing = true;
+        mFlashTimer = 0.0f;
+        
+        std::cout << "Player took " << damage << " damage! Health: " 
+                  << mCurrentHealth << "/" << mMaxHealth << std::endl;
+        
+        if (isDead()) {
+            std::cout << "Player died!" << std::endl;
+            // Aqui você pode adicionar lógica de morte (reiniciar level, game over, etc.)
+        }
+        
+        // Opcional: Adicionar knockback
+        Vector velocity = getVelocity();
+        velocity.x = (mFacingDirection == 1) ? -150.0f : 150.0f; // Knockback na direção oposta
+        if (isOnGround()) {
+            velocity.y = -100.0f; // Pequeno pulo para cima
+        }
+        setVelocity(velocity);
     }
 }
 
-  void Player::updateWeaponPosition() {
-   
-  }
+void Player::heal(int healAmount)
+{
+    if (!isDead()) {
+        mCurrentHealth += healAmount;
+        if (mCurrentHealth > mMaxHealth) {
+            mCurrentHealth = mMaxHealth;
+        }
+        
+        std::cout << "Player healed " << healAmount << " HP! Health: " 
+                  << mCurrentHealth << "/" << mMaxHealth << std::endl;
+    }
+}
 
-  void Player::render(SDL_Renderer* renderer, Vector cameraPosition) 
+void Player::updateInvulnerability(float deltaTime)
+{
+    if (mInvulnerabilityTimer > 0.0f) {
+        mInvulnerabilityTimer -= deltaTime;
+        
+        // Atualizar efeito de piscar
+        if (mIsFlashing) {
+            mFlashTimer += deltaTime;
+            if (mFlashTimer >= FLASH_INTERVAL) {
+                mFlashTimer = 0.0f;
+            }
+        }
+        
+        if (mInvulnerabilityTimer <= 0.0f) {
+            mIsFlashing = false;
+            mFlashTimer = 0.0f;
+        }
+    }
+}
+
+void Player::render(SDL_Renderer* renderer, Vector cameraPosition) 
 {
     Vector screenPos = getPosition() - cameraPosition;
 
@@ -348,39 +348,51 @@ void Player::DrawDebugOutline
         }
     }
 
-
-    SpritePtr currentSprite = animations[currentAnimation].getCurrentSprite();
+    // Só renderizar se não estiver piscando ou se estiver na fase visível do piscar
+    bool shouldRender = !mIsFlashing || (mFlashTimer < FLASH_INTERVAL / 2);
     
-    if(currentSprite) 
-    {
-        SDL_Point baseOffset = *animations[currentAnimation].getCurrentOffset();
-        const SDL_Rect& frameRect = currentSprite->getSrcRect();
-        float baseWidth = 20;
-        float frameWidth = frameRect.w;
-        float widthDifference = frameWidth - baseWidth;
-        Vector renderOffset;
-        renderOffset.x = static_cast<int>(screenPos.x);
-        renderOffset.y = static_cast<int>(screenPos.y);
-        if(mFacingDirection == -1) 
-        { renderOffset.x -= widthDifference * 1.0f; } 
-        else 
-        { renderOffset.x += widthDifference * 0.0f; }
-        renderOffset.x += baseOffset.x;
-        renderOffset.y += baseOffset.y;
+    if (shouldRender) {
+        SpritePtr currentSprite = animations[currentAnimation].getCurrentSprite();
         
-        if (mShowDebugRects) 
+        if(currentSprite) 
         {
-            DrawDebugOutline
-            (
-                renderer, 
-                static_cast<int>(screenPos.x), 
-                static_cast<int>(screenPos.y), 
-                getWidth(), 
-                getHeight(), 
-                255, 0, 0, 1
-            );
+            SDL_Point baseOffset = *animations[currentAnimation].getCurrentOffset();
+            const SDL_Rect& frameRect = currentSprite->getSrcRect();
+            float baseWidth = 20;
+            float frameWidth = frameRect.w;
+            float widthDifference = frameWidth - baseWidth;
+            Vector renderOffset;
+            renderOffset.x = static_cast<int>(screenPos.x);
+            renderOffset.y = static_cast<int>(screenPos.y);
+            if(mFacingDirection == -1) 
+            { renderOffset.x -= widthDifference * 1.0f; } 
+            else 
+            { renderOffset.x += widthDifference * 0.0f; }
+            renderOffset.x += baseOffset.x;
+            renderOffset.y += baseOffset.y;
+            
+            if (mShowDebugRects) 
+            {
+                DrawDebugOutline
+                (
+                    renderer, 
+                    static_cast<int>(screenPos.x), 
+                    static_cast<int>(screenPos.y), 
+                    getWidth(), 
+                    getHeight(), 
+                    255, 0, 0, 1
+                );
+            }
+            
+            // Se estiver invulnerável, renderizar com cor vermelha
+            if (mInvulnerabilityTimer > 0.0f) {
+                SDL_SetTextureColorMod(spriteSheetTexture, 255, 100, 100);
+            } else {
+                SDL_SetTextureColorMod(spriteSheetTexture, 255, 255, 255);
+            }
+            
+            currentSprite->draw(renderer, renderOffset.x, renderOffset.y, mFacingDirection == -1);
         }
-        currentSprite->draw(renderer, renderOffset.x, renderOffset.y, mFacingDirection == -1);
     }
 }
 
@@ -388,4 +400,90 @@ void Player::DrawDebugOutline
   {
     mPassingThroughPlatform = enable;
   }
+
+void Player::updateHurtbox()
+{
+    Vector pos = getPosition();
+    
+    // Hurtbox é um pouco menor que o sprite para gameplay mais justo
+    mHurtbox.x = static_cast<int>(pos.x + 2);
+    mHurtbox.y = static_cast<int>(pos.y + 2);
+    mHurtbox.w = static_cast<int>(mSize.x - 4);
+    mHurtbox.h = static_cast<int>(mSize.y - 4);
+    
+    // Atualizar hitbox de ataque quando estiver atacando
+    if (mIsAttacking)
+    {
+        updateAttackHitbox();
+    }
+}
+
+void Player::updateAttackHitbox()
+{
+    Vector pos = getPosition();
+    
+    if (mCurrentAttackType == AttackType::CUTTING)
+    {
+        // Ataque cortante - mais largo e menor alcance
+        if (mFacingDirection == 1) // Direita
+        {
+            mAttackHitbox.x = static_cast<int>(pos.x + mSize.x);
+            mAttackHitbox.y = static_cast<int>(pos.y + 5);
+            mAttackHitbox.w = 30;
+            mAttackHitbox.h = 25;
+        }
+        else // Esquerda
+        {
+            mAttackHitbox.x = static_cast<int>(pos.x - 30);
+            mAttackHitbox.y = static_cast<int>(pos.y + 5);
+            mAttackHitbox.w = 30;
+            mAttackHitbox.h = 25;
+        }
+    }
+    else // PIERCING
+    {
+        // Ataque perfurante - mais estreito e maior alcance
+        if (mFacingDirection == 1) // Direita
+        {
+            mAttackHitbox.x = static_cast<int>(pos.x + mSize.x);
+            mAttackHitbox.y = static_cast<int>(pos.y + 8);
+            mAttackHitbox.w = 40;
+            mAttackHitbox.h = 15;
+        }
+        else // Esquerda
+        {
+            mAttackHitbox.x = static_cast<int>(pos.x - 40);
+            mAttackHitbox.y = static_cast<int>(pos.y + 8);
+            mAttackHitbox.w = 40;
+            mAttackHitbox.h = 15;
+        }
+    }
+}
+
+void Player::DrawDebugOutline(SDL_Renderer* renderer, int x, int y, int w, int h, Uint8 r, Uint8 g, Uint8 b, int thickness)
+{
+    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+    
+    for (int i = 0; i < thickness; i++)
+    {
+        SDL_Rect outline;
+        
+        // Top
+        outline = {x - i, y - i, w + 2*i, thickness};
+        SDL_RenderFillRect(renderer, &outline);
+        
+        // Bottom
+        outline = {x - i, y + h - thickness + i, w + 2*i, thickness};
+        SDL_RenderFillRect(renderer, &outline);
+        
+        // Left
+        outline = {x - i, y - i, thickness, h + 2*i};
+        SDL_RenderFillRect(renderer, &outline);
+        
+        // Right
+        outline = {x + w - thickness + i, y - i, thickness, h + 2*i};
+        SDL_RenderFillRect(renderer, &outline);
+    }
+}
+
 }

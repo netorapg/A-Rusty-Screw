@@ -1,5 +1,5 @@
 #include "../include/arscrew/GameWorld.h"
-#include "../include/arscrew/PhysicsEngine.h"
+#include "../include/arscrew/CollisionEngine.h"
 #include "../include/arscrew/Globals.h"
 #include <iostream>
 #include <sstream>
@@ -84,22 +84,31 @@ namespace ARSCREW
         for (auto& crate : mCrates)
         {
             crate.update(deltaTime);
-            PhysicsEngine::HandleCollisions(crate, mWalls, mPlatforms, mSolidPlatforms, mRamps);
+            CollisionEngine::HandleCollisions(crate, mWalls, mPlatforms, mSolidPlatforms, mRamps);
         }
         
         mChicken.update(deltaTime);
         mChicken.followPlayer(mPlayer, deltaTime);
-        PhysicsEngine::HandleCollisions(mChicken, mWalls, mPlatforms, mSolidPlatforms, mRamps);
+        CollisionEngine::HandleCollisions(mChicken, mWalls, mPlatforms, mSolidPlatforms, mRamps);
         // Atualizar parafusos (para o sistema de respawn)
         for (auto& screw : mScrews)
         {
             screw.update(deltaTime);
         }
+        // Atualizar inimigos
         for (auto& enemy : mEnemies)
         {
-            enemy.updateWithPlayer(mPlayer, deltaTime);
-            PhysicsEngine::HandleCollisions(enemy, mWalls, mPlatforms, mSolidPlatforms, mRamps);
+            if (!enemy.isDestroyed())
+            {
+                enemy.updateWithPlayer(mPlayer, deltaTime);
+                CollisionEngine::HandleCollisions(enemy, mWalls, mPlatforms, mSolidPlatforms, mRamps);
+            }
         }
+        
+        // Opcional: Remover inimigos destruídos após um tempo
+        mEnemies.remove_if([](const Enemy& enemy) { 
+            return enemy.isDestroyed(); 
+        });
     }
 
     void GameWorld::handleScrewCollisions()
@@ -154,6 +163,62 @@ namespace ARSCREW
             }
         }
     }
+
+   void GameWorld::handleEnemyCollisions()
+{
+    for (auto& enemy : mEnemies)
+    {
+        if (enemy.isDestroyed()) continue;
+
+        SDL_Rect enemyBox = enemy.getBoundingBox();
+        
+        // Verificar se player está atacando
+        if (mPlayer.isAttacking())
+        {
+            SDL_Rect playerAttackBox = mPlayer.getAttackHitbox();
+            
+            bool attackOverlap =
+                (playerAttackBox.x < enemyBox.x + enemyBox.w) &&
+                (playerAttackBox.x + playerAttackBox.w > enemyBox.x) &&
+                (playerAttackBox.y < enemyBox.y + enemyBox.h) &&
+                (playerAttackBox.y + playerAttackBox.h > enemyBox.y);
+
+            if (attackOverlap)
+            {
+                std::cout << "Enemy hit by player attack!" << std::endl;
+                enemy.takeDamage(25); // Player causa 25 de dano
+                
+                // Knockback no inimigo
+                Vector enemyVelocity = enemy.getVelocity();
+                int playerDirection = mPlayer.getFacingDirection();
+                enemyVelocity.x = playerDirection * 200.0f; // Empurrar na direção do ataque
+                enemyVelocity.y = -100.0f; // Pequeno pulo para cima
+                enemy.setVelocity(enemyVelocity);
+                
+                continue; // Pular verificação de dano ao player se já atacou
+            }
+        }
+        
+        // Verificar colisão com hurtbox do player (para receber dano)
+        // Só causa dano se o player não estiver invulnerável
+        if (!mPlayer.isInvulnerable())
+        {
+            SDL_Rect playerBox = mPlayer.getHurtbox();
+            
+            bool hurtOverlap =
+                (playerBox.x < enemyBox.x + enemyBox.w) &&
+                (playerBox.x + playerBox.w > enemyBox.x) &&
+                (playerBox.y < enemyBox.y + enemyBox.h) &&
+                (playerBox.y + playerBox.h > enemyBox.y);
+
+            if (hurtOverlap)
+            {
+                std::cout << "Player hit by enemy!" << std::endl;
+                mPlayer.takeDamage(enemy.getDamage());
+            }
+        }
+    }
+}
 
     void GameWorld::setScrewRespawnEnabled(bool enabled)
     {

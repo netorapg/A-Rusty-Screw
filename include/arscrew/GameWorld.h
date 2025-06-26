@@ -36,7 +36,7 @@ namespace ARSCREW
         void clearLevelData();
         void updateWorld(float deltaTime);
         void renderWorld(SDL_Renderer* renderer, const Vector& cameraPos, const Vector& viewSize);
-        
+    
         // Getters para acesso às entidades
         const Player& getPlayer() const { return mPlayer; }
         const Camera& getCamera() const { return mCamera; }
@@ -57,6 +57,7 @@ namespace ARSCREW
         float getMapHeight() const { return mapHeight; }
         
         void handleScrewCollisions();
+        void handleEnemyCollisions();
         
         // Controle do sistema de respawn dos parafusos
         void setScrewRespawnEnabled(bool enabled);

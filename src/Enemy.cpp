@@ -7,7 +7,7 @@
 namespace ARSCREW
 {
     Enemy::Enemy(Vector position, SDL_Renderer* renderer)
-        : DynamicObject(position, Vector(25, 30))
+        : DynamicObject(position, Vector(25, 29))
         , mSpriteSheetTexture(nullptr)
         , mCurrentState(EnemyState::IDLE)
         , mFacingDirection(1)
@@ -16,9 +16,11 @@ namespace ARSCREW
         , mAttackDistance(30.0f)
         , mCurrentAnimation("idle")
         , mIsAttacking(false)
+        , mIsDestroyed(false)  
+        , mDamage(10)          
         , mAttackDuration(0.0f)
         , mAttackCooldown(0.0f)
-        , mShowDebugRects(true)
+        , mShowDebugRects(false)
     {
         // Carrega a textura do inimigo (você pode usar a mesma do player por enquanto)
         mSpriteSheetTexture = IMG_LoadTexture(renderer, "../assets/enemy_sprite.png");
@@ -43,14 +45,14 @@ namespace ARSCREW
     {
         // Animação idle
         Animation idleAnim;
-        idleAnim.addFrame({std::make_shared<Sprite>(mSpriteSheetTexture, SDL_Rect{0, 3, 25, 30}), 0.5f, {0, 0}});
+        idleAnim.addFrame({std::make_shared<Sprite>(mSpriteSheetTexture, SDL_Rect{0, 3, 25, 29}), 0.5f, {0, 0}});
         idleAnim.addFrame({std::make_shared<Sprite>(mSpriteSheetTexture, SDL_Rect{32, 3, 25, 28}), 0.5f, {0, 0}});
         idleAnim.setLoop(true);
         mAnimations["idle"] = idleAnim;
 
         // Animação de corrida
         Animation runAnim;
-        runAnim.addFrame({std::make_shared<Sprite>(mSpriteSheetTexture, SDL_Rect{0, 3, 25, 30}), 0.1f, {0, 0}});
+        runAnim.addFrame({std::make_shared<Sprite>(mSpriteSheetTexture, SDL_Rect{0, 3, 25, 29}), 0.1f, {0, 0}});
         runAnim.addFrame({std::make_shared<Sprite>(mSpriteSheetTexture, SDL_Rect{32, 3, 25, 28}), 0.1f, {0, 0}});
         runAnim.setLoop(true);
         mAnimations["run"] = runAnim;
@@ -67,11 +69,68 @@ namespace ARSCREW
         updateState(player, deltaTime);
         update(deltaTime);
     }
+ void Enemy::takeDamage(int damage)
+    {
+        if (mInvulnerabilityTimer <= 0.0f && !isDead())
+        {
+            mCurrentHealth -= damage;
+            if (mCurrentHealth < 0) {
+                mCurrentHealth = 0;
+            }
+
+            mInvulnerabilityTimer = INVULNERABILITY_DURATION;
+            mIsFlashing = true; // Inicia o efeito de piscar
+            mFlashTimer = 0.0f; // Reseta o temporizador de pis
+
+            std::cout << "Enemy took damage: " << damage 
+                      << ", Current Health: " << mCurrentHealth << std::endl;
+            if (isDead())
+            {
+                std::cout << "Enemy died!" << std::endl;
+                destroy();
+            }
+        }
+    }
+
+    void Enemy::heal(int healAmount)
+    {
+        if (!isDead()) {
+            mCurrentHealth += healAmount;
+            if (mCurrentHealth > mMaxHealth) {
+                mCurrentHealth = mMaxHealth;
+            }
+
+            std::cout << "Enemy healed " << healAmount << " HP! Health: " 
+                      << mCurrentHealth << "/" << mMaxHealth << std::endl;
+        }
+    }
+
+    void Enemy::updateInvulnerability(float deltaTime)
+    {
+        if (mInvulnerabilityTimer > 0.0f) {
+            mInvulnerabilityTimer -= deltaTime;
+
+            if (mIsFlashing) {
+                mFlashTimer += deltaTime;
+                if (mFlashTimer >= FLASH_INTERVAL) {
+                    mFlashTimer = 0.0f;
+                }
+            }
+
+            if (mInvulnerabilityTimer <= 0.0f) {
+                mIsFlashing = false; // Desativa o efeito de piscar
+                mFlashTimer = 0.0f; // Reseta o temporizador de piscar
+            }
+        }
+    }
+
 
     void Enemy::update(float deltaTime)
     {
         Vector velocity = getVelocity();
         Vector position = getPosition();
+
+        updateInvulnerability(deltaTime);
 
         // Aplica gravidade
         velocity.y += GRAVITY * deltaTime;
@@ -250,37 +309,52 @@ namespace ARSCREW
         }
     }
 
-    void Enemy::render(SDL_Renderer* renderer, Vector cameraPosition)
+    SDL_Rect Enemy::getBoundingBox() const
     {
-        Vector screenPos = getPosition() - cameraPosition;
+        SDL_Rect box;
+        box.x = static_cast<int>(getPosition().x);
+        box.y = static_cast<int>(getPosition().y);
+        box.w = static_cast<int>(mSize.x);
+        box.h = static_cast<int>(mSize.y);
+        return box;
+    }
 
-        // Desenha hitboxes de debug
-        if (mShowDebugRects)
+
+void Enemy::render(SDL_Renderer* renderer, Vector cameraPosition)
+{
+    Vector screenPos = getPosition() - cameraPosition;
+
+    // Desenha hitboxes de debug
+    if (mShowDebugRects)
+    {
+        // Hurtbox (azul)
+        SDL_Rect hurtboxOnScreen = {
+            mHurtbox.x - static_cast<int>(cameraPosition.x),
+            mHurtbox.y - static_cast<int>(cameraPosition.y),
+            mHurtbox.w,
+            mHurtbox.h
+        };
+        DrawDebugRect(renderer, hurtboxOnScreen.x, hurtboxOnScreen.y, 
+                     hurtboxOnScreen.w, hurtboxOnScreen.h, 0, 0, 255);
+
+        // Attack hitbox (vermelho)
+        if (mIsAttacking)
         {
-            // Hurtbox (azul)
-            SDL_Rect hurtboxOnScreen = {
-                mHurtbox.x - static_cast<int>(cameraPosition.x),
-                mHurtbox.y - static_cast<int>(cameraPosition.y),
-                mHurtbox.w,
-                mHurtbox.h
+            SDL_Rect attackboxOnScreen = {
+                mAttackHitbox.x - static_cast<int>(cameraPosition.x),
+                mAttackHitbox.y - static_cast<int>(cameraPosition.y),
+                mAttackHitbox.w,
+                mAttackHitbox.h
             };
-            DrawDebugRect(renderer, hurtboxOnScreen.x, hurtboxOnScreen.y, 
-                         hurtboxOnScreen.w, hurtboxOnScreen.h, 0, 0, 255);
-
-            // Attack hitbox (vermelho)
-            if (mIsAttacking)
-            {
-                SDL_Rect attackboxOnScreen = {
-                    mAttackHitbox.x - static_cast<int>(cameraPosition.x),
-                    mAttackHitbox.y - static_cast<int>(cameraPosition.y),
-                    mAttackHitbox.w,
-                    mAttackHitbox.h
-                };
-                DrawDebugRect(renderer, attackboxOnScreen.x, attackboxOnScreen.y,
-                         attackboxOnScreen.w, attackboxOnScreen.h, 255, 0, 0);
-            }
+            DrawDebugRect(renderer, attackboxOnScreen.x, attackboxOnScreen.y,
+                     attackboxOnScreen.w, attackboxOnScreen.h, 255, 0, 0);
         }
+    }
 
+    // Só renderizar se não estiver piscando ou se estiver na fase visível do piscar
+    bool shouldRender = !mIsFlashing || (mFlashTimer < FLASH_INTERVAL / 2);
+    
+    if (shouldRender) {
         // Renderiza sprite usando o mesmo padrão do Player
         if (mAnimations.find(mCurrentAnimation) != mAnimations.end())
         {
@@ -295,6 +369,13 @@ namespace ARSCREW
                 renderPos.x = screenPos.x + finalOffset.x;
                 renderPos.y = screenPos.y + finalOffset.y;
 
+                // Se estiver invulnerável, renderizar com cor vermelha
+                if (mInvulnerabilityTimer > 0.0f) {
+                    SDL_SetTextureColorMod(mSpriteSheetTexture, 255, 100, 100);
+                } else {
+                    SDL_SetTextureColorMod(mSpriteSheetTexture, 255, 255, 255);
+                }
+
                 // Usa o método draw da classe Sprite
                 bool shouldFlip = (mFacingDirection == -1);
                 currentSprite->draw(renderer, 
@@ -304,7 +385,8 @@ namespace ARSCREW
             }
         }
     }
-
+}
+   
     void Enemy::handleEvent(SDL_Event& e)
     {
         // Implementar se necessário eventos específicos do inimigo
