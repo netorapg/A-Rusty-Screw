@@ -7,7 +7,6 @@
 #include "Globals.h"
 #include "SolidPlatform.h"
 #include "Platform.h"
-#include "Wall.h"
 
 namespace ARSCREW
 {

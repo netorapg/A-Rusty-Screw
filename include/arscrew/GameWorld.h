@@ -11,7 +11,6 @@
 #include "Platform.h"
 #include "SolidPlatform.h"
 #include "Ramp.h"
-#include "Wall.h"
 #include "Crate.h"
 #include "Door.h"
 #include "Decoration.h"
@@ -47,7 +46,6 @@ namespace ARSCREW
         Chicken& getChicken() { return mChicken; }
         std::list<Platform>& getPlatforms() { return mPlatforms; }
         std::list<SolidPlatform>& getSolidPlatforms() { return mSolidPlatforms; }
-        std::list<Wall>& getWalls() { return mWalls; }
         std::list<Ramp>& getRamps() { return mRamps; }
         std::list<Crate>& getCrates() { return mCrates; }
         std::list<Door>& getDoors() { return mDoors; }
@@ -79,7 +77,6 @@ namespace ARSCREW
         std::list<Platform> mPlatforms;
         std::list<SolidPlatform> mSolidPlatforms;
         std::list<Ramp> mRamps;
-        std::list<Wall> mWalls;
         std::list<Crate> mCrates;
         std::list<Door> mDoors;
         std::list<Decoration> mDecorations;

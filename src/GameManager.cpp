@@ -222,7 +222,6 @@ namespace ARSCREW
             
             CollisionEngine::HandleCollisions(
                 mWorld.getPlayer(),
-                mWorld.getWalls(),
                 mWorld.getPlatforms(),
                 mWorld.getSolidPlatforms(),
                 mWorld.getRamps()

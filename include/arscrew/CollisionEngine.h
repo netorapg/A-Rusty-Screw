@@ -10,7 +10,6 @@
 #include "Player.h"
 #include "SolidPlatform.h"
 #include "Ramp.h"
-#include "Wall.h"
 
 namespace ARSCREW
 {
@@ -31,7 +30,6 @@ namespace ARSCREW
     static  void HandleCollisions
       (
         DynamicObject& dynamicObject,
-        const std::list<Wall>& walls,
         const std::list<Platform>& platforms,
         const std::list<SolidPlatform>& solidPlatforms,
         const std::list<Ramp>& ramps
@@ -47,14 +45,6 @@ namespace ARSCREW
       );
 
       private:
-
-      static bool handleWallCollisions
-      (
-        DynamicObject& dynamicObject, 
-        const std::list<Wall>& walls,                    
-        Vector& position, 
-        Vector& velocity
-      );
       
       static bool handleSolidPlatformCollisions
       (

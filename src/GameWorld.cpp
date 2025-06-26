@@ -68,7 +68,6 @@ namespace ARSCREW
     void GameWorld::clearLevelData()
     {
         mPlatforms.clear();
-        mWalls.clear();
         mSolidPlatforms.clear();
         mRamps.clear();
         mCrates.clear();
@@ -84,12 +83,12 @@ namespace ARSCREW
         for (auto& crate : mCrates)
         {
             crate.update(deltaTime);
-            CollisionEngine::HandleCollisions(crate, mWalls, mPlatforms, mSolidPlatforms, mRamps);
+            CollisionEngine::HandleCollisions(crate, mPlatforms, mSolidPlatforms, mRamps);
         }
         
         mChicken.update(deltaTime);
         mChicken.followPlayer(mPlayer, deltaTime);
-        CollisionEngine::HandleCollisions(mChicken, mWalls, mPlatforms, mSolidPlatforms, mRamps);
+        CollisionEngine::HandleCollisions(mChicken, mPlatforms, mSolidPlatforms, mRamps);
         // Atualizar parafusos (para o sistema de respawn)
         for (auto& screw : mScrews)
         {
@@ -101,7 +100,7 @@ namespace ARSCREW
             if (!enemy.isDestroyed())
             {
                 enemy.updateWithPlayer(mPlayer, deltaTime);
-                CollisionEngine::HandleCollisions(enemy, mWalls, mPlatforms, mSolidPlatforms, mRamps);
+                CollisionEngine::HandleCollisions(enemy, mPlatforms, mSolidPlatforms, mRamps);
             }
         }
         
@@ -305,7 +304,6 @@ namespace ARSCREW
         renderObjects(mDecorations, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
         renderObjects(mPlatforms, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
         renderObjects(mSolidPlatforms, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
-        renderObjects(mWalls, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
         renderObjects(mCrates, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
         renderObjects(mDoors, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
         renderObjects(mRamps, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
@@ -346,11 +344,11 @@ namespace ARSCREW
     {
         std::unordered_map<int, int> tileTypeMap = 
         {
-            {5, 2},{9, 2},{16, 2},{31, 2},{78, 2},  // Plataforma Sólida
             {18, 1}, // Plataforma vazada
-            {64, 3},{15, 3},{41, 3}, {87, 3}, // Parede
-            {65, 4}, // Caixote
-            {89, 5} // Rampa
+            {5, 2},{9, 2},{16, 2},{31, 2},{78, 2},  // Plataforma Sólida
+            {64, 2},{15, 2},{41, 2}, {87, 2}, // Parede
+            {65, 3}, // Caixote
+            {89, 4} // Rampa
         };
         
         XMLElement* layer = map->FirstChildElement("layer");
@@ -413,13 +411,10 @@ namespace ARSCREW
             case 2: // Plataforma sólida
                 mSolidPlatforms.emplace_back(Vector(mTilePosition), Vector(tileSize, tileSize), mPlatformsTexture, tileId);
                 break;
-            case 3: // Parede
-                mWalls.emplace_back(Vector(mTilePosition), Vector(tileSize, tileSize), mPlatformsTexture, tileId);
-                break;
-            case 4: // Caixote
+            case 3: // Caixote
                 mCrates.emplace_back(Vector(mTilePosition), mRenderer);
                 break;
-            case 5: // Rampa
+            case 4: // Rampa
                 mRamps.emplace_back(Vector(mTilePosition), Vector(tileSize, tileSize), mPlatformsTexture, tileId, RampType::BOTTOM_LEFT);
                 break;
         }
