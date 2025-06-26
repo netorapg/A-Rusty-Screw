@@ -7,7 +7,7 @@
 namespace ARSCREW
 {
     Enemy::Enemy(Vector position, SDL_Renderer* renderer)
-        : DynamicObject(position, Vector(25, 30))
+        : DynamicObject(position, Vector(25, 29))
         , mSpriteSheetTexture(nullptr)
         , mCurrentState(EnemyState::IDLE)
         , mFacingDirection(1)
@@ -20,7 +20,7 @@ namespace ARSCREW
         , mDamage(10)          
         , mAttackDuration(0.0f)
         , mAttackCooldown(0.0f)
-        , mShowDebugRects(true)
+        , mShowDebugRects(false)
     {
         // Carrega a textura do inimigo (você pode usar a mesma do player por enquanto)
         mSpriteSheetTexture = IMG_LoadTexture(renderer, "../assets/enemy_sprite.png");
@@ -45,14 +45,14 @@ namespace ARSCREW
     {
         // Animação idle
         Animation idleAnim;
-        idleAnim.addFrame({std::make_shared<Sprite>(mSpriteSheetTexture, SDL_Rect{0, 3, 25, 30}), 0.5f, {0, 0}});
+        idleAnim.addFrame({std::make_shared<Sprite>(mSpriteSheetTexture, SDL_Rect{0, 3, 25, 29}), 0.5f, {0, 0}});
         idleAnim.addFrame({std::make_shared<Sprite>(mSpriteSheetTexture, SDL_Rect{32, 3, 25, 28}), 0.5f, {0, 0}});
         idleAnim.setLoop(true);
         mAnimations["idle"] = idleAnim;
 
         // Animação de corrida
         Animation runAnim;
-        runAnim.addFrame({std::make_shared<Sprite>(mSpriteSheetTexture, SDL_Rect{0, 3, 25, 30}), 0.1f, {0, 0}});
+        runAnim.addFrame({std::make_shared<Sprite>(mSpriteSheetTexture, SDL_Rect{0, 3, 25, 29}), 0.1f, {0, 0}});
         runAnim.addFrame({std::make_shared<Sprite>(mSpriteSheetTexture, SDL_Rect{32, 3, 25, 28}), 0.1f, {0, 0}});
         runAnim.setLoop(true);
         mAnimations["run"] = runAnim;
