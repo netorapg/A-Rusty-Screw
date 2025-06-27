@@ -195,6 +195,17 @@ void Player::update(float deltaTime)
     Vector velocity = getVelocity();
     Vector position = getPosition();
 
+    // Decrementar buffer de colisão lateral
+    if (mLateralCollisionBuffer > 0.0f) {
+        mLateralCollisionBuffer -= deltaTime;
+    }
+    
+    // Resetar flag de colisão lateral do frame anterior
+    mHadLateralCollisionThisFrame = false;
+    
+    // Armazenar posição antes do movimento
+    mLastValidPosition = position;
+
     // Atualizar invulnerabilidade
     updateInvulnerability(deltaTime);
 
@@ -219,8 +230,25 @@ void Player::update(float deltaTime)
     // Aplicar gravidade
     velocity.y += GRAVITY * deltaTime;
 
-    // Atualizar posição
-    position += velocity * deltaTime;
+    // Aplicar movimento vertical primeiro
+    Vector verticalMovement(0, velocity.y * deltaTime);
+    position += verticalMovement;
+
+    // Aplicar movimento horizontal com verificação preventiva de colisão
+    if (!mIsDashing) {
+        Vector horizontalMovement(velocity.x * deltaTime, 0);
+        
+        // Se há buffer de colisão lateral ativo e está tentando se mover na direção da parede,
+        // reduzir significativamente o movimento para evitar penetração visual
+        if (mLateralCollisionBuffer > 0.0f) {
+            if ((velocity.x > 0 && mFacingDirection == 1) || (velocity.x < 0 && mFacingDirection == -1)) {
+                // Reduzir movimento para quase zero se insistindo na direção da parede
+                horizontalMovement.x *= 0.05f;
+            }
+        }
+        
+        position += horizontalMovement;
+    }
 
     // Verificar se está no chão
     if (isOnGround()) {

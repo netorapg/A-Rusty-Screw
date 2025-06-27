@@ -144,8 +144,17 @@ namespace ARSCREW
                      overlapLeft < overlapBottom - tolerance && 
                      overlapLeft < overlapRight)
             {
-                position.x = platformPos.x - size.x;
+                // Adicionar uma pequena margem de segurança para evitar penetração visual
+                position.x = platformPos.x - size.x - 1.0f;
                 velocity.x = 0;
+                // Informar ao jogador que houve colisão lateral (se for um Player)
+                Player* player = dynamic_cast<Player*>(&dynamicObject);
+                if (player) {
+                    player->setHadLateralCollision(true);
+                    // Ativar buffer para evitar movimento por alguns frames
+                    player->setLateralCollisionBuffer(0.1f); // 100ms de buffer
+                }
+                // Permitir wall jump em SolidPlatforms
                 dynamicObject.setIsCollidingWithWall(true);
             }
             // Colisão horizontal (lado direito da plataforma)
@@ -153,8 +162,17 @@ namespace ARSCREW
                      overlapRight < overlapBottom - tolerance && 
                      overlapRight < overlapLeft)
             {
-                position.x = platformPos.x + platformSize.x;
+                // Adicionar uma pequena margem de segurança para evitar penetração visual
+                position.x = platformPos.x + platformSize.x + 1.0f;
                 velocity.x = 0;
+                // Informar ao jogador que houve colisão lateral (se for um Player)
+                Player* player = dynamic_cast<Player*>(&dynamicObject);
+                if (player) {
+                    player->setHadLateralCollision(true);
+                    // Ativar buffer para evitar movimento por alguns frames
+                    player->setLateralCollisionBuffer(0.1f); // 100ms de buffer
+                }
+                // Permitir wall jump em SolidPlatforms - mesmo comportamento do lado esquerdo
                 dynamicObject.setIsCollidingWithWall(true);
             }
         }
