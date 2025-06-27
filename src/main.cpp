@@ -9,7 +9,7 @@ void applyCRTEffect(SDL_Renderer* renderer);
 
 int main(int argc, char* argv[])
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: "
                   << SDL_GetError()
                   << std::endl;
@@ -51,6 +51,7 @@ int main(int argc, char* argv[])
         SDL_Quit();
         return -1;
     }
+    
 
     // Garantir que o "clear" apague sempre com preto 100% opaco
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);

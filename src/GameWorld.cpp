@@ -79,6 +79,7 @@ namespace ARSCREW
 
     void GameWorld::updateWorld(float deltaTime)
     {
+        handleInput();
         // Atualizar caixotes
         for (auto& crate : mCrates)
         {
@@ -110,57 +111,44 @@ namespace ARSCREW
         });
     }
 
-    void GameWorld::handleInput(SDL_Event& e)
+    void GameWorld::handleInput()
     {
-        // Tratar eventos do jogador
-        if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
-        {
-            switch (e.key.keysym.sym)
-            {
-                case SDLK_d:
-                    mPlayer.moveRight();
-                    break;
-                case SDLK_a:
-                    mPlayer.moveLeft();
-                    break;
-                case SDLK_SPACE:
-                    mPlayer.jump();
-                    break;
-                case SDLK_s:
-                    if (mPlayer.isOnGround()) {
-                        mPlayer.passThroughPlatform(true);
-                    }
-                    break;
-                case SDLK_j:
-                    mPlayer.startAttack();
-                    break;
-                case SDLK_q:
-                    mPlayer.switchAttackType();
-                    break;
-                case SDLK_e:
-                    mPlayer.startDash();
-                    break;
-                case SDLK_LCTRL:
-                    // Toggle debug para player e inimigos
-                    mPlayer.toggleDebugDisplay();
-                    for (auto& enemy : mEnemies)
-                    {
-                        enemy.toggleDebugDisplay();
-                    }
-                    break;
-            }
+        mInputManager.update();
+        
+        // Movimento contínuo
+        bool movingLeft = mInputManager.isActionPressed(InputAction::MOVE_LEFT);
+        bool movingRight = mInputManager.isActionPressed(InputAction::MOVE_RIGHT);
+        mPlayer.setMovementInput(movingLeft, movingRight);
+        
+        // Ações que precisam ser "just pressed" (não repetir)
+        if (mInputManager.isActionJustPressed(InputAction::JUMP)) {
+            mPlayer.jump();
         }
-        else if (e.type == SDL_KEYUP)
-        {
-            switch (e.key.keysym.sym)
-            {
-                case SDLK_a:
-                case SDLK_d:
-                    mPlayer.stopHorizontalMovement();
-                    break;
-                case SDLK_s:
-                    mPlayer.passThroughPlatform(false);
-                    break;
+        
+        if (mInputManager.isActionJustPressed(InputAction::ATTACK)) {
+            mPlayer.startAttack();
+        }
+        
+        if (mInputManager.isActionJustPressed(InputAction::DASH)) {
+            mPlayer.startDash();
+        }
+        
+        if (mInputManager.isActionJustPressed(InputAction::SWITCH_ATTACK)) {
+            mPlayer.switchAttackType();
+        }
+        
+        // Agachar/passar pela plataforma (contínuo)
+        if (mInputManager.isActionPressed(InputAction::CROUCH)) {
+            mPlayer.passThroughPlatform(true);
+        } else {
+            mPlayer.passThroughPlatform(false);
+        }
+        
+        // Debug toggle (just pressed)
+        if (mInputManager.isActionJustPressed(InputAction::DEBUG_TOGGLE)) {
+            mPlayer.toggleDebugDisplay();
+            for (auto& enemy : mEnemies) {
+                enemy.toggleDebugDisplay();
             }
         }
     }

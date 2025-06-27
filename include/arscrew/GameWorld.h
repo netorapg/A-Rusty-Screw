@@ -20,6 +20,7 @@
 #include "Chicken.h"
 #include "Enemy.h"
 #include "Globals.h"
+#include "InputManager.h"
 
 using namespace tinyxml2;
 
@@ -35,7 +36,7 @@ namespace ARSCREW
         void clearLevelData();
         void updateWorld(float deltaTime);
         void renderWorld(SDL_Renderer* renderer, const Vector& cameraPos, const Vector& viewSize);
-        void handleInput(SDL_Event& e);
+        void handleInput();
     
         // Getters para acesso às entidades
         const Player& getPlayer() const { return mPlayer; }
@@ -44,6 +45,7 @@ namespace ARSCREW
         Player& getPlayer() { return mPlayer; }
         Camera& getCamera() { return mCamera; }
         Chicken& getChicken() { return mChicken; }
+        InputManager& getInputManager() { return mInputManager; }
         std::list<Platform>& getPlatforms() { return mPlatforms; }
         std::list<SolidPlatform>& getSolidPlatforms() { return mSolidPlatforms; }
         std::list<Ramp>& getRamps() { return mRamps; }
@@ -69,6 +71,8 @@ namespace ARSCREW
         SDL_Texture* mPlatformsTexture;
         SDL_Texture* mScrewsTexture;
         std::string mPlatformsTexturePath;
+
+        InputManager mInputManager;
         
         float mapWidth;
         float mapHeight;

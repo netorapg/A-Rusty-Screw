@@ -7,7 +7,7 @@ namespace ARSCREW
   : DynamicObject
     ( 
       position, 
-      Vector( 20, 37) 
+      Vector( 20, 28) 
     ), 
     mFacingDirection(1),
     mIsJumping( false )
@@ -22,40 +22,45 @@ namespace ARSCREW
     { throw std::runtime_error("Failed to create texture form sprite sheet: " + std::string(IMG_GetError()));}
   
     Animation runAnim;
-      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 70, 0, 35, 37 }), 0.1f, { 0, 0 } } );
-      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 105, 0, 35, 37 }), 0.1f, { 0, 0 } } );
-      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 0, 35, 37 }), 0.1f, { 0, 0 } } );
-      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 175, 0, 35, 37 }), 0.1f, { 0, 0 } } );
-      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 37, 35, 37 }), 0.1f, { 0, 0 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 70, 0, 35, 37 }), 0.1f, { 0, -9 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 105, 0, 35, 37 }), 0.1f, { 0, -9 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 0, 35, 37 }), 0.1f, { 0, -9 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 175, 0, 35, 37 }), 0.1f, { 0, -9 } } );
+      runAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 37, 35, 37 }), 0.1f, { 0, -9 } } );
       runAnim.setLoop( true );
 
     Animation idleAnim;
-      idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 0, 35, 37 }), 0.2f, { 0, 0 } } );
-      idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 35, 0, 35, 37 }), 0.2f, { 0, 0 }}  );
+      idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 0, 35, 37 }), 0.2f, { 0, -9 } } );
+      idleAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 35, 0, 35, 37 }), 0.2f, { 0, -9 }}  );
       idleAnim.setLoop( true );
 
     
     Animation cuttingAttackAnim;
-      cuttingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 37, 35, 37 }), 0.09f, { 0, 0 } } );
-      cuttingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 178, 53, 40, 27 }), 0.01f, { 0, 10 } } );
+      cuttingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 140, 37, 35, 37 }), 0.09f, { 0, -9 } } );
+      cuttingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 178, 53, 40, 27 }), 0.01f, { 0, 0 } } );
       cuttingAttackAnim.setLoop( false );
 
     
     Animation piercingAttackAnim;
-      piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 74, 36, 37 }), 0.1f, { 0, 0 } } );
-      piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 270, 84, 56, 27 }), 0.1f, { 0, 10 } } );
+      piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 0, 74, 36, 37 }), 0.1f, { 0, -9 } } );
+      piercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 270, 84, 56, 27 }), 0.1f, { 2, 0 } } );
       piercingAttackAnim.setLoop( false );
 
     Animation jumpAnim;
-      jumpAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 35, 37, 35, 37 }), 0.1f, { 0, 0 } } );
-      jumpAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 70, 37, 35, 37 }), 0.1f, { 0, 0 } } );
+      jumpAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 35, 37, 35, 37 }), 0.1f, { 0, -9 } } );
+      jumpAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 70, 37, 35, 37 }), 0.1f, { 0, -9 } } );
       jumpAnim.setLoop( true );
+    
+    Animation JumpAttackAnim;
+        JumpAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 232, 50, 40, 30 }), 0.1f, { 0, 1 } } );
+        JumpAttackAnim.setLoop( false );
 
     animations["run"] = runAnim;
     animations["idle"] = idleAnim;
     animations["jump"] = jumpAnim;
     animations["cuttingAttack"] = cuttingAttackAnim;
     animations["piercingAttack"] = piercingAttackAnim;
+    animations["jumpAttack"] = JumpAttackAnim;
     currentAnimation = "idle";
 }
 
@@ -65,6 +70,7 @@ void Player::moveLeft()
         Vector velocity = getVelocity();
         velocity.x = -MOVE_SPEED;
         mFacingDirection = -1;
+        mIsMovingLeft = true;
         setVelocity(velocity);
     }
 }
@@ -75,6 +81,7 @@ void Player::moveRight()
         Vector velocity = getVelocity();
         velocity.x = MOVE_SPEED;
         mFacingDirection = 1;
+        mIsMovingRight = true;
         setVelocity(velocity);
     }
 }
@@ -84,6 +91,30 @@ void Player::stopHorizontalMovement()
     if (!mIsDashing) {
         Vector velocity = getVelocity();
         velocity.x = 0;
+        mIsMovingLeft = false;
+        mIsMovingRight = false;
+        setVelocity(velocity);
+    }
+}
+
+void Player::setMovementInput(bool movingLeft, bool movingRight)
+{
+    mIsMovingLeft = movingLeft;
+    mIsMovingRight = movingRight;
+    
+    if (!mIsDashing) {
+        Vector velocity = getVelocity();
+        
+        if (movingLeft && !movingRight) {
+            velocity.x = -MOVE_SPEED;
+            mFacingDirection = -1;
+        } else if (movingRight && !movingLeft) {
+            velocity.x = MOVE_SPEED;
+            mFacingDirection = 1;
+        } else {
+            velocity.x = 0;
+        }
+        
         setVelocity(velocity);
     }
 }
@@ -196,8 +227,8 @@ void Player::update(float deltaTime)
         setIsCollidingWithWall(false);
         mIsJumping = false;
     
-        const Uint8* state = SDL_GetKeyboardState(NULL);
-        if (!state[SDL_SCANCODE_D] && !state[SDL_SCANCODE_A]) {
+        // REMOVER a verificação do teclado e substituir por:
+        if (!mIsMovingLeft && !mIsMovingRight && !mIsDashing) {
             velocity.x = 0.0f;
         }
     } else {
@@ -218,6 +249,8 @@ void Player::update(float deltaTime)
         } else {
             newAnimation = "idle";
         }
+    } else if (mIsAttacking && mCurrentAttackType == AttackType::CUTTING && mIsJumping) {
+        newAnimation = "jumpAttack";
     } else {
         newAnimation = "jump";
     }
@@ -424,15 +457,15 @@ void Player::updateAttackHitbox()
         {
             mAttackHitbox.x = static_cast<int>(pos.x + mSize.x);
             mAttackHitbox.y = static_cast<int>(pos.y + 5);
-            mAttackHitbox.w = 30;
-            mAttackHitbox.h = 25;
+            mAttackHitbox.w = 20;
+            mAttackHitbox.h = 20;
         }
         else // Esquerda
         {
-            mAttackHitbox.x = static_cast<int>(pos.x - 30);
+            mAttackHitbox.x = static_cast<int>(pos.x - mSize.x);
             mAttackHitbox.y = static_cast<int>(pos.y + 5);
-            mAttackHitbox.w = 30;
-            mAttackHitbox.h = 25;
+            mAttackHitbox.w = 20;
+            mAttackHitbox.h = 20;
         }
     }
     else // PIERCING
@@ -442,14 +475,14 @@ void Player::updateAttackHitbox()
         {
             mAttackHitbox.x = static_cast<int>(pos.x + mSize.x);
             mAttackHitbox.y = static_cast<int>(pos.y + 8);
-            mAttackHitbox.w = 40;
+            mAttackHitbox.w = 35;
             mAttackHitbox.h = 15;
         }
         else // Esquerda
         {
-            mAttackHitbox.x = static_cast<int>(pos.x - 40);
+            mAttackHitbox.x = static_cast<int>(pos.x - 30);
             mAttackHitbox.y = static_cast<int>(pos.y + 8);
-            mAttackHitbox.w = 40;
+            mAttackHitbox.w = 30;
             mAttackHitbox.h = 15;
         }
     }

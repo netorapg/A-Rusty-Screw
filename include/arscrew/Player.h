@@ -66,6 +66,9 @@ namespace ARSCREW
             bool isDead() const { return mCurrentHealth <= 0; }
             bool isInvulnerable() const { return mInvulnerabilityTimer > 0.0f; }
             
+            void setMovementInput(bool movingLeft, bool movingRight);
+            bool isMoving() const { return mIsMovingLeft || mIsMovingRight; }
+
         private:
             int mFacingDirection;
             bool mIsJumping;
@@ -101,6 +104,9 @@ namespace ARSCREW
             SDL_Rect mHurtbox;
             bool mShowAttackHitbox = true;
             bool mShowHurtbox = true;
+
+            bool mIsMovingLeft = false;
+            bool mIsMovingRight = false;
 
             void updateWeaponPosition();
             void updateHurtbox();
