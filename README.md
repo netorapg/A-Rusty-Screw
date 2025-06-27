@@ -1,14 +1,14 @@
 # A-Rusty-Screw
 
-Este é um jogo de plataforma 2D desenvolvido em C++ com o aux�lio da biblioteca SDL2. O jogador controla um personagem que pode pular, atacar e interagir com o ambiente para progredir atrav�s dos n�veis.
+Este é um jogo de plataforma 2D desenvolvido em C++ com o aux�lio da biblioteca SDL2. O jogador controla um personagem que pode pular, atacar e interagir com o ambiente para progredir através dos níveis.
 
-## Vis�o Geral do Projeto
+## Visão Geral do Projeto
 
-O objetivo do jogo é navegar por diferentes níveis, superando obst�culos, derrotando inimigos e resolvendo quebra-cabe�as simples. O personagem principal possui duas formas de ataque distintas: um ataque cortante e um ataque perfurante. Cada tipo de ataque � eficaz contra um tipo espec�fico de "parafuso" que pode ser encontrado nos níveis, incentivando o jogador a alternar entre as ferramentas para progredir. Al�m disso, o jogador conta com a ajuda de uma galinha de estimação chamada Anselma.
+O objetivo do jogo é navegar por diferentes níveis, superando obstáculos, derrotando inimigos e resolvendo quebra-cabeças simples. O personagem principal possui duas formas de ataque distintas: um ataque cortante e um ataque perfurante. Cada tipo de ataque é eficaz contra um tipo específico de "parafuso" que pode ser encontrado nos níveis, incentivando o jogador a alternar entre as ferramentas para progredir. Além disso, o jogador conta com a ajuda de uma galinha de estimação chamada Anselma.
 
 ## Funcionalidades Principais
 
-  * **Movimenta��o de Personagem:** O jogador pode se mover para a esquerda e para a direita, pular e realizar pulos na parede.
+  * **Movimentação de Personagem:** O jogador pode se mover para a esquerda e para a direita, pular e realizar pulos na parede.
   * **Sistema de Combate:** O jogador pode alternar entre dois tipos de ataque (cortante e perfurante) para destruir obstáculos e derrotar inimigos.
   * **Inimigos:** O jogo possui inimigos que podem causar dano ao jogador e serem derrotados.
   * **Física e Colisões:** O jogo implementa um sistema de física simples com gravidade e detecção de colisão com plataformas, plataformas sólidas, rampas e caixotes.
@@ -23,14 +23,14 @@ O objetivo do jogo é navegar por diferentes níveis, superando obst�culos, de
 O projeto está organizado da seguinte forma:
 
   * **`assets/`**: Contém todos os recursos do jogo, como sprites, fontes e mapas.
-  * **`bin/`**: Cont�m os arquivos executáveis do projeto.
+  * **`bin/`**: Contém os arquivos executáveis do projeto.
   * **`include/arscrew/`**: Contém os arquivos de cabeçalho (`.h`) para as classes do jogo.
   * **`my-lib-master/`**: Uma biblioteca de apoio com várias funcionalidades, incluindo matemática (vetores, matrizes), gerenciamento de memória e sistemas de eventos.
   * **`src/`**: Contém os arquivos de implementaçãoo (`.cpp`) para as classes do jogo.
   * **`Makefile`**: (Não fornecido) Arquivo de compilação para o projeto.
   * **`run.sh`**: Script para executar o jogo.
 
-## Depend�ncias
+## Dependências
 
   * **SDL2:** Biblioteca multimídia para gráficos, som e entrada.
   * **SDL2\_image:** Biblioteca para carregar vários formatos de imagem.
@@ -40,7 +40,7 @@ O projeto está organizado da seguinte forma:
 
 ## Como Compilar e Executar
 
-1.  **Instale as depend�ncias:**
+1.  **Instale as dependências:**
     Certifique-se de que as bibliotecas SDL2, SDL2\_image, SDL2\_ttf e SDL2\_mixer estão instaladas em seu sistema.
 
 2.  **Compile o projeto:**
@@ -53,13 +53,13 @@ O projeto está organizado da seguinte forma:
     ./run.sh
     ```
 
-## Detalhes de Implementa��o
+## Detalhes de Implementação
 
 ### Gerenciamento do Jogo
 
 A classe `GameManager` é o coração do jogo, responsável por:
 
-  * Inicializar o SDL e os subsistemas de �udio e fontes.
+  * Inicializar o SDL e os subsistemas de áudio e fontes.
   * Gerenciar o loop principal do jogo (eventos, atualização, renderização).
   * Controlar as transições entre os níveis.
   * Gerenciar a renderização do fundo com efeito parallax.
@@ -83,7 +83,7 @@ A classe `Player` implementa a l�gica do personagem principal, incluindo:
   * Sistema de vida e dano com invulnerabilidade temporária.
   * Animações para diferentes estados (parado, correndo, pulando, atacando).
 
-### Colis�es
+### Colisões
 
 A classe `CollisionEngine` é uma classe que lida com toda a lógica de colisão entre os objetos do jogo, incluindo:
 
