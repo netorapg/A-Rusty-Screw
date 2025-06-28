@@ -16,7 +16,8 @@ namespace ARSCREW
         DASH,
         SWITCH_ATTACK,
         CROUCH,
-        DEBUG_TOGGLE
+        DEBUG_TOGGLE,
+        DOWN_ATTACK,
     };
 
     class InputManager

@@ -20,7 +20,7 @@ namespace ARSCREW
 
     class Enemy : public DynamicObject
     {
-    private:
+    protected:
         SDL_Texture* mSpriteSheetTexture;
         
         // Estado e comportamento
@@ -56,7 +56,7 @@ namespace ARSCREW
         SDL_Rect mHurtbox;
         bool mShowDebugRects;
         
-        // Métodos privados
+        // Métodos protegidos
         void loadAnimations(SDL_Renderer* renderer);
         void updateState(const Player& player, float deltaTime);
         void followPlayer(const Player& player, float deltaTime);

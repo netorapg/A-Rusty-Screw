@@ -73,6 +73,7 @@ namespace ARSCREW
         mActionStates[InputAction::SWITCH_ATTACK] = keyboardState[SDL_SCANCODE_Q];
         mActionStates[InputAction::CROUCH] = keyboardState[SDL_SCANCODE_S];
         mActionStates[InputAction::DEBUG_TOGGLE] = keyboardState[SDL_SCANCODE_LCTRL];
+        mActionStates[InputAction::DOWN_ATTACK] = keyboardState[SDL_SCANCODE_K];
     }
 
     void InputManager::updateControllerInput()

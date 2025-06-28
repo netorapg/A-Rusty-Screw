@@ -37,7 +37,7 @@ namespace ARSCREW
         }
         
         // Carregar nível inicial
-        mWorld.loadLevelFromTMX("../map/mapabanca1.tmx");
+        mWorld.loadLevelFromTMX("../map/bossarena.tmx");
         mPlayerActivated = false;
         mActivationTime = SDL_GetTicks() + 500;
         centerCameraOnPlayer();
@@ -183,6 +183,7 @@ namespace ARSCREW
         checkLevelTransitions();
         mWorld.handleScrewCollisions();
         mWorld.handleEnemyCollisions();
+        mWorld.handlePunktauroCollisions();
     }
 
     void GameManager::checkPlayerActivation()

@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 #include <array>
+#include <memory>
 #include <tinyxml2.h>
 
 #include "Platform.h"
@@ -19,6 +20,7 @@
 #include "Screw.h"
 #include "Chicken.h"
 #include "Enemy.h"
+#include "Punktauro.h"
 #include "Globals.h"
 #include "InputManager.h"
 
@@ -54,11 +56,16 @@ namespace ARSCREW
         std::list<Screw>& getScrews() { return mScrews; }
         std::list<Enemy>& getEnemies() { return mEnemies; }
         
+        // Getter para o boss Punktauro
+        Punktauro* getPunktauro() { return mPunktauro.get(); }
+        bool hasPunktauro() const { return mPunktauro != nullptr; }
+        
         float getMapWidth() const { return mapWidth; }
         float getMapHeight() const { return mapHeight; }
         
         void handleScrewCollisions();
         void handleEnemyCollisions();
+        void handlePunktauroCollisions();
         
         // Controle do sistema de respawn dos parafusos
         void setScrewRespawnEnabled(bool enabled);
@@ -90,6 +97,9 @@ namespace ARSCREW
         Player mPlayer;
         Camera mCamera;
         Chicken mChicken;
+        
+        // Boss Punktauro (único)
+        std::unique_ptr<Punktauro> mPunktauro;
         
         // Variáveis auxiliares
         Vector mTilePosition;
