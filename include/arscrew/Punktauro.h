@@ -36,7 +36,14 @@ namespace ARSCREW
         // Getter para hurtbox da cabeça
         SDL_Rect getHeadHurtbox() const { return mHeadHurtbox; }
         
+        // Getters para escala visual
+        float getVisualScale() const { return mVisualScale; }
+        void setVisualScale(float scale) { mVisualScale = scale; }
+        
     private:
+        // Configurações visuais
+        float mVisualScale;  // Escala visual do boss (1.0f = tamanho original)
+        
         // Hurtbox específica da cabeça
         SDL_Rect mHeadHurtbox;
         
@@ -66,6 +73,7 @@ namespace ARSCREW
         void phase3Behavior(const Player& player, float deltaTime);
         void loadBossAnimations(SDL_Renderer* renderer);
         void updatePunktauroHitboxes(); // Método específico para atualizar hitboxes do boss
+        void followPlayer(const Player& player, float deltaTime); // Override para adicionar lógica de chão
         
         // Constantes
         static const float SPECIAL_ATTACK_COOLDOWN;
@@ -73,6 +81,7 @@ namespace ARSCREW
         static const int PHASE_1_DAMAGE;
         static const int PHASE_2_DAMAGE;
         static const int PHASE_3_DAMAGE;
+        static const float BOSS_INVULNERABILITY_DURATION;
     };
 }
 

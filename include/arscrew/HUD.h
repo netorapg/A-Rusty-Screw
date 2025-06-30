@@ -5,6 +5,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <string>
 #include "Player.h"
+#include "Punktauro.h"
 #include "Globals.h"
 
 namespace ARSCREW
@@ -15,7 +16,7 @@ namespace ARSCREW
         HUD(SDL_Renderer* renderer);
         ~HUD();
         
-        void render(SDL_Renderer* renderer, const Player& player);
+        void render(SDL_Renderer* renderer, const Player& player, const Punktauro* boss = nullptr);
         void update(float deltaTime);
         
         // Configurações visuais
@@ -34,14 +35,21 @@ namespace ARSCREW
         SDL_Color mBackgroundColor;
         SDL_Color mCuttingColor;
         SDL_Color mPiercingColor;
+        SDL_Color mHealthBarColor;
+        SDL_Color mHealthBarBackgroundColor;
+        SDL_Color mBossHealthBarColor;
         
         // Posições dos elementos da HUD
         struct HUDPositions
         {
             SDL_Rect attackTypeBox;
             SDL_Rect instructionsBox;
+            SDL_Rect playerHealthBox;
+            SDL_Rect bossHealthBox;
             int attackTypeTextX, attackTypeTextY;
             int instructionsTextX, instructionsTextY;
+            int playerHealthTextX, playerHealthTextY;
+            int bossHealthTextX, bossHealthTextY;
         } mPositions;
         
         // Texturas renderizadas para otimização
@@ -59,7 +67,10 @@ namespace ARSCREW
         // Métodos de renderização
         void renderAttackType(SDL_Renderer* renderer, AttackType currentAttack);
         void renderInstructions(SDL_Renderer* renderer);
+        void renderPlayerHealth(SDL_Renderer* renderer, const Player& player);
+        void renderBossHealth(SDL_Renderer* renderer, const Punktauro* boss);
         void renderBackground(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color, Uint8 alpha = 180);
+        void renderHealthBar(SDL_Renderer* renderer, const SDL_Rect& barRect, int currentHealth, int maxHealth, SDL_Color barColor);
         
         // Utilitário para criar textura de texto
         SDL_Texture* createTextTexture(const std::string& text, TTF_Font* font, SDL_Color color);

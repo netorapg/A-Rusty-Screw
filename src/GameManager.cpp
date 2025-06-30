@@ -351,7 +351,7 @@ namespace ARSCREW
     void GameManager::renderHUD()
     {
         SDL_RenderSetScale(mRenderer, 1.0f, 1.0f);
-        mHUD.render(mRenderer, mWorld.getPlayer());
+        mHUD.render(mRenderer, mWorld.getPlayer(), mWorld.getPunktauro());
         SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
     }
 

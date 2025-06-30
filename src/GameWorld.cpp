@@ -110,7 +110,6 @@ namespace ARSCREW
         if (mPunktauro && !mPunktauro->isDead())
         {
             mPunktauro->updateWithPlayer(mPlayer, deltaTime);
-            mPunktauro->update(deltaTime);
             CollisionEngine::HandleCollisions(*mPunktauro, mPlatforms, mSolidPlatforms, mRamps);
         }
         
@@ -286,11 +285,20 @@ namespace ARSCREW
         {
             SDL_Rect playerAttackBox = mPlayer.getAttackHitbox();
             
+            // Debug temporário - remover depois
+            std::cout << "DEBUG - Player attacking!" << std::endl;
+            std::cout << "  Player attack box: x=" << playerAttackBox.x << " y=" << playerAttackBox.y 
+                      << " w=" << playerAttackBox.w << " h=" << playerAttackBox.h << std::endl;
+            std::cout << "  Boss head hurtbox: x=" << bossHeadHurtbox.x << " y=" << bossHeadHurtbox.y 
+                      << " w=" << bossHeadHurtbox.w << " h=" << bossHeadHurtbox.h << std::endl;
+            
             bool attackOverlap =
                 (playerAttackBox.x < bossHeadHurtbox.x + bossHeadHurtbox.w) &&
                 (playerAttackBox.x + playerAttackBox.w > bossHeadHurtbox.x) &&
                 (playerAttackBox.y < bossHeadHurtbox.y + bossHeadHurtbox.h) &&
                 (playerAttackBox.y + playerAttackBox.h > bossHeadHurtbox.y);
+
+            std::cout << "  Overlap result: " << (attackOverlap ? "YES" : "NO") << std::endl;
 
             if (attackOverlap)
             {
@@ -357,7 +365,7 @@ namespace ARSCREW
                 // Knockback no player
                 Vector playerVelocity = mPlayer.getVelocity();
                 int bossDirection = mPunktauro->getFacingDirection();
-                playerVelocity.x = bossDirection * 300.0f; // Knockback forte do boss
+                playerVelocity.x = bossDirection * 800.0f; // Knockback forte do boss
                 playerVelocity.y = -150.0f; // Pulo para cima
                 mPlayer.setVelocity(playerVelocity);
             }

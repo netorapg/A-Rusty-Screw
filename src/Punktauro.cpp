@@ -7,11 +7,12 @@
 namespace ARSCREW
 {
     // Definição das constantes
-    const float Punktauro::SPECIAL_ATTACK_COOLDOWN = 3.0f;
-    const float Punktauro::CHARGE_SPEED = 200.0f;
+    const float Punktauro::SPECIAL_ATTACK_COOLDOWN = 4.0f;
+    const float Punktauro::CHARGE_SPEED = 500.0f;
     const int Punktauro::PHASE_1_DAMAGE = 15;
     const int Punktauro::PHASE_2_DAMAGE = 20;
     const int Punktauro::PHASE_3_DAMAGE = 25;
+    const float Punktauro::BOSS_INVULNERABILITY_DURATION = 3.0f; // 2 segundos para o boss
 
     Punktauro::Punktauro(Vector position, SDL_Renderer* renderer)
         : Enemy(position, renderer), mCurrentState(PunktauroState::PHASE_1)
@@ -26,14 +27,14 @@ namespace ARSCREW
         
         
         // Configurações específicas do boss
-        mMaxHealth = 200;
+        mMaxHealth = 300;
         mCurrentHealth = mMaxHealth;
         mPhase1Health = mMaxHealth * 0.7f;  // 140 HP
         mPhase2Health = mMaxHealth * 0.3f;  // 60 HP
         
         // Configurações de ataque
         mDamage = PHASE_1_DAMAGE;
-        mFollowSpeed = 100.0f;
+        mFollowSpeed = 300.0f;
         mFollowDistance = 250.0f;
         mAttackDistance = 80.0f;
         
@@ -46,7 +47,11 @@ namespace ARSCREW
         mIsCharging = false;
         
         // Tamanho maior para o boss
-        mSize = Vector(73, 50);
+        mSize = Vector(70, 70);
+        
+        // Configurar escala visual (pode ser ajustada para fazer o boss parecer maior)
+        // 1.0f = tamanho original, 1.5f = 50% maior, 2.0f = 100% maior (dobro do tamanho)
+        mVisualScale = 2.0f; // 50% maior que o tamanho original
         
         // Recarregar animações com a nova textura
         loadBossAnimations(renderer);
@@ -67,20 +72,6 @@ namespace ARSCREW
             return;
         }
         
-        // Aplicar física básica (gravidade e movimento) - IMPORTANTE!
-        Vector velocity = getVelocity();
-        Vector position = getPosition();
-        
-        // Aplica gravidade se não estiver no chão
-        velocity.y += GRAVITY * deltaTime;
-        
-        // Atualiza posição baseada na velocidade
-        position += velocity * deltaTime;
-        
-        // Aplica mudanças de posição e velocidade
-        setVelocity(velocity);
-        setPosition(position);
-        
         // Atualizar fase baseado na vida
         updatePhase();
         
@@ -93,6 +84,9 @@ namespace ARSCREW
         updateInvulnerability(deltaTime);
         updateAttack(deltaTime);
         updatePunktauroHitboxes();
+        
+        // Chamar o update da classe base Enemy para aplicar física
+        Enemy::update(deltaTime);
     }
 
     void Punktauro::render(SDL_Renderer* renderer, Vector cameraPosition)
@@ -179,12 +173,25 @@ namespace ARSCREW
                         }
                     }
 
-                    // Usa o método draw da classe Sprite
+                    // Usa renderização escalada customizada em vez do método draw padrão
                     bool shouldFlip = (mFacingDirection == -1);
-                    currentSprite->draw(renderer, 
-                                  static_cast<int>(renderPos.x), 
-                                  static_cast<int>(renderPos.y), 
-                                  shouldFlip);
+                    
+                    // Calcular tamanho escalado
+                    SDL_Point spriteSize = currentSprite->getSize();
+                    int scaledWidth = static_cast<int>(spriteSize.x * mVisualScale);
+                    int scaledHeight = static_cast<int>(spriteSize.y * mVisualScale);
+                    
+                    // Ajustar posição para centralizar o sprite escalado
+                    int centeredX = static_cast<int>(renderPos.x) - (scaledWidth - spriteSize.x) / 2;
+                    int centeredY = static_cast<int>(renderPos.y) - (scaledHeight - spriteSize.y) / 2;
+                    
+                    // Criar retângulo de destino escalado
+                    SDL_Rect destRect = { centeredX, centeredY, scaledWidth, scaledHeight };
+                    SDL_RendererFlip flipFlag = shouldFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+                    
+                    // Renderizar com escala
+                    const SDL_Rect& srcRect = currentSprite->getSrcRect();
+                    SDL_RenderCopyEx(renderer, currentSprite->getTexture(), &srcRect, &destRect, 0.0, nullptr, flipFlag);
                 }
             }
         }
@@ -217,6 +224,9 @@ namespace ARSCREW
             mFacingDirection = -1;
         else
             mFacingDirection = 1;
+            
+        // Chamar o método update para aplicar física
+        update(deltaTime);
     }
 
     void Punktauro::takeDamage(int damage)
@@ -224,9 +234,12 @@ namespace ARSCREW
         if (isInvulnerable() || isDead()) return;
         
         mCurrentHealth -= damage;
-        mInvulnerabilityTimer = INVULNERABILITY_DURATION;
+        mInvulnerabilityTimer = BOSS_INVULNERABILITY_DURATION; // Usar duração específica do boss
+        mIsFlashing = true; // Ativar efeito de piscar durante invulnerabilidade
+        mFlashTimer = 0.0f; // Resetar timer de flash
         
-        std::cout << "Punktauro levou " << damage << " de dano! Vida: " << mCurrentHealth << "/" << mMaxHealth << std::endl;
+        std::cout << "Punktauro levou " << damage << " de dano! Vida: " << mCurrentHealth << "/" << mMaxHealth 
+                  << " (invulnerável por " << BOSS_INVULNERABILITY_DURATION << "s)" << std::endl;
         
         if (mCurrentHealth <= 0)
         {
@@ -333,7 +346,17 @@ namespace ARSCREW
 
     void Punktauro::updateMovementPattern(const Player& player, float deltaTime)
     {
-        // Padrão de movimento baseado no timer
+        // Boss só pode fazer padrões de movimento se estiver no chão
+        if (!isOnGround()) {
+            // Se não estiver no chão, não faz charge nem movimentos especiais
+            mIsCharging = false;
+            Vector velocity = getVelocity();
+            velocity.x = 0; // Para o movimento horizontal
+            setVelocity(velocity);
+            return;
+        }
+        
+        // Padrão de movimento baseado no timer (apenas quando no chão)
         if (mCurrentState == PunktauroState::PHASE_2 || mCurrentState == PunktauroState::PHASE_3)
         {
             // A cada 4 segundos, fazer uma investida
@@ -372,26 +395,89 @@ namespace ARSCREW
     {
         Vector pos = getPosition();
         
-        // Atualizar hurtbox padrão (corpo completo) - chamando método da classe pai
-        updateHitboxes();
+        // Calcular tamanho visual escalado para hitboxes
+        Vector scaledSize = mSize * mVisualScale;
+        
+        // A sprite escalada é centralizada visualmente, então as hitboxes devem seguir a mesma lógica
+        // Posição da sprite escalada (mesma lógica do render)
+        Vector hitboxPos = pos;
+        hitboxPos.x -= (scaledSize.x - mSize.x) / 2;
+        hitboxPos.y -= (scaledSize.y - mSize.y) / 2;
+        
+        // Atualizar hurtbox padrão (corpo completo) com tamanho escalado
+        mHurtbox.x = static_cast<int>(hitboxPos.x);
+        mHurtbox.y = static_cast<int>(hitboxPos.y);
+        mHurtbox.w = static_cast<int>(scaledSize.x);
+        mHurtbox.h = static_cast<int>(scaledSize.y);
         
         // Configurar hurtbox específica da cabeça do Punktauro
-        // A cabeça está localizada na parte superior do sprite
-        // Assumindo que a cabeça ocupa aproximadamente os primeiros 30% da altura
-        float headHeightPercent = 0.3f;
-        int headHeight = static_cast<int>(mSize.y * headHeightPercent);
+        // Usar percentuais menores para a hurtbox da cabeça para ser mais preciso
+        float headHeightPercent = 0.2f;  // Reduzido de 0.3f para ser mais preciso
+        float headWidthPercent = 0.2f;    // Reduzido de 0.7f para ser mais preciso
         
-        // A cabeça tem uma largura um pouco menor que o corpo
-        float headWidthPercent = 0.7f;
-        int headWidth = static_cast<int>(mSize.x * headWidthPercent);
+        int headHeight = static_cast<int>(scaledSize.y * headHeightPercent);
+        int headWidth = static_cast<int>(scaledSize.x * headWidthPercent);
         
         // Centralizar a hurtbox da cabeça horizontalmente
-        int headOffsetX = static_cast<int>((mSize.x - headWidth) / 2);
+        int headOffsetX = static_cast<int>((scaledSize.x - headWidth) / 2);
         
-        mHeadHurtbox.x = static_cast<int>(pos.x) + headOffsetX;
-        mHeadHurtbox.y = static_cast<int>(pos.y); // Topo do sprite
+        // Posição da cabeça: início da sprite + pequeno offset para evitar bordas
+        int headOffsetY = static_cast<int>(scaledSize.y * 0.05f); // 5% do topo
+        
+        mHeadHurtbox.x = static_cast<int>(hitboxPos.x) + headOffsetX;
+        mHeadHurtbox.y = static_cast<int>(hitboxPos.y) + headOffsetY;
         mHeadHurtbox.w = headWidth;
         mHeadHurtbox.h = headHeight;
+        
+        // Atualizar attack hitbox se estiver atacando
+        if (mIsAttacking)
+        {
+            int hitboxWidth = static_cast<int>(30 * mVisualScale);
+            int hitboxHeight = static_cast<int>(20 * mVisualScale);
+            
+            if (mFacingDirection == 1) // Direita
+            {
+                mAttackHitbox.x = static_cast<int>(hitboxPos.x + scaledSize.x);
+                mAttackHitbox.y = static_cast<int>(hitboxPos.y + scaledSize.y / 2 - hitboxHeight / 2);
+            }
+            else // Esquerda
+            {
+                mAttackHitbox.x = static_cast<int>(hitboxPos.x - hitboxWidth);
+                mAttackHitbox.y = static_cast<int>(hitboxPos.y + scaledSize.y / 2 - hitboxHeight / 2);
+            }
+            
+            mAttackHitbox.w = hitboxWidth;
+            mAttackHitbox.h = hitboxHeight;
+        }
+    }
+
+    void Punktauro::followPlayer(const Player& player, float deltaTime)
+    {
+        // Boss só pode seguir o jogador se estiver no chão
+        if (!isOnGround()) {
+            // Se não estiver no chão, não move horizontalmente
+            Vector velocity = getVelocity();
+            velocity.x = 0; // Para o movimento horizontal
+            setVelocity(velocity);
+            return;
+        }
+        
+        // Se estiver no chão, usa o comportamento normal de seguir
+        Vector playerPos = player.getPosition();
+        Vector bossPos = getPosition();
+        Vector direction = playerPos - bossPos;
+        
+        float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+        
+        if (distance > 0.1f && distance > mAttackDistance)
+        {
+            // Normaliza a direção horizontal
+            direction.x /= distance;
+            
+            Vector velocity = getVelocity();
+            velocity.x = direction.x * mFollowSpeed;
+            setVelocity(velocity);
+        }
     }
 
     void Punktauro::loadBossAnimations(SDL_Renderer* renderer)
