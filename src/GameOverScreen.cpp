@@ -23,8 +23,8 @@ namespace ARSCREW
         createTextures();
 
         // Cores
-        mTextColor = {255, 255, 255, 255};
-        mSelectedColor = {255, 255, 0, 255};
+        mTextColor = {255, 255, 255, 255};        // Branco puro para melhor visibilidade
+        mSelectedColor = {255, 255, 0, 255};      // Amarelo brilhante para seleção
         mBackgroundColor = {0, 0, 0, 200};
     }
 
@@ -115,10 +115,10 @@ namespace ARSCREW
         std::cout << "GameOverScreen: Creating textures..." << std::endl;
         
         mGameOverTexture = createTextTexture("GAME OVER", mTitleFont, {255, 0, 0, 255});
-        mRestartTexture = createTextTexture("RESTART", mOptionFont, mTextColor);
-        mQuitTexture = createTextTexture("QUIT", mOptionFont, mTextColor);
+        mRestartTexture = createTextTexture("RESTART", mOptionFont, {255, 255, 255, 255}); // Branco puro
+        mQuitTexture = createTextTexture("QUIT", mOptionFont, {255, 255, 255, 255}); // Branco puro
         mInstructionTexture = createTextTexture("Use W/S to select, ENTER to confirm", 
-                                               mOptionFont, {200, 200, 200, 255});
+                                               mOptionFont, {220, 220, 220, 255}); // Cinza claro
         
         std::cout << "GameOverScreen: Textures created - GameOver: " << (mGameOverTexture ? "OK" : "FAIL") 
                   << ", Restart: " << (mRestartTexture ? "OK" : "FAIL")
@@ -207,15 +207,12 @@ namespace ARSCREW
             {
                 SDL_SetTextureAlphaMod(mGameOverTexture, alpha);
                 SDL_RenderCopy(renderer, mGameOverTexture, nullptr, &mPositions.gameOverRect);
-                std::cout << "GameOverScreen: Rendered GAME OVER with alpha " << (int)alpha << " at position (" 
-                          << mPositions.gameOverRect.x << "," << mPositions.gameOverRect.y << ")" << std::endl;
-            } else {
-                std::cout << "GameOverScreen: mGameOverTexture is null!" << std::endl;
             }
 
             // Renderizar opções
             renderOption(renderer, mRestartTexture, mPositions.restartRect, 
                         mSelectedOption == GameOverOption::RESTART);
+            
             renderOption(renderer, mQuitTexture, mPositions.quitRect, 
                         mSelectedOption == GameOverOption::QUIT);
 
@@ -247,12 +244,13 @@ namespace ARSCREW
         
         if (isSelected && mShowSelection)
         {
-            // Criar uma versão colorida da textura para seleção
-            SDL_SetTextureColorMod(texture, mSelectedColor.r, mSelectedColor.g, mSelectedColor.b);
+            // Usar cor amarela brilhante para seleção
+            SDL_SetTextureColorMod(texture, 255, 255, 0);
         }
         else
         {
-            SDL_SetTextureColorMod(texture, mTextColor.r, mTextColor.g, mTextColor.b);
+            // Usar branco puro para texto normal
+            SDL_SetTextureColorMod(texture, 255, 255, 255);
         }
 
         SDL_SetTextureAlphaMod(texture, alpha);
