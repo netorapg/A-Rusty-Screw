@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
         lastTime = currentTime;
 
         gameManager.handleEvents();
-        gameManager.update();
+        gameManager.update(ARSCREW::deltaTime);
 
         // ---------- 1) LIMPAR A TELA (janela) (preto opaco) ----------
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);

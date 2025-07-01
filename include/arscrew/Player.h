@@ -61,6 +61,7 @@ namespace ARSCREW
             // Sistema de vida e dano
             void takeDamage(int damage);
             void heal(int healAmount);
+            void resetHealth(); // Restaura a vida ao máximo
             int getCurrentHealth() const { return mCurrentHealth; }
             int getMaxHealth() const { return mMaxHealth; }
             bool isDead() const { return mCurrentHealth <= 0; }

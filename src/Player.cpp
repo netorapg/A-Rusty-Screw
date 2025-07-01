@@ -351,6 +351,17 @@ void Player::heal(int healAmount)
     }
 }
 
+void Player::resetHealth()
+{
+    mCurrentHealth = mMaxHealth;
+    mInvulnerabilityTimer = 0.0f;
+    mIsFlashing = false;
+    mFlashTimer = 0.0f;
+    
+    std::cout << "Player health reset to maximum: " 
+              << mCurrentHealth << "/" << mMaxHealth << std::endl;
+}
+
 void Player::updateInvulnerability(float deltaTime)
 {
     if (mInvulnerabilityTimer > 0.0f) {
