@@ -61,11 +61,20 @@ namespace ARSCREW
             // Sistema de vida e dano
             void takeDamage(int damage);
             void heal(int healAmount);
+            void resetHealth(); // Restaura a vida ao máximo
             int getCurrentHealth() const { return mCurrentHealth; }
             int getMaxHealth() const { return mMaxHealth; }
             bool isDead() const { return mCurrentHealth <= 0; }
             bool isInvulnerable() const { return mInvulnerabilityTimer > 0.0f; }
             
+            void setMovementInput(bool movingLeft, bool movingRight);
+            bool isMoving() const { return mIsMovingLeft || mIsMovingRight; }
+            
+            // Controle de colisões laterais
+            void setHadLateralCollision(bool hadCollision) { mHadLateralCollisionThisFrame = hadCollision; }
+            bool hadLateralCollisionThisFrame() const { return mHadLateralCollisionThisFrame; }
+            void setLateralCollisionBuffer(float time) { mLateralCollisionBuffer = time; }
+
         private:
             int mFacingDirection;
             bool mIsJumping;
@@ -101,6 +110,14 @@ namespace ARSCREW
             SDL_Rect mHurtbox;
             bool mShowAttackHitbox = true;
             bool mShowHurtbox = true;
+
+            bool mIsMovingLeft = false;
+            bool mIsMovingRight = false;
+            
+            // Controle de colisão lateral para evitar penetração visual
+            bool mHadLateralCollisionThisFrame = false;
+            float mLateralCollisionBuffer = 0.0f; // Timer para evitar movimento após colisão lateral
+            Vector mLastValidPosition;
 
             void updateWeaponPosition();
             void updateHurtbox();

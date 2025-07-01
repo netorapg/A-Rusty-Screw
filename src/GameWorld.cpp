@@ -75,10 +75,12 @@ namespace ARSCREW
         mDecorations.clear();
         mScrews.clear();
         mEnemies.clear();
+        mPunktauro.reset(); // Limpar o boss Punktauro
     }
 
     void GameWorld::updateWorld(float deltaTime)
     {
+        handleInput();
         // Atualizar caixotes
         for (auto& crate : mCrates)
         {
@@ -104,63 +106,60 @@ namespace ARSCREW
             }
         }
         
+        // Atualizar boss Punktauro
+        if (mPunktauro && !mPunktauro->isDead())
+        {
+            mPunktauro->updateWithPlayer(mPlayer, deltaTime);
+            CollisionEngine::HandleCollisions(*mPunktauro, mPlatforms, mSolidPlatforms, mRamps);
+        }
+        
         // Opcional: Remover inimigos destruídos após um tempo
         mEnemies.remove_if([](const Enemy& enemy) { 
             return enemy.isDestroyed(); 
         });
     }
 
-    void GameWorld::handleInput(SDL_Event& e)
+    void GameWorld::handleInput()
     {
-        // Tratar eventos do jogador
-        if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
-        {
-            switch (e.key.keysym.sym)
-            {
-                case SDLK_d:
-                    mPlayer.moveRight();
-                    break;
-                case SDLK_a:
-                    mPlayer.moveLeft();
-                    break;
-                case SDLK_SPACE:
-                    mPlayer.jump();
-                    break;
-                case SDLK_s:
-                    if (mPlayer.isOnGround()) {
-                        mPlayer.passThroughPlatform(true);
-                    }
-                    break;
-                case SDLK_j:
-                    mPlayer.startAttack();
-                    break;
-                case SDLK_q:
-                    mPlayer.switchAttackType();
-                    break;
-                case SDLK_e:
-                    mPlayer.startDash();
-                    break;
-                case SDLK_LCTRL:
-                    // Toggle debug para player e inimigos
-                    mPlayer.toggleDebugDisplay();
-                    for (auto& enemy : mEnemies)
-                    {
-                        enemy.toggleDebugDisplay();
-                    }
-                    break;
-            }
+        mInputManager.update();
+        
+        // Movimento contínuo
+        bool movingLeft = mInputManager.isActionPressed(InputAction::MOVE_LEFT);
+        bool movingRight = mInputManager.isActionPressed(InputAction::MOVE_RIGHT);
+        mPlayer.setMovementInput(movingLeft, movingRight);
+        
+        // Ações que precisam ser "just pressed" (não repetir)
+        if (mInputManager.isActionJustPressed(InputAction::JUMP)) {
+            mPlayer.jump();
         }
-        else if (e.type == SDL_KEYUP)
-        {
-            switch (e.key.keysym.sym)
-            {
-                case SDLK_a:
-                case SDLK_d:
-                    mPlayer.stopHorizontalMovement();
-                    break;
-                case SDLK_s:
-                    mPlayer.passThroughPlatform(false);
-                    break;
+        
+        if (mInputManager.isActionJustPressed(InputAction::ATTACK)) {
+            mPlayer.startAttack();
+        }
+        
+        if (mInputManager.isActionJustPressed(InputAction::DASH)) {
+            mPlayer.startDash();
+        }
+        
+        if (mInputManager.isActionJustPressed(InputAction::SWITCH_ATTACK)) {
+            mPlayer.switchAttackType();
+        }
+        
+        // Agachar/passar pela plataforma (contínuo)
+        if (mInputManager.isActionPressed(InputAction::CROUCH)) {
+            mPlayer.passThroughPlatform(true);
+        } else {
+            mPlayer.passThroughPlatform(false);
+        }
+        
+        // Debug toggle (just pressed)
+        if (mInputManager.isActionJustPressed(InputAction::DEBUG_TOGGLE)) {
+            mPlayer.toggleDebugDisplay();
+            for (auto& enemy : mEnemies) {
+                enemy.toggleDebugDisplay();
+            }
+            if (mPunktauro) {
+                mPunktauro->toggleDebugDisplay();
             }
         }
     }
@@ -274,6 +273,105 @@ namespace ARSCREW
     }
 }
 
+    void GameWorld::handlePunktauroCollisions()
+    {
+        if (!mPunktauro || mPunktauro->isDead()) return;
+
+        // Usar a hurtbox da cabeça em vez da hurtbox do corpo completo
+        SDL_Rect bossHeadHurtbox = mPunktauro->getHeadHurtbox();
+        
+        // Verificar se player está atacando o boss (apenas na cabeça)
+        if (mPlayer.isAttacking() && !mPunktauro->isInvulnerable())
+        {
+            SDL_Rect playerAttackBox = mPlayer.getAttackHitbox();
+            
+            // Debug temporário - remover depois
+            std::cout << "DEBUG - Player attacking!" << std::endl;
+            std::cout << "  Player attack box: x=" << playerAttackBox.x << " y=" << playerAttackBox.y 
+                      << " w=" << playerAttackBox.w << " h=" << playerAttackBox.h << std::endl;
+            std::cout << "  Boss head hurtbox: x=" << bossHeadHurtbox.x << " y=" << bossHeadHurtbox.y 
+                      << " w=" << bossHeadHurtbox.w << " h=" << bossHeadHurtbox.h << std::endl;
+            
+            bool attackOverlap =
+                (playerAttackBox.x < bossHeadHurtbox.x + bossHeadHurtbox.w) &&
+                (playerAttackBox.x + playerAttackBox.w > bossHeadHurtbox.x) &&
+                (playerAttackBox.y < bossHeadHurtbox.y + bossHeadHurtbox.h) &&
+                (playerAttackBox.y + playerAttackBox.h > bossHeadHurtbox.y);
+
+            std::cout << "  Overlap result: " << (attackOverlap ? "YES" : "NO") << std::endl;
+
+            if (attackOverlap)
+            {
+                int damage = 25; // Dano base do player
+                
+                // Dano extra baseado no tipo de ataque
+                if (mPlayer.getCurrentAttackType() == AttackType::PIERCING) {
+                    damage += 10; // Ataque perfurante causa mais dano no boss
+                    std::cout << "CRITICAL HIT! Piercing attack against Punktauro's head!" << std::endl;
+                } else {
+                    std::cout << "HEADSHOT! Attack hit Punktauro's head!" << std::endl;
+                }
+                
+                mPunktauro->takeDamage(damage);
+                std::cout << "Punktauro hit in the head! Phase: " << static_cast<int>(mPunktauro->getCurrentPhase()) 
+                          << " Health: " << mPunktauro->getCurrentHealth() << "/" << mPunktauro->getMaxHealth() << std::endl;
+                
+                // Impulso para o jogador (similar ao acertar parafuso no ar)
+                if (!mPlayer.isOnGround()) {
+                    Vector playerVelocity = mPlayer.getVelocity();
+                    playerVelocity.y = -300.0f; // Mesmo impulso que o parafuso
+                    mPlayer.setVelocity(playerVelocity);
+                    std::cout << "Air headshot! Player boosted upward!" << std::endl;
+                }
+                
+                // Knockback no boss (menor que inimigos normais por ser mais pesado)
+                Vector bossVelocity = mPunktauro->getVelocity();
+                int playerDirection = mPlayer.getFacingDirection();
+                bossVelocity.x = playerDirection * 100.0f; // Knockback menor para o boss
+                bossVelocity.y = -50.0f; // Pequeno pulo
+                mPunktauro->setVelocity(bossVelocity);
+                
+                // Verificar se o boss foi derrotado
+                if (mPunktauro->isDead())
+                {
+                    std::cout << "=== PUNKTAURO DERROTADO! PARABÉNS! ===" << std::endl;
+                    // Aqui você pode adicionar efeitos especiais, som de vitória, recompensas, etc.
+                }
+                
+                return; // Pular verificação de dano ao player se já atacou
+            }
+        }
+        
+        // Verificar se o boss está atacando o player
+        if (mPunktauro->isAttacking() && !mPlayer.isInvulnerable())
+        {
+            SDL_Rect playerHurtbox = mPlayer.getHurtbox();
+            SDL_Rect bossAttackBox = mPunktauro->getAttackHitbox();
+            
+            bool hurtOverlap =
+                (playerHurtbox.x < bossAttackBox.x + bossAttackBox.w) &&
+                (playerHurtbox.x + playerHurtbox.w > bossAttackBox.x) &&
+                (playerHurtbox.y < bossAttackBox.y + bossAttackBox.h) &&
+                (playerHurtbox.y + playerHurtbox.h > bossAttackBox.y);
+
+            if (hurtOverlap)
+            {
+                int bossDamage = mPunktauro->getDamage();
+                mPlayer.takeDamage(bossDamage);
+                
+                std::cout << "Player hit by Punktauro! Damage: " << bossDamage 
+                          << " (Phase " << static_cast<int>(mPunktauro->getCurrentPhase()) << ")" << std::endl;
+                
+                // Knockback no player
+                Vector playerVelocity = mPlayer.getVelocity();
+                int bossDirection = mPunktauro->getFacingDirection();
+                playerVelocity.x = bossDirection * 800.0f; // Knockback forte do boss
+                playerVelocity.y = -150.0f; // Pulo para cima
+                mPlayer.setVelocity(playerVelocity);
+            }
+        }
+    }
+
     void GameWorld::setScrewRespawnEnabled(bool enabled)
     {
         mScrewRespawnEnabled = enabled;
@@ -324,6 +422,12 @@ namespace ARSCREW
             }
         }
 
+        // Renderizar boss Punktauro (por último para ficar na frente)
+        if (mPunktauro && !mPunktauro->isDead() && mPunktauro->isVisible(cameraPos, viewSize))
+        {
+            mPunktauro->render(renderer, snappedCameraPos);
+        }
+
         mChicken.render(renderer, snappedCameraPos);
         mPlayer.render(renderer, snappedCameraPos);
     }
@@ -345,8 +449,8 @@ namespace ARSCREW
         std::unordered_map<int, int> tileTypeMap = 
         {
             {18, 1}, // Plataforma vazada
-            {5, 2},{9, 2},{16, 2},{31, 2},{78, 2},  // Plataforma Sólida
-            {64, 2},{15, 2},{41, 2}, {87, 2}, // Parede
+            {5, 2},{9, 2},{16, 2},{31, 2},{78, 2}, {23, 2},   // Plataforma Sólida
+            {64, 2},{15, 2},{41, 2}, {87, 2}, {15, 2}, {13, 2},
             {65, 3}, // Caixote
             {89, 4} // Rampa
         };
@@ -473,7 +577,11 @@ namespace ARSCREW
         {
             mEnemies.emplace_back(Vector(mAttributeSpawn), mRenderer);
             std::cout << "Enemy spawned at: " << mAttributeSpawn.x << ", " << mAttributeSpawn.y << std::endl;
-
+        }
+        else if (strcmp(type, "boss_spawn") == 0 || strcmp(type, "punktauro_spawn") == 0)
+        {
+            mPunktauro = std::make_unique<Punktauro>(Vector(mAttributeSpawn), mRenderer);
+            std::cout << "PUNKTAURO BOSS spawned at: " << mAttributeSpawn.x << ", " << mAttributeSpawn.y << std::endl;
         }
     }
 

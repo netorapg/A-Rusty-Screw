@@ -15,6 +15,7 @@ namespace ARSCREW
         , mWorld(renderer)
         , mHUD(renderer)
         , mQuit(false)
+        , mIsRunning(true)
         , mPlayerActivated(false)
         , mActivationTime(0)
         , isTransitioning(false)
@@ -23,6 +24,8 @@ namespace ARSCREW
         , alpha(0)
         , effectiveScreenWidth(SCREEN_WIDTH / PLAYER_ZOOM_FACTOR)
         , effectiveScreenHeight(SCREEN_HEIGHT / PLAYER_ZOOM_FACTOR)
+        , mCurrentState(GameState::PLAYING)
+        , mGameOverScreen(renderer)
     {
         std::cout << "GameManager constructor called" << std::endl;
         initializeRenderSettings();
@@ -37,7 +40,8 @@ namespace ARSCREW
         }
         
         // Carregar nível inicial
-        mWorld.loadLevelFromTMX("../map/mapabanca1.tmx");
+        mCurrentLevel = "../map/bossarena.tmx";
+        mWorld.loadLevelFromTMX(mCurrentLevel);
         mPlayerActivated = false;
         mActivationTime = SDL_GetTicks() + 500;
         centerCameraOnPlayer();
@@ -142,29 +146,53 @@ namespace ARSCREW
             if (e.type == SDL_QUIT)
                 mQuit = true;
             
-            // Delegar eventos para o GameWorld
-            mWorld.handleInput(e);
-
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_r)
-                resetGame();
-
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_F11)
+            // Processar eventos baseado no estado atual
+            switch (mCurrentState)
             {
-                Uint32 flags = SDL_GetWindowFlags(mWindow);
-                if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP)
-                    SDL_SetWindowFullscreen(mWindow, 0);
-                else
-                    SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
-            }
+                case GameState::PLAYING:
+                    // Delegar eventos para o GameWorld apenas quando jogando
+                    mWorld.getInputManager().handleEvent(e);
 
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_F1)
-            {
-                mHUD.setVisible(!mHUD.isVisible());
+                    if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_r)
+                        resetGame();
+
+                    if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_F11)
+                    {
+                        Uint32 flags = SDL_GetWindowFlags(mWindow);
+                        if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP)
+                            SDL_SetWindowFullscreen(mWindow, 0);
+                        else
+                            SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                    }
+
+                    if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_F1)
+                    {
+                        mHUD.setVisible(!mHUD.isVisible());
+                    }
+                    break;
+                    
+                case GameState::GAME_OVER:
+                    // Processar apenas input da tela de game over
+                    mGameOverScreen.handleInput(e);
+                    break;
             }
         }
     }
 
-    void GameManager::update()
+    void GameManager::update(float deltaTime)
+    {
+        switch (mCurrentState)
+        {
+            case GameState::PLAYING:
+                updatePlaying(deltaTime);
+                break;
+            case GameState::GAME_OVER:
+                updateGameOver(deltaTime);
+                break;
+        }
+    }
+
+    void GameManager::updatePlaying(float deltaTime)
     {
         handleTransition();
         if (!isTransitioning)
@@ -173,6 +201,29 @@ namespace ARSCREW
             updateCamera();
             mWorld.updateWorld(deltaTime);
             mHUD.update(deltaTime);
+        }
+        
+        // Verificar se o jogador morreu
+        if (mWorld.getPlayer().isDead())
+        {
+            switchToGameOver();
+        }
+    }
+
+    void GameManager::updateGameOver(float deltaTime)
+    {
+        mGameOverScreen.update(deltaTime);
+        
+        if (mGameOverScreen.isOptionConfirmed())
+        {
+            if (mGameOverScreen.getSelectedOption() == GameOverOption::RESTART)
+            {
+                restartGame();
+            }
+            else // QUIT
+            {
+                mQuit = true;
+            }
         }
     }
 
@@ -183,6 +234,7 @@ namespace ARSCREW
         checkLevelTransitions();
         mWorld.handleScrewCollisions();
         mWorld.handleEnemyCollisions();
+        mWorld.handlePunktauroCollisions();
     }
 
     void GameManager::checkPlayerActivation()
@@ -270,6 +322,7 @@ namespace ARSCREW
 
     void GameManager::completeTransition(const Vector& currentVelocity)
     {
+        mCurrentLevel = targetLevel;
         mWorld.loadLevelFromTMX(targetLevel);
         mWorld.getPlayer().setPosition(targetSpawn);
         mWorld.getPlayer().setVelocity(currentVelocity);
@@ -331,12 +384,21 @@ namespace ARSCREW
 
     void GameManager::render()
     {
-        if (isTransitioning)
+        // Não limpar nem apresentar aqui - o main.cpp é responsável por isso
+        
+        switch (mCurrentState)
         {
-            renderTransitionEffect();
-            return;
+            case GameState::PLAYING:
+                renderPlaying();
+                break;
+            case GameState::GAME_OVER:
+                renderGameOver();
+                break;
         }
-        prepareRender();
+    }
+
+    void GameManager::renderPlaying()
+    {
         renderBackground();
         
         Vector cameraPos = mWorld.getCamera().getPosition();
@@ -344,13 +406,34 @@ namespace ARSCREW
         Vector snappedCameraPos(std::floor(cameraPos.x), std::floor(cameraPos.y));
         mWorld.renderWorld(mRenderer, snappedCameraPos, viewSize);
         renderHUD();
-        finalizeRender();
+        
+        // Renderizar efeito de transição se ativo
+        if (isTransitioning)
+        {
+            renderTransitionEffect();
+        }
+    }
+
+    void GameManager::renderGameOver()
+    {
+        // Renderizar o jogo atrás (pausado) COM escala
+        renderWorld();
+        renderHUD();
+        
+        // Resetar escala para renderizar a tela de game over em resolução nativa
+        SDL_RenderSetScale(mRenderer, 1.0f, 1.0f);
+        
+        // Renderizar a tela de game over por cima (sem escala)
+        mGameOverScreen.render(mRenderer);
+        
+        // Restaurar escala original
+        SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
     }
 
     void GameManager::renderHUD()
     {
         SDL_RenderSetScale(mRenderer, 1.0f, 1.0f);
-        mHUD.render(mRenderer, mWorld.getPlayer());
+        mHUD.render(mRenderer, mWorld.getPlayer(), mWorld.getPunktauro());
         SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
     }
 
@@ -369,7 +452,7 @@ namespace ARSCREW
         SDL_Rect fadeRect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
         SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, alpha);
         SDL_RenderFillRect(mRenderer, &fadeRect);
-        SDL_RenderPresent(mRenderer);
+        // Não chamar SDL_RenderPresent aqui - o main.cpp é responsável
     }
 
     void GameManager::prepareRender()
@@ -455,5 +538,39 @@ namespace ARSCREW
         }
     }
 
+    void GameManager::switchToGameOver()
+    {
+        mCurrentState = GameState::GAME_OVER;
+        mGameOverScreen.reset();
+        mGameOverScreen.startFadeIn();
+    }
+
+    void GameManager::restartGame()
+    {
+        // Recarregar o nível atual
+        mWorld.loadLevelFromTMX(mCurrentLevel);
+        
+        // Restaurar a vida do player ao máximo
+        mWorld.getPlayer().resetHealth();
+      
+        mCurrentState = GameState::PLAYING;
+        mGameOverScreen.reset();
+    }
+
     bool GameManager::isRunning() { return !mQuit; }
+
+    void GameManager::renderWorld()
+    {
+        renderBackground();
+        
+        Vector cameraPos = mWorld.getCamera().getPosition();
+        Vector viewSize(effectiveScreenWidth, effectiveScreenHeight);
+        Vector snappedCameraPos(std::floor(cameraPos.x), std::floor(cameraPos.y));
+        mWorld.renderWorld(mRenderer, snappedCameraPos, viewSize);
+    }
+
+    std::string GameManager::getCurrentLevelPath() const
+    {
+        return mCurrentLevel;
+    }
 }

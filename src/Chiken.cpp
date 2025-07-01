@@ -117,7 +117,7 @@ namespace ARSCREW
 
         bool playerInAir = !player.isOnGround();
 
-        static int debugCounter = 0;
+       /* static int debugCounter = 0;
         if (++debugCounter % 60 == 0)
         {
             std::cout << "Chicken followPlayer: "
@@ -125,7 +125,7 @@ namespace ARSCREW
                       << "Chicken Position: (" << chickenPosition.x << ", " << chickenPosition.y << "), "
                       << "Distance: " << distance << ", "
                       << "Follow Speed: " << mFollowSpeed << std::endl;
-        }
+        }*/
 
         if (distance < STOP_DISTANCE)
         {
@@ -180,7 +180,7 @@ namespace ARSCREW
 
                 mIsMoving = true;
 
-                if (debugCounter % 60 == 0)
+                /*if (debugCounter % 60 == 0)
                 {
                     std::cout << "Chicken moving towards player: "
                               << "Direction: (" << direction.x << ", " << direction.y << "), "
@@ -188,7 +188,7 @@ namespace ARSCREW
                               << "Speed multiplier: " << speedMultiplier << ", "
                               << "Target Velocity X: " << targetVelocityX << ", "
                               << "Final Velocity: (" << velocity.x << ", " << velocity.y << ")" << std::endl;
-                }
+                }*/
             }
         }
         else

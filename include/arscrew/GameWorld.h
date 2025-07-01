@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 #include <array>
+#include <memory>
 #include <tinyxml2.h>
 
 #include "Platform.h"
@@ -19,7 +20,9 @@
 #include "Screw.h"
 #include "Chicken.h"
 #include "Enemy.h"
+#include "Punktauro.h"
 #include "Globals.h"
+#include "InputManager.h"
 
 using namespace tinyxml2;
 
@@ -35,7 +38,7 @@ namespace ARSCREW
         void clearLevelData();
         void updateWorld(float deltaTime);
         void renderWorld(SDL_Renderer* renderer, const Vector& cameraPos, const Vector& viewSize);
-        void handleInput(SDL_Event& e);
+        void handleInput();
     
         // Getters para acesso às entidades
         const Player& getPlayer() const { return mPlayer; }
@@ -44,6 +47,7 @@ namespace ARSCREW
         Player& getPlayer() { return mPlayer; }
         Camera& getCamera() { return mCamera; }
         Chicken& getChicken() { return mChicken; }
+        InputManager& getInputManager() { return mInputManager; }
         std::list<Platform>& getPlatforms() { return mPlatforms; }
         std::list<SolidPlatform>& getSolidPlatforms() { return mSolidPlatforms; }
         std::list<Ramp>& getRamps() { return mRamps; }
@@ -52,11 +56,16 @@ namespace ARSCREW
         std::list<Screw>& getScrews() { return mScrews; }
         std::list<Enemy>& getEnemies() { return mEnemies; }
         
+        // Getter para o boss Punktauro
+        Punktauro* getPunktauro() { return mPunktauro.get(); }
+        bool hasPunktauro() const { return mPunktauro != nullptr; }
+        
         float getMapWidth() const { return mapWidth; }
         float getMapHeight() const { return mapHeight; }
         
         void handleScrewCollisions();
         void handleEnemyCollisions();
+        void handlePunktauroCollisions();
         
         // Controle do sistema de respawn dos parafusos
         void setScrewRespawnEnabled(bool enabled);
@@ -69,6 +78,8 @@ namespace ARSCREW
         SDL_Texture* mPlatformsTexture;
         SDL_Texture* mScrewsTexture;
         std::string mPlatformsTexturePath;
+
+        InputManager mInputManager;
         
         float mapWidth;
         float mapHeight;
@@ -86,6 +97,9 @@ namespace ARSCREW
         Player mPlayer;
         Camera mCamera;
         Chicken mChicken;
+        
+        // Boss Punktauro (único)
+        std::unique_ptr<Punktauro> mPunktauro;
         
         // Variáveis auxiliares
         Vector mTilePosition;

@@ -11,6 +11,8 @@
 #include "GameWorld.h"
 #include "HUD.h"
 #include "Globals.h"
+#include "GameOverScreen.h"
+#include "GameState.h"
 
 namespace ARSCREW
 {
@@ -21,7 +23,7 @@ namespace ARSCREW
         ~GameManager();
         
         void handleEvents();
-        void update();
+        void update(float deltaTime);
         void render();
         void resetGame();
         bool isRunning();
@@ -36,8 +38,18 @@ namespace ARSCREW
         
         GameWorld mWorld;
         HUD mHUD;
+        GameState mCurrentState;
+        GameOverScreen mGameOverScreen;
+
+        void updatePlaying(float deltaTime);
+        void updateGameOver(float deltaTime);
+        void renderPlaying();
+        void renderGameOver();
+        void switchToGameOver();
+        void restartGame();
         
         bool mQuit;
+        bool mIsRunning;
         bool mPlayerActivated;
         Uint32 mActivationTime;
         
@@ -45,6 +57,7 @@ namespace ARSCREW
         bool isTransitioning;
         Uint32 transitionStartTime;
         std::string targetLevel;
+        std::string mCurrentLevel;
         Vector targetSpawn;
         bool increasing;
         int alpha;
@@ -90,9 +103,13 @@ namespace ARSCREW
         void prepareRender();
         void renderBackground();
         void renderParallaxLayer(int layerIndex, const Vector& cameraPos);
+        void renderWorld();
         void renderHUD();
         void finalizeRender();
         void playJumpSound();
+        
+        // Métodos auxiliares
+        std::string getCurrentLevelPath() const;
     };
 }
 
