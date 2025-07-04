@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="25">
+ <tileset firstgid="1" source="../../fulltile.tsx"/>
+ <layer id="1" name="decorations" width="30" height="20">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,
+46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,
+46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46
+</data>
+ </layer>
+ <objectgroup id="3" name="spawns">
+  <object id="1" type="door" x="367.667" y="592">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="13"/>
+    <property name="target" value="../map/hole.tmx"/>
+   </properties>
+  </object>
+  <object id="8" type="door" x="400.667" y="592.333">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="13"/>
+    <property name="target" value="../map/hole.tmx"/>
+   </properties>
+  </object>
+  <object id="9" type="door" x="431.667" y="593.333">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="13"/>
+    <property name="target" value="../map/hole.tmx"/>
+   </properties>
+  </object>
+  <object id="10" type="door" x="463.333" y="592.667">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="13"/>
+    <property name="target" value="../map/hole.tmx"/>
+   </properties>
+  </object>
+  <object id="11" type="door" x="495" y="593">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="13"/>
+    <property name="target" value="../map/hole.tmx"/>
+   </properties>
+  </object>
+  <object id="12" type="door" x="528" y="593">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="13"/>
+    <property name="target" value="../map/hole.tmx"/>
+   </properties>
+  </object>
+  <object id="14" type="screw_flathead" x="368" y="464"/>
+  <object id="15" type="screw_flathead" x="466.667" y="397.333"/>
+  <object id="16" type="screw_flathead" x="589.333" y="462.667"/>
+  <object id="17" type="door" x="558.667" y="592">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="13"/>
+    <property name="target" value="../map/hole.tmx"/>
+   </properties>
+  </object>
+  <object id="18" type="door" x="594.667" y="592">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="13"/>
+    <property name="target" value="../map/hole.tmx"/>
+   </properties>
+  </object>
+  <object id="19" type="door" x="626.667" y="592">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="13"/>
+    <property name="target" value="../map/hole.tmx"/>
+   </properties>
+  </object>
+  <object id="21" type="player_spawn" x="92" y="422.67"/>
+  <object id="22" type="door" x="337.333" y="593.333">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="13"/>
+    <property name="target" value="../map/hole.tmx"/>
+   </properties>
+  </object>
+  <object id="23" type="door" x="306.667" y="562.667">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="13"/>
+    <property name="target" value="../map/hole.tmx"/>
+   </properties>
+  </object>
+  <object id="24" type="door" x="658.667" y="557.333">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="13"/>
+    <property name="target" value="../map/hole.tmx"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <layer id="2" name="blocks" width="30" height="20">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>

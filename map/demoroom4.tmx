@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="2">
+ <tileset firstgid="1" source="../../fulltile.tsx"/>
+ <objectgroup id="2" name="spawns">
+  <object id="1" type="door" x="14.6964" y="254.542">
+   <properties>
+    <property name="spawn_x" type="float" value="37"/>
+    <property name="spawn_y" type="float" value="25"/>
+    <property name="target" value="../map/demoroom3.tmx"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <layer id="1" name="blocks" width="10" height="10">
+  <data encoding="csv">
+5,5,5,5,5,5,5,5,5,5,
+5,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,5,
+0,0,0,0,0,0,0,5,5,5,
+0,0,0,0,0,0,0,5,0,5,
+5,5,5,5,5,5,5,5,5,5
+</data>
+ </layer>
+</map>

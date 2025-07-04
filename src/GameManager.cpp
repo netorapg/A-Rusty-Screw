@@ -24,8 +24,9 @@ namespace ARSCREW
         , alpha(0)
         , effectiveScreenWidth(SCREEN_WIDTH / PLAYER_ZOOM_FACTOR)
         , effectiveScreenHeight(SCREEN_HEIGHT / PLAYER_ZOOM_FACTOR)
-        , mCurrentState(GameState::PLAYING)
+        , mCurrentState(GameState::MENU)
         , mGameOverScreen(renderer)
+        , mStartMenu(renderer)
     {
         std::cout << "GameManager constructor called" << std::endl;
         initializeRenderSettings();
@@ -39,12 +40,10 @@ namespace ARSCREW
             Mix_VolumeMusic(64); // Volume 50% (0-128)
         }
         
-        // Carregar nível inicial
-        mCurrentLevel = "../map/bossarena.tmx";
-        mWorld.loadLevelFromTMX(mCurrentLevel);
+        // Não carregar nível aqui - será carregado quando o player escolher "START GAME"
+        // O jogo começa no menu
+        mCurrentLevel = "";
         mPlayerActivated = false;
-        mActivationTime = SDL_GetTicks() + 500;
-        centerCameraOnPlayer();
     }
 
     GameManager::~GameManager()
@@ -149,6 +148,11 @@ namespace ARSCREW
             // Processar eventos baseado no estado atual
             switch (mCurrentState)
             {
+                case GameState::MENU:
+                    // Processar input do menu de start
+                    mStartMenu.handleInput(e);
+                    break;
+                    
                 case GameState::PLAYING:
                     // Delegar eventos para o GameWorld apenas quando jogando
                     mWorld.getInputManager().handleEvent(e);
@@ -183,6 +187,9 @@ namespace ARSCREW
     {
         switch (mCurrentState)
         {
+            case GameState::MENU:
+                updateMenu(deltaTime);
+                break;
             case GameState::PLAYING:
                 updatePlaying(deltaTime);
                 break;
@@ -388,6 +395,9 @@ namespace ARSCREW
         
         switch (mCurrentState)
         {
+            case GameState::MENU:
+                renderMenu();
+                break;
             case GameState::PLAYING:
                 renderPlaying();
                 break;
@@ -567,6 +577,50 @@ namespace ARSCREW
         Vector viewSize(effectiveScreenWidth, effectiveScreenHeight);
         Vector snappedCameraPos(std::floor(cameraPos.x), std::floor(cameraPos.y));
         mWorld.renderWorld(mRenderer, snappedCameraPos, viewSize);
+    }
+
+    void GameManager::updateMenu(float deltaTime)
+    {
+        mStartMenu.update(deltaTime);
+        
+        if (mStartMenu.isOptionConfirmed())
+        {
+            if (mStartMenu.getSelectedOption() == StartMenuOption::START_GAME)
+            {
+                switchToPlaying();
+            }
+            else // QUIT
+            {
+                mQuit = true;
+            }
+        }
+    }
+
+    void GameManager::renderMenu()
+    {
+        // Resetar escala para renderizar o menu em resolução nativa
+        SDL_RenderSetScale(mRenderer, 1.0f, 1.0f);
+        
+        // Renderizar o menu de start
+        mStartMenu.render(mRenderer);
+        
+        // Restaurar escala original (não necessário aqui mas por consistência)
+        SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
+    }
+
+    void GameManager::switchToPlaying()
+    {
+        mCurrentState = GameState::PLAYING;
+        mStartMenu.reset();
+        
+        // Carregar nível inicial se necessário
+        if (mCurrentLevel.empty()) {
+            mCurrentLevel = "../map/demoroom1.tmx";
+            mWorld.loadLevelFromTMX(mCurrentLevel);
+            mPlayerActivated = false;
+            mActivationTime = SDL_GetTicks() + 500;
+            centerCameraOnPlayer();
+        }
     }
 
     std::string GameManager::getCurrentLevelPath() const
