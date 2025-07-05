@@ -8,7 +8,8 @@ namespace ARSCREW
         MENU,
         PLAYING,
         GAME_OVER,
-        PAUSED
+        PAUSED,
+        CREDITS
     };
 }
 

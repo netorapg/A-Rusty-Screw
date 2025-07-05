@@ -14,6 +14,7 @@
 #include "GameOverScreen.h"
 #include "StartMenu.h"
 #include "PauseMenu.h"
+#include "CreditsScreen.h"
 #include "GameState.h"
 
 namespace ARSCREW
@@ -44,24 +45,29 @@ namespace ARSCREW
         GameOverScreen mGameOverScreen;
         StartMenu mStartMenu;
         PauseMenu mPauseMenu;
+        CreditsScreen mCreditsScreen;
 
         void updatePlaying(float deltaTime);
         void updateGameOver(float deltaTime);
         void updateMenu(float deltaTime);
         void updatePaused(float deltaTime);
+        void updateCredits(float deltaTime);
         void renderPlaying();
         void renderGameOver();
         void renderMenu();
         void renderPaused();
+        void renderCredits();
         void switchToGameOver();
         void switchToPlaying();
         void switchToPaused();
         void switchToMenu();
+        void switchToCredits();
         void restartGame();
         
         bool mQuit;
         bool mIsRunning;
         bool mPlayerActivated;
+        bool mBossDefeated;
         Uint32 mActivationTime;
         
         // Sistema de transições

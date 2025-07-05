@@ -17,6 +17,7 @@ namespace ARSCREW
         , mQuit(false)
         , mIsRunning(true)
         , mPlayerActivated(false)
+        , mBossDefeated(false)
         , mActivationTime(0)
         , isTransitioning(false)
         , transitionStartTime(0)
@@ -28,6 +29,7 @@ namespace ARSCREW
         , mGameOverScreen(renderer)
         , mStartMenu(renderer)
         , mPauseMenu(renderer)
+        , mCreditsScreen(renderer)
     {
         std::cout << "GameManager constructor called" << std::endl;
         initializeRenderSettings();
@@ -188,6 +190,11 @@ namespace ARSCREW
                     // Processar apenas input da tela de game over
                     mGameOverScreen.handleInput(e);
                     break;
+                    
+                case GameState::CREDITS:
+                    // Processar apenas input da tela de créditos
+                    mCreditsScreen.handleInput(e);
+                    break;
             }
         }
     }
@@ -208,6 +215,9 @@ namespace ARSCREW
             case GameState::GAME_OVER:
                 updateGameOver(deltaTime);
                 break;
+            case GameState::CREDITS:
+                updateCredits(deltaTime);
+                break;
         }
     }
 
@@ -226,6 +236,14 @@ namespace ARSCREW
         if (mWorld.getPlayer().isDead())
         {
             switchToGameOver();
+        }
+        
+        // Verificar se o Punktauro foi derrotado (apenas uma vez)
+        if (!mBossDefeated && mWorld.getPunktauro() && mWorld.getPunktauro()->isDead())
+        {
+            std::cout << "=== BOSS DERROTADO! TRANSICIONANDO PARA CRÉDITOS ===" << std::endl;
+            mBossDefeated = true;
+            switchToCredits();
         }
     }
 
@@ -419,6 +437,9 @@ namespace ARSCREW
             case GameState::GAME_OVER:
                 renderGameOver();
                 break;
+            case GameState::CREDITS:
+                renderCredits();
+                break;
         }
     }
 
@@ -577,6 +598,9 @@ namespace ARSCREW
         
         // Restaurar a vida do player ao máximo
         mWorld.getPlayer().resetHealth();
+        
+        // Resetar flag do boss derrotado
+        mBossDefeated = false;
       
         mCurrentState = GameState::PLAYING;
         mGameOverScreen.reset();
@@ -685,6 +709,9 @@ namespace ARSCREW
         mPauseMenu.hide();
         mStartMenu.reset();
         
+        // Resetar flag do boss derrotado ao começar novo jogo
+        mBossDefeated = false;
+        
         // Carregar nível inicial se necessário
         if (mCurrentLevel.empty()) {
             mCurrentLevel = "../map/demoroom1.tmx";
@@ -698,5 +725,42 @@ namespace ARSCREW
     std::string GameManager::getCurrentLevelPath() const
     {
         return mCurrentLevel;
+    }
+
+    void GameManager::switchToCredits()
+    {
+        mCurrentState = GameState::CREDITS;
+        mCreditsScreen.reset();
+        mCreditsScreen.startCredits();
+        std::cout << "Transitioning to credits screen..." << std::endl;
+    }
+
+    void GameManager::updateCredits(float deltaTime)
+    {
+        mCreditsScreen.update(deltaTime);
+        
+        if (mCreditsScreen.isOptionConfirmed())
+        {
+            if (mCreditsScreen.getSelectedOption() == CreditsOption::MAIN_MENU)
+            {
+                switchToMenu();
+            }
+            else // QUIT
+            {
+                mQuit = true;
+            }
+        }
+    }
+
+    void GameManager::renderCredits()
+    {
+        // Resetar escala para renderizar os créditos em resolução nativa
+        SDL_RenderSetScale(mRenderer, 1.0f, 1.0f);
+        
+        // Renderizar a tela de créditos
+        mCreditsScreen.render(mRenderer);
+        
+        // Restaurar escala original
+        SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
     }
 }

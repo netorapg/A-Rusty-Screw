@@ -39,9 +39,9 @@ namespace ARSCREW
     void PauseMenu::initializeFonts()
     {
         const char* fontPaths[] = {
-            "../assets/fonts/METALORD.TTF",
             "../assets/fonts/Megadeth.ttf",
             "../assets/fonts/Arial.ttf",
+            "../assets/fonts/METALORD.TTF",
             "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",  // Linux fallback
             "/System/Library/Fonts/Arial.ttf",                  // macOS fallback
             "C:\\Windows\\Fonts\\arial.ttf"                     // Windows fallback
