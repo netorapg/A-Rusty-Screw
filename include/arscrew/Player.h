@@ -80,7 +80,7 @@ namespace ARSCREW
             bool mIsJumping;
             bool mIsAttacking = false;
             bool mIsFalling = false;
-            bool mShowDebugRects = true; 
+            bool mShowDebugRects = false; 
             bool mIsDashing = false;
             float mDashTimer = 0.0f;
             const float DASH_DURATION = 0.2f;

@@ -13,6 +13,7 @@
 #include "Globals.h"
 #include "GameOverScreen.h"
 #include "StartMenu.h"
+#include "PauseMenu.h"
 #include "GameState.h"
 
 namespace ARSCREW
@@ -42,15 +43,20 @@ namespace ARSCREW
         GameState mCurrentState;
         GameOverScreen mGameOverScreen;
         StartMenu mStartMenu;
+        PauseMenu mPauseMenu;
 
         void updatePlaying(float deltaTime);
         void updateGameOver(float deltaTime);
         void updateMenu(float deltaTime);
+        void updatePaused(float deltaTime);
         void renderPlaying();
         void renderGameOver();
         void renderMenu();
+        void renderPaused();
         void switchToGameOver();
         void switchToPlaying();
+        void switchToPaused();
+        void switchToMenu();
         void restartGame();
         
         bool mQuit;

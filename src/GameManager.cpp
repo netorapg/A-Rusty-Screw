@@ -27,6 +27,7 @@ namespace ARSCREW
         , mCurrentState(GameState::MENU)
         , mGameOverScreen(renderer)
         , mStartMenu(renderer)
+        , mPauseMenu(renderer)
     {
         std::cout << "GameManager constructor called" << std::endl;
         initializeRenderSettings();
@@ -160,6 +161,9 @@ namespace ARSCREW
                     if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_r)
                         resetGame();
 
+                    if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
+                        switchToPaused();
+
                     if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_F11)
                     {
                         Uint32 flags = SDL_GetWindowFlags(mWindow);
@@ -173,6 +177,11 @@ namespace ARSCREW
                     {
                         mHUD.setVisible(!mHUD.isVisible());
                     }
+                    break;
+                    
+                case GameState::PAUSED:
+                    // Processar apenas input do menu de pausa
+                    mPauseMenu.handleInput(e);
                     break;
                     
                 case GameState::GAME_OVER:
@@ -192,6 +201,9 @@ namespace ARSCREW
                 break;
             case GameState::PLAYING:
                 updatePlaying(deltaTime);
+                break;
+            case GameState::PAUSED:
+                updatePaused(deltaTime);
                 break;
             case GameState::GAME_OVER:
                 updateGameOver(deltaTime);
@@ -401,6 +413,9 @@ namespace ARSCREW
             case GameState::PLAYING:
                 renderPlaying();
                 break;
+            case GameState::PAUSED:
+                renderPaused();
+                break;
             case GameState::GAME_OVER:
                 renderGameOver();
                 break;
@@ -608,9 +623,66 @@ namespace ARSCREW
         SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
     }
 
+    void GameManager::updatePaused(float deltaTime)
+    {
+        mPauseMenu.update(deltaTime);
+        
+        if (mPauseMenu.isOptionConfirmed())
+        {
+            switch (mPauseMenu.getSelectedOption())
+            {
+                case PauseMenuOption::RESUME:
+                    switchToPlaying();
+                    break;
+                case PauseMenuOption::RESTART:
+                    restartGame();
+                    break;
+                case PauseMenuOption::MAIN_MENU:
+                    switchToMenu();
+                    break;
+                case PauseMenuOption::QUIT:
+                    mQuit = true;
+                    break;
+            }
+        }
+    }
+
+    void GameManager::renderPaused()
+    {
+        // Renderizar o jogo atrás (pausado) COM escala
+        renderWorld();
+        renderHUD();
+        
+        // Resetar escala para renderizar o menu de pausa em resolução nativa
+        SDL_RenderSetScale(mRenderer, 1.0f, 1.0f);
+        
+        // Renderizar o menu de pausa por cima (sem escala)
+        mPauseMenu.render(mRenderer);
+        
+        // Restaurar escala original
+        SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
+    }
+
+    void GameManager::switchToPaused()
+    {
+        mCurrentState = GameState::PAUSED;
+        mPauseMenu.show();
+    }
+
+    void GameManager::switchToMenu()
+    {
+        mCurrentState = GameState::MENU;
+        mPauseMenu.hide();
+        mStartMenu.reset();
+        
+        // Limpar o nível atual para forçar reload quando voltar
+        mCurrentLevel = "";
+    }
+
     void GameManager::switchToPlaying()
     {
         mCurrentState = GameState::PLAYING;
+        mPauseMenu.hide();
         mStartMenu.reset();
         
         // Carregar nível inicial se necessário

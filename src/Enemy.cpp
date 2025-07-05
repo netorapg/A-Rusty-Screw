@@ -20,7 +20,7 @@ namespace ARSCREW
         , mDamage(10)          
         , mAttackDuration(0.0f)
         , mAttackCooldown(0.0f)
-        , mShowDebugRects(true)
+        , mShowDebugRects(false)
     {
         // Carrega a textura do inimigo (você pode usar a mesma do player por enquanto)
         mSpriteSheetTexture = IMG_LoadTexture(renderer, "../assets/enemy_sprite.png");

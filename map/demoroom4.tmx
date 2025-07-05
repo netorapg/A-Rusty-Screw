@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="2">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="2">
  <tileset firstgid="1" source="../../fulltile.tsx"/>
+ <layer id="3" name="decorations" width="10" height="10">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,
+0,2,2,2,2,2,2,2,2,0,
+0,2,2,2,2,2,2,2,2,0,
+0,2,2,2,2,2,2,2,2,0,
+0,2,2,2,2,2,2,2,2,0,
+0,2,31,32,32,32,33,47,47,0,
+0,2,40,82,82,82,42,47,47,0,
+46,2,40,82,82,82,42,0,0,0,
+46,2,49,50,50,50,51,0,107,107,
+0,0,0,0,0,0,0,0,107,107
+</data>
+ </layer>
  <objectgroup id="2" name="spawns">
   <object id="1" type="door" x="14.6964" y="254.542">
    <properties>
@@ -20,8 +34,8 @@
 5,0,0,0,0,0,0,0,0,5,
 5,0,0,0,0,0,0,0,0,5,
 0,0,0,0,0,0,0,5,5,5,
-0,0,0,0,0,0,0,5,0,5,
-5,5,5,5,5,5,5,5,5,5
+0,0,0,0,0,0,0,5,0,0,
+5,5,5,5,5,5,5,5,0,0
 </data>
  </layer>
 </map>
