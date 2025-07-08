@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <cmath>
 
 namespace ARSCREW
 {
@@ -73,6 +74,7 @@ namespace ARSCREW
         mCrates.clear();
         mDoors.clear();
         mDecorations.clear();
+        mGates.clear();
         mScrews.clear();
         mEnemies.clear();
         mPunktauro.reset(); // Limpar o boss Punktauro
@@ -96,6 +98,12 @@ namespace ARSCREW
         {
             screw.update(deltaTime);
         }
+        
+        // Atualizar portões
+        for (auto& gate : mGates)
+        {
+            gate.update(deltaTime);
+        }
         // Atualizar inimigos
         for (auto& enemy : mEnemies)
         {
@@ -112,6 +120,9 @@ namespace ARSCREW
             mPunktauro->updateWithPlayer(mPlayer, deltaTime);
             CollisionEngine::HandleCollisions(*mPunktauro, mPlatforms, mSolidPlatforms, mRamps);
         }
+        
+        // Lidar com colisões
+        handleGateCollisions();
         
         // Opcional: Remover inimigos destruídos após um tempo
         mEnemies.remove_if([](const Enemy& enemy) { 
@@ -404,6 +415,7 @@ namespace ARSCREW
         renderObjects(mSolidPlatforms, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
         renderObjects(mCrates, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
         renderObjects(mDoors, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
+        renderObjects(mGates, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
         renderObjects(mRamps, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
 
         for (auto& screw : mScrews)
@@ -583,6 +595,10 @@ namespace ARSCREW
             mPunktauro = std::make_unique<Punktauro>(Vector(mAttributeSpawn), mRenderer);
             std::cout << "PUNKTAURO BOSS spawned at: " << mAttributeSpawn.x << ", " << mAttributeSpawn.y << std::endl;
         }
+        else if (strcmp(type, "gate") == 0)
+        {
+            processGateObject(obj, mAttributeSpawn, tileSize);
+        }
     }
 
     void GameWorld::processDoorObject(XMLElement* obj, Vector& AttributeSpawn, int tileSize)
@@ -613,5 +629,164 @@ namespace ARSCREW
         }
         
         mDoors.emplace_back(Vector(mAttributeSpawn), Vector(tileSize, tileSize), target, mRenderer, mPlatformsTexturePath, Vector(mSpawnPosition));
+    }
+
+    void GameWorld::processGateObject(XMLElement* obj, Vector& AttributeSpawn, int tileSize)
+    {
+        // Obter as dimensões do portão
+        float width = obj->FloatAttribute("width");
+        float height = obj->FloatAttribute("height");
+        
+        if (width == 0) width = tileSize;
+        if (height == 0) height = tileSize * 2; // Padrão: 2 tiles de altura
+        
+        Vector gateSize(width, height);
+        
+        // Processar propriedades do portão
+        Vector targetScrewPos(0, 0);
+        bool hasTargetScrew = false;
+        
+        XMLElement* properties = obj->FirstChildElement("properties");
+        if (properties)
+        {
+            XMLElement* prop = properties->FirstChildElement("property");
+            while (prop)
+            {
+                const char* name = prop->Attribute("name");
+                if (!name) 
+                {
+                    prop = prop->NextSiblingElement("property");
+                    continue;
+                }
+                
+                if (strcmp(name, "target_screw_x") == 0)
+                {
+                    targetScrewPos.x = prop->FloatAttribute("value");
+                    hasTargetScrew = true;
+                }
+                else if (strcmp(name, "target_screw_y") == 0)
+                {
+                    targetScrewPos.y = prop->FloatAttribute("value");
+                }
+                
+                prop = prop->NextSiblingElement("property");
+            }
+        }
+        
+        // Criar o portão
+        mGates.emplace_back(Vector(mAttributeSpawn), gateSize, mPlatformsTexture, mRenderer);
+        
+        std::cout << "Gate created at: " << mAttributeSpawn.x << ", " << mAttributeSpawn.y 
+                  << " with size: " << width << "x" << height << std::endl;
+        
+        // Se temos coordenadas do parafuso alvo, tentar encontrá-lo
+        if (hasTargetScrew)
+        {
+            Screw* targetScrew = findScrewByPosition(targetScrewPos, 20.0f); // 20 pixels de tolerância
+            if (targetScrew)
+            {
+                mGates.back().setTargetScrew(targetScrew);
+                std::cout << "Gate linked to screw at: " << targetScrewPos.x << ", " << targetScrewPos.y << std::endl;
+            }
+            else
+            {
+                std::cout << "Warning: Could not find target screw at: " << targetScrewPos.x << ", " << targetScrewPos.y << std::endl;
+            }
+        }
+        else
+        {
+            std::cout << "Warning: Gate created without target screw specified!" << std::endl;
+        }
+    }
+
+    void GameWorld::handleGateCollisions()
+    {
+        // Verificar colisões do player com portões fechados
+        SDL_Rect playerBox = mPlayer.getHurtbox();
+        
+        for (auto& gate : mGates)
+        {
+            if (gate.blockCollision()) // Só bloqueia se não estiver aberto
+            {
+                SDL_Rect gateBox = gate.getBoundingBox();
+                
+                // Verificar sobreposição
+                bool overlap =
+                    (playerBox.x < gateBox.x + gateBox.w) &&
+                    (playerBox.x + playerBox.w > gateBox.x) &&
+                    (playerBox.y < gateBox.y + gateBox.h) &&
+                    (playerBox.y + playerBox.h > gateBox.y);
+
+                if (overlap)
+                {
+                    // Tratar o portão como uma plataforma sólida para empurrar o player
+                    Vector playerPos = mPlayer.getPosition();
+                    Vector gatePos = gate.getPosition();
+                    Vector gateSize = gate.getSize();
+                    
+                    // Calcular qual lado está mais próximo para empurrar o player
+                    float overlapLeft = (playerBox.x + playerBox.w) - gateBox.x;
+                    float overlapRight = (gateBox.x + gateBox.w) - playerBox.x;
+                    float overlapTop = (playerBox.y + playerBox.h) - gateBox.y;
+                    float overlapBottom = (gateBox.y + gateBox.h) - playerBox.y;
+                    
+                    // Encontrar o menor overlap para resolver a colisão
+                    float minOverlap = std::min({overlapLeft, overlapRight, overlapTop, overlapBottom});
+                    
+                    if (minOverlap == overlapLeft && overlapLeft > 0)
+                    {
+                        // Empurrar player para a esquerda
+                        playerPos.x = gatePos.x - mPlayer.getSize().x;
+                    }
+                    else if (minOverlap == overlapRight && overlapRight > 0)
+                    {
+                        // Empurrar player para a direita
+                        playerPos.x = gatePos.x + gateSize.x;
+                    }
+                    else if (minOverlap == overlapTop && overlapTop > 0)
+                    {
+                        // Empurrar player para cima
+                        playerPos.y = gatePos.y - mPlayer.getSize().y;
+                        Vector velocity = mPlayer.getVelocity();
+                        if (velocity.y > 0) velocity.y = 0; // Parar queda
+                        mPlayer.setVelocity(velocity);
+                        mPlayer.setOnGround(true);
+                    }
+                    else if (minOverlap == overlapBottom && overlapBottom > 0)
+                    {
+                        // Empurrar player para baixo
+                        playerPos.y = gatePos.y + gateSize.y;
+                        Vector velocity = mPlayer.getVelocity();
+                        if (velocity.y < 0) velocity.y = 0; // Parar salto
+                        mPlayer.setVelocity(velocity);
+                    }
+                    
+                    mPlayer.setPosition(playerPos);
+                }
+            }
+        }
+    }
+
+    Screw* GameWorld::findScrewByPosition(const Vector& position, float tolerance)
+    {
+        for (auto& screw : mScrews)
+        {
+            Vector screwPos = screw.getPosition();
+            float distance = std::sqrt(std::pow(screwPos.x - position.x, 2) + 
+                                     std::pow(screwPos.y - position.y, 2));
+            
+            if (distance <= tolerance)
+            {
+                return &screw;
+            }
+        }
+        return nullptr;
+    }
+
+    Screw* GameWorld::findScrewById(int id)
+    {
+        // Por enquanto, este método retorna nullptr
+        // Pode ser implementado quando adicionarmos IDs aos parafusos
+        return nullptr;
     }
 }

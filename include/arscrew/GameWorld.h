@@ -15,6 +15,7 @@
 #include "Crate.h"
 #include "Door.h"
 #include "Decoration.h"
+#include "Gate.h"
 #include "Player.h"
 #include "Camera.h"
 #include "Screw.h"
@@ -53,6 +54,7 @@ namespace ARSCREW
         std::list<Ramp>& getRamps() { return mRamps; }
         std::list<Crate>& getCrates() { return mCrates; }
         std::list<Door>& getDoors() { return mDoors; }
+        std::list<Gate>& getGates() { return mGates; }
         std::list<Screw>& getScrews() { return mScrews; }
         std::list<Enemy>& getEnemies() { return mEnemies; }
         
@@ -66,6 +68,11 @@ namespace ARSCREW
         void handleScrewCollisions();
         void handleEnemyCollisions();
         void handlePunktauroCollisions();
+        void handleGateCollisions();
+        
+        // Métodos auxiliares para encontrar parafusos
+        Screw* findScrewByPosition(const Vector& position, float tolerance = 10.0f);
+        Screw* findScrewById(int id); // Para quando implementarmos IDs
         
         // Controle do sistema de respawn dos parafusos
         void setScrewRespawnEnabled(bool enabled);
@@ -91,6 +98,7 @@ namespace ARSCREW
         std::list<Crate> mCrates;
         std::list<Door> mDoors;
         std::list<Decoration> mDecorations;
+        std::list<Gate> mGates;
         std::list<Screw> mScrews;
         std::list<Enemy> mEnemies;
         
@@ -118,6 +126,7 @@ namespace ARSCREW
         void processLayers(XMLElement* layer, int tileSize, const std::unordered_map<int, int>& tileTypeMap);
         void processBlockTile(int tileId, Vector& tilePosition, int tileSize, const std::unordered_map<int, int>& tileTypeMap);
         void processDoorObject(XMLElement* obj, Vector& AttributeSpawn, int tileSize);
+        void processGateObject(XMLElement* obj, Vector& AttributeSpawn, int tileSize);
         
         // Métodos de renderização
         void renderGameObjects(SDL_Renderer* renderer, const Vector& cameraPos, const Vector& viewSize);
