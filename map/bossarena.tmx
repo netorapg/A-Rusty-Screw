@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="10" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="19">
- <tileset firstgid="1" source="../../fulltile.tsx"/>
+ <tileset firstgid="1" source="../assets/fulltile.tsx"/>
  <layer id="1" name="decorations" width="30" height="10">
   <data encoding="csv">
 3,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,3,3,
@@ -24,17 +24,10 @@
   <object id="13" type="screw_flathead" x="774.955" y="166.193"/>
   <object id="15" type="screw_flathead" x="903.216" y="166.33"/>
   <object id="17" type="boss_spawn" x="201" y="193"/>
-  <object id="18" type="door" x="592" y="15">
-   <properties>
-    <property name="spawn_x" type="float" value="15"/>
-    <property name="spawn_y" type="float" value="4"/>
-    <property name="target" value="../map/demoroom6.tmx"/>
-   </properties>
-  </object>
  </objectgroup>
  <layer id="2" name="blocks" width="30" height="10">
   <data encoding="csv">
-78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,0,78,78,78,78,78,78,78,78,78,78,78,
+78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,
 13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,
 13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,
 13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,

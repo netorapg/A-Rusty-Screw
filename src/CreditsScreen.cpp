@@ -92,7 +92,7 @@ namespace ARSCREW
 
         // Título principal
         mCreditLines.push_back({"PARABENS!", 48, {255, 255, 0, 255}, 100.0f, nullptr});
-        mCreditLines.push_back({"Você derrotou o Punktauro!", 24, {255, 255, 255, 255}, 180.0f, nullptr});
+        mCreditLines.push_back({"Voce derrotou o Punktauro!", 24, {255, 255, 255, 255}, 180.0f, nullptr});
         
         // Espaço
         mCreditLines.push_back({"", 24, {255, 255, 255, 255}, 260.0f, nullptr});
@@ -115,7 +115,7 @@ namespace ARSCREW
         mCreditLines.push_back({"AGRADECIMENTOS ESPECIAIS", 24, {200, 200, 200, 255}, 820.0f, nullptr});
         mCreditLines.push_back({"Professor Eduardo Henrique Molina da Cruz", 18, {255, 255, 255, 255}, 880.0f, nullptr});
         mCreditLines.push_back({"Carla, minha amada <3", 18, {255, 255, 255, 255}, 920.0f, nullptr});
-        mCreditLines.push_back({"Minha mamae <3", 18, {255, 255, 255, 255}, 960.0f, nullptr});
+        mCreditLines.push_back({"Tatiana, Minha mamae <3", 18, {255, 255, 255, 255}, 960.0f, nullptr});
         mCreditLines.push_back({"E a voce, por jogar!", 18, {255, 255, 255, 255}, 1030.0f, nullptr});
         mCreditLines.push_back({"", 24, {255, 255, 255, 255}, 1020.0f, nullptr});
         

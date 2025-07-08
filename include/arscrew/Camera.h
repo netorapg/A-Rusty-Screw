@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include "Globals.h"
 
 namespace ARSCREW

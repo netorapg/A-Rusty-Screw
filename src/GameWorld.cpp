@@ -17,7 +17,7 @@ namespace ARSCREW
         , mCamera(SCREEN_WIDTH / 3.5f, SCREEN_HEIGHT / 3.5f)
         , mChicken(Vector(0, 0), renderer)
         , mScrewRespawnEnabled(true)
-        , mScrewRespawnTime(10.0f)
+        , mScrewRespawnTime(3.0f)
     {
         loadTextures();
     }
