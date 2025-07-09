@@ -12,6 +12,7 @@ namespace ARSCREW
         : mRenderer(renderer)
         , mPlatformsTexture(nullptr)
         , mScrewsTexture(nullptr)
+        , mToolTipsTexture(nullptr)
         , mapWidth(0)
         , mapHeight(0)
         , mPlayer(Vector(0, 0), renderer)
@@ -27,6 +28,7 @@ namespace ARSCREW
     {
         if (mPlatformsTexture) SDL_DestroyTexture(mPlatformsTexture);
         if (mScrewsTexture) SDL_DestroyTexture(mScrewsTexture);
+        if (mToolTipsTexture) SDL_DestroyTexture(mToolTipsTexture);
     }
 
     void GameWorld::loadTextures()
@@ -42,6 +44,12 @@ namespace ARSCREW
         if (!mScrewsTexture)
         {
             std::cerr << "Failed to load screws texture: " << IMG_GetError() << std::endl;
+        }
+        
+        mToolTipsTexture = IMG_LoadTexture(mRenderer, "../assets/phillips.png");
+        if (!mToolTipsTexture)
+        {
+            std::cerr << "Failed to load tooltips texture: " << IMG_GetError() << std::endl;
         }
     }
 
@@ -75,6 +83,7 @@ namespace ARSCREW
         mDoors.clear();
         mDecorations.clear();
         mGates.clear();
+        mToolTips.clear();
         mScrews.clear();
         mEnemies.clear();
         mPunktauro.reset(); // Limpar o boss Punktauro
@@ -104,6 +113,12 @@ namespace ARSCREW
         {
             gate.update(deltaTime);
         }
+        
+        // Atualizar pontas (tool tips)
+        for (auto& toolTip : mToolTips)
+        {
+            toolTip.update(deltaTime);
+        }
         // Atualizar inimigos
         for (auto& enemy : mEnemies)
         {
@@ -123,6 +138,7 @@ namespace ARSCREW
         
         // Lidar com colisões
         handleGateCollisions();
+        handleToolTipCollisions();
         
         // Opcional: Remover inimigos destruídos após um tempo
         mEnemies.remove_if([](const Enemy& enemy) { 
@@ -426,6 +442,14 @@ namespace ARSCREW
             }
         }
 
+        for (auto& toolTip : mToolTips)
+        {
+            if (!toolTip.isCollected() && toolTip.isVisible(cameraPos, viewSize))
+            {
+                toolTip.render(renderer, snappedCameraPos);
+            }
+        }
+
         for (auto& enemy : mEnemies)
         {
             if (enemy.isVisible(cameraPos, viewSize))
@@ -599,6 +623,16 @@ namespace ARSCREW
         {
             processGateObject(obj, mAttributeSpawn, tileSize);
         }
+        else if (strcmp(type, "tooltip_flathead") == 0)
+        {
+            mToolTips.emplace_back(Vector(mAttributeSpawn), ToolTipType::FLATHEAD, mToolTipsTexture, mRenderer);
+            std::cout << "FLATHEAD tool tip spawned at: " << mAttributeSpawn.x << ", " << mAttributeSpawn.y << std::endl;
+        }
+        else if (strcmp(type, "tooltip_phillips") == 0)
+        {
+            mToolTips.emplace_back(Vector(mAttributeSpawn), ToolTipType::PHILLIPS, mToolTipsTexture, mRenderer);
+            std::cout << "PHILLIPS tool tip spawned at: " << mAttributeSpawn.x << ", " << mAttributeSpawn.y << std::endl;
+        }
     }
 
     void GameWorld::processDoorObject(XMLElement* obj, Vector& AttributeSpawn, int tileSize)
@@ -763,6 +797,46 @@ namespace ARSCREW
                     
                     mPlayer.setPosition(playerPos);
                 }
+            }
+        }
+    }
+
+    void GameWorld::handleToolTipCollisions()
+    {
+        SDL_Rect playerBox = mPlayer.getHurtbox();
+        
+        for (auto& toolTip : mToolTips)
+        {
+            if (toolTip.isCollected()) continue; // Pular se já foi coletada
+            
+            SDL_Rect toolTipBox = toolTip.getBoundingBox();
+            
+            // Verificar colisão entre player e tool tip
+            bool overlap =
+                (playerBox.x < toolTipBox.x + toolTipBox.w) &&
+                (playerBox.x + playerBox.w > toolTipBox.x) &&
+                (playerBox.y < toolTipBox.y + toolTipBox.h) &&
+                (playerBox.y + playerBox.h > toolTipBox.y);
+
+            if (overlap)
+            {
+                // Coletar a ponta
+                toolTip.collect();
+                
+                // Converter tipo de ToolTip para AttackType
+                AttackType attackType;
+                if (toolTip.getType() == ToolTipType::FLATHEAD) {
+                    attackType = AttackType::CUTTING;
+                } else {
+                    attackType = AttackType::PIERCING;
+                }
+                
+                // Adicionar ao inventário do player
+                mPlayer.collectToolTip(attackType);
+                
+                std::cout << "Player collected " 
+                          << (toolTip.getType() == ToolTipType::FLATHEAD ? "FLATHEAD" : "PHILLIPS") 
+                          << " tool tip!" << std::endl;
             }
         }
     }

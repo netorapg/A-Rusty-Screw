@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="20" height="15" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="20">
+ <tileset firstgid="1" source="../assets/fulltile.tsx"/>
+ <objectgroup id="2" name="spawns">
+  <object id="1" type="player_spawn" x="96" y="384"/>
+  <object id="2" type="tooltip_phillips" x="260.155" y="346.58"/>
+  <object id="3" type="screw_phillips" x="480" y="200"/>
+  <object id="4" type="gate" x="288" y="320" width="32" height="96">
+   <properties>
+    <property name="target_screw_x" type="float" value="480"/>
+    <property name="target_screw_y" type="float" value="200"/>
+   </properties>
+  </object>
+  <object id="5" type="tooltip_flathead" x="207.28" y="348.731"/>
+  <object id="6" type="screw_flathead" x="200" y="250"/>
+  <object id="7" type="enemy_spawn" x="500" y="384"/>
+ </objectgroup>
+ <layer id="1" name="blocks" width="20" height="15">
+  <data encoding="csv">
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
+</data>
+ </layer>
+</map>

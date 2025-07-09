@@ -16,6 +16,7 @@
 #include "Door.h"
 #include "Decoration.h"
 #include "Gate.h"
+#include "ToolTip.h"
 #include "Player.h"
 #include "Camera.h"
 #include "Screw.h"
@@ -55,6 +56,7 @@ namespace ARSCREW
         std::list<Crate>& getCrates() { return mCrates; }
         std::list<Door>& getDoors() { return mDoors; }
         std::list<Gate>& getGates() { return mGates; }
+        std::list<ToolTip>& getToolTips() { return mToolTips; }
         std::list<Screw>& getScrews() { return mScrews; }
         std::list<Enemy>& getEnemies() { return mEnemies; }
         
@@ -69,6 +71,7 @@ namespace ARSCREW
         void handleEnemyCollisions();
         void handlePunktauroCollisions();
         void handleGateCollisions();
+        void handleToolTipCollisions();
         
         // Métodos auxiliares para encontrar parafusos
         Screw* findScrewByPosition(const Vector& position, float tolerance = 10.0f);
@@ -84,6 +87,7 @@ namespace ARSCREW
         SDL_Renderer* mRenderer;
         SDL_Texture* mPlatformsTexture;
         SDL_Texture* mScrewsTexture;
+        SDL_Texture* mToolTipsTexture;
         std::string mPlatformsTexturePath;
 
         InputManager mInputManager;
@@ -99,6 +103,7 @@ namespace ARSCREW
         std::list<Door> mDoors;
         std::list<Decoration> mDecorations;
         std::list<Gate> mGates;
+        std::list<ToolTip> mToolTips;
         std::list<Screw> mScrews;
         std::list<Enemy> mEnemies;
         

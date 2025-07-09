@@ -5,6 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include <unordered_map>
+#include <set>
 #include "Object.h"
 #include "Animation.h"
 #include "Sprite.h"
@@ -70,6 +71,13 @@ namespace ARSCREW
             void setMovementInput(bool movingLeft, bool movingRight);
             bool isMoving() const { return mIsMovingLeft || mIsMovingRight; }
             
+            // Sistema de coleta de pontas
+            void collectToolTip(AttackType tipType);
+            bool hasToolTip(AttackType tipType) const;
+            bool canUseAttackType(AttackType attackType) const;
+            void switchToAvailableAttackType(); // Trocar para um tipo disponível
+            std::set<AttackType> getCollectedToolTips() const { return mCollectedToolTips; }
+            
             // Controle de colisões laterais
             void setHadLateralCollision(bool hadCollision) { mHadLateralCollisionThisFrame = hadCollision; }
             bool hadLateralCollisionThisFrame() const { return mHadLateralCollisionThisFrame; }
@@ -90,6 +98,9 @@ namespace ARSCREW
             AttackType mCurrentAttackType = AttackType::CUTTING;
             float mAttackDuration = 0.0f;
             const float ATTACK_DURATION = 0.2f;
+            
+            // Sistema de coleta de pontas
+            std::set<AttackType> mCollectedToolTips; // Pontas coletadas pelo jogador
             
             // Sistema de vida e dano
             int mMaxHealth = 100;

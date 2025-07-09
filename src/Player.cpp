@@ -62,6 +62,11 @@ namespace ARSCREW
     animations["piercingAttack"] = piercingAttackAnim;
     animations["jumpAttack"] = JumpAttackAnim;
     currentAnimation = "idle";
+    
+    // Inicializar com a ponta FLATHEAD por padrão
+    mCollectedToolTips.insert(AttackType::CUTTING);
+    mCurrentAttackType = AttackType::CUTTING;
+    std::cout << "Player initialized with FLATHEAD tool tip (CUTTING attacks enabled)" << std::endl;
 }
 
 void Player::moveLeft()
@@ -134,9 +139,21 @@ void Player::jump()
 void Player::startAttack()
 {
     if (!mIsAttacking) {
+        // Verificar se o jogador pode usar o tipo de ataque atual
+        if (!canUseAttackType(mCurrentAttackType)) {
+            std::cout << "Cannot attack! Missing " 
+                      << (mCurrentAttackType == AttackType::CUTTING ? "FLATHEAD" : "PHILLIPS") 
+                      << " tool tip!" << std::endl;
+            return;
+        }
+        
         mIsAttacking = true;
         mAttackDuration = ATTACK_DURATION;
         updateAttackHitbox();
+        
+        std::cout << "Attacking with " 
+                  << (mCurrentAttackType == AttackType::CUTTING ? "CUTTING" : "PIERCING") 
+                  << " attack!" << std::endl;
     }
 }
 
@@ -162,12 +179,21 @@ void Player::passThroughPlatform(bool enable)
 
 void Player::switchAttackType()
 {
+    // Verificar se o jogador pode trocar para o próximo tipo de ataque
     if (mCurrentAttackType == AttackType::CUTTING) {
-        mCurrentAttackType = AttackType::PIERCING;
-        std::cout << "Switched to PIERCING attack (for Phillips screws)" << std::endl;
+        if (hasToolTip(AttackType::PIERCING)) {
+            mCurrentAttackType = AttackType::PIERCING;
+            std::cout << "Switched to PIERCING attack (for Phillips screws)" << std::endl;
+        } else {
+            std::cout << "Cannot switch to PIERCING attack - Phillips tool tip not collected!" << std::endl;
+        }
     } else {
-        mCurrentAttackType = AttackType::CUTTING;
-        std::cout << "Switched to CUTTING attack (for Flathead screws)" << std::endl;
+        if (hasToolTip(AttackType::CUTTING)) {
+            mCurrentAttackType = AttackType::CUTTING;
+            std::cout << "Switched to CUTTING attack (for Flathead screws)" << std::endl;
+        } else {
+            std::cout << "Cannot switch to CUTTING attack - Flathead tool tip not collected!" << std::endl;
+        }
     }
 }
 
@@ -550,6 +576,56 @@ void Player::DrawDebugOutline(SDL_Renderer* renderer, int x, int y, int w, int h
         // Right
         outline = {x + w - thickness + i, y - i, thickness, h + 2*i};
         SDL_RenderFillRect(renderer, &outline);
+    }
+}
+
+void Player::collectToolTip(AttackType tipType)
+{
+    if (mCollectedToolTips.find(tipType) == mCollectedToolTips.end()) {
+        mCollectedToolTips.insert(tipType);
+        std::cout << "Collected " << (tipType == AttackType::CUTTING ? "FLATHEAD" : "PHILLIPS") 
+                  << " tool tip! Can now use " 
+                  << (tipType == AttackType::CUTTING ? "CUTTING" : "PIERCING") 
+                  << " attacks." << std::endl;
+        
+        // Se o jogador não possui nenhuma ponta e coletou uma, trocar para ela
+        if (mCollectedToolTips.size() == 1) {
+            mCurrentAttackType = tipType;
+            std::cout << "Automatically switched to " 
+                      << (tipType == AttackType::CUTTING ? "CUTTING" : "PIERCING") 
+                      << " attack type!" << std::endl;
+        }
+    } else {
+        std::cout << "Already have " << (tipType == AttackType::CUTTING ? "FLATHEAD" : "PHILLIPS") 
+                  << " tool tip!" << std::endl;
+    }
+}
+
+bool Player::hasToolTip(AttackType tipType) const
+{
+    return mCollectedToolTips.find(tipType) != mCollectedToolTips.end();
+}
+
+bool Player::canUseAttackType(AttackType attackType) const
+{
+    // O jogador pode usar um tipo de ataque se possui a ponta correspondente
+    return hasToolTip(attackType);
+}
+
+void Player::switchToAvailableAttackType()
+{
+    // Se o tipo atual não está disponível, trocar para o primeiro disponível
+    if (!canUseAttackType(mCurrentAttackType)) {
+        for (AttackType type : mCollectedToolTips) {
+            mCurrentAttackType = type;
+            std::cout << "Auto-switched to " 
+                      << (type == AttackType::CUTTING ? "CUTTING" : "PIERCING") 
+                      << " attack type!" << std::endl;
+            return;
+        }
+        
+        // Se chegou aqui, o jogador não tem nenhuma ponta
+        std::cout << "Warning: Player has no tool tips collected!" << std::endl;
     }
 }
 
