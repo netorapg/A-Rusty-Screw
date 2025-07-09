@@ -18,8 +18,9 @@ namespace ARSCREW
         , mOriginalPosition(position)
     {
         // Criar sprite baseado no tipo, similar aos parafusos
+        SDL_Rect srcRect = {0, 0, 24, 24}; // Declarar fora do bloco if
+        
         if (texture) {
-            SDL_Rect srcRect;
             switch (mType)
             {
                 case ToolTipType::FLATHEAD:
@@ -29,7 +30,7 @@ namespace ARSCREW
 
                 case ToolTipType::PHILLIPS:
                     // Ponta Phillips - assumindo posição (24, 0) na textura weapon.png
-                    srcRect = SDL_Rect{ 0, 0, 24, 24 };
+                    srcRect = SDL_Rect{ 0, 0, 24, 24 }; // Corrigindo coordenada X para Phillips
                     break;
 
                 default:
@@ -44,6 +45,13 @@ namespace ARSCREW
         std::cout << "ToolTip created at position (" << position.x << ", " << position.y 
                   << ") of type " << (type == ToolTipType::FLATHEAD ? "FLATHEAD" : "PHILLIPS") 
                   << " with " << (texture ? "sprite" : "custom render") << std::endl;
+                  
+        if (texture && mSprite) {
+            std::cout << "  Sprite created successfully with srcRect: " 
+                      << srcRect.x << "," << srcRect.y << "," << srcRect.w << "," << srcRect.h << std::endl;
+        } else if (texture && !mSprite) {
+            std::cout << "  ERROR: Failed to create sprite!" << std::endl;
+        }
     }
 
     void ToolTip::render(SDL_Renderer* renderer, Vector cameraPosition)

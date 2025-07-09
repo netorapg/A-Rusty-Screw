@@ -51,16 +51,21 @@ namespace ARSCREW
       jumpAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 70, 37, 35, 37 }), 0.1f, { 0, -9 } } );
       jumpAnim.setLoop( true );
     
-    Animation JumpAttackAnim;
-        JumpAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 232, 50, 40, 30 }), 0.1f, { 0, 1 } } );
-        JumpAttackAnim.setLoop( false );
+    Animation JumpCuttingAttackAnim;
+        JumpCuttingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 232, 50, 40, 30 }), 0.1f, { 0, 1 } } );
+        JumpCuttingAttackAnim.setLoop( false );
+
+    Animation JumpPiercingAttackAnim;
+        JumpPiercingAttackAnim.addFrame( { std::make_shared<Sprite>(spriteSheetTexture, SDL_Rect{ 281, 52, 53, 26 }), 0.1f, { 0, 1 } } );
+        JumpPiercingAttackAnim.setLoop( false );
 
     animations["run"] = runAnim;
     animations["idle"] = idleAnim;
     animations["jump"] = jumpAnim;
     animations["cuttingAttack"] = cuttingAttackAnim;
     animations["piercingAttack"] = piercingAttackAnim;
-    animations["jumpAttack"] = JumpAttackAnim;
+    animations["jumpCuttingAttack"] = JumpCuttingAttackAnim;
+    animations["jumpPiercingAttack"] = JumpPiercingAttackAnim;
     currentAnimation = "idle";
     
     // Inicializar com a ponta FLATHEAD por padrão
@@ -197,6 +202,20 @@ void Player::switchAttackType()
     }
 }
 
+int Player::getAttackDamage() const
+{
+    // Dano base para ataque cortante (CUTTING)
+    if (mCurrentAttackType == AttackType::CUTTING) {
+        return 25;
+    }
+    // Dano maior para ataque perfurante (PIERCING)
+    else if (mCurrentAttackType == AttackType::PIERCING) {
+        return 35;
+    }
+    
+    return 25; // Fallback para dano padrão
+}
+
 void Player::handleWallJump(Vector& velocity)
 {
     if (isCollidingWithWall() && mFacingDirection == 1)
@@ -304,7 +323,9 @@ void Player::update(float deltaTime)
             newAnimation = "idle";
         }
     } else if (mIsAttacking && mCurrentAttackType == AttackType::CUTTING && mIsJumping) {
-        newAnimation = "jumpAttack";
+        newAnimation = "jumpCuttingAttack";
+    } else if (mIsAttacking && mCurrentAttackType == AttackType::PIERCING && mIsJumping) {
+        newAnimation = "jumpPiercingAttack";
     } else {
         newAnimation = "jump";
     }

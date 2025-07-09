@@ -265,8 +265,10 @@ namespace ARSCREW
 
             if (attackOverlap)
             {
-                std::cout << "Enemy hit by player attack!" << std::endl;
-                enemy.takeDamage(25); // Player causa 25 de dano
+                int damage = mPlayer.getAttackDamage(); // Usar dano diferenciado baseado no tipo de ataque
+                std::cout << "Enemy hit by player attack! Damage: " << damage << " (Type: " 
+                          << (mPlayer.getCurrentAttackType() == AttackType::CUTTING ? "CUTTING" : "PIERCING") << ")" << std::endl;
+                enemy.takeDamage(damage);
                 
                 // Knockback no inimigo
                 Vector enemyVelocity = enemy.getVelocity();
@@ -329,14 +331,13 @@ namespace ARSCREW
 
             if (attackOverlap)
             {
-                int damage = 25; // Dano base do player
+                int damage = mPlayer.getAttackDamage(); // Usar dano diferenciado baseado no tipo de ataque
                 
-                // Dano extra baseado no tipo de ataque
+                // Mensagem de feedback baseada no tipo de ataque
                 if (mPlayer.getCurrentAttackType() == AttackType::PIERCING) {
-                    damage += 10; // Ataque perfurante causa mais dano no boss
-                    std::cout << "CRITICAL HIT! Piercing attack against Punktauro's head!" << std::endl;
+                    std::cout << "CRITICAL HIT! Piercing attack against Punktauro's head! Damage: " << damage << std::endl;
                 } else {
-                    std::cout << "HEADSHOT! Attack hit Punktauro's head!" << std::endl;
+                    std::cout << "HEADSHOT! Cutting attack hit Punktauro's head! Damage: " << damage << std::endl;
                 }
                 
                 mPunktauro->takeDamage(damage);

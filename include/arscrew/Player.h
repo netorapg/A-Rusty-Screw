@@ -58,6 +58,7 @@ namespace ARSCREW
             SDL_Rect getHurtbox() const { return mHurtbox; }
             bool isAttacking() const { return mIsAttacking; }
             AttackType getCurrentAttackType() const { return mCurrentAttackType; }
+            int getAttackDamage() const; // Retorna dano baseado no tipo de ataque atual
             
             // Sistema de vida e dano
             void takeDamage(int damage);
