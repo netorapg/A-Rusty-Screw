@@ -11,7 +11,6 @@
 
 #include "Platform.h"
 #include "SolidPlatform.h"
-#include "Ramp.h"
 #include "Crate.h"
 #include "Door.h"
 #include "Decoration.h"
@@ -52,7 +51,6 @@ namespace ARSCREW
         InputManager& getInputManager() { return mInputManager; }
         std::list<Platform>& getPlatforms() { return mPlatforms; }
         std::list<SolidPlatform>& getSolidPlatforms() { return mSolidPlatforms; }
-        std::list<Ramp>& getRamps() { return mRamps; }
         std::list<Crate>& getCrates() { return mCrates; }
         std::list<Door>& getDoors() { return mDoors; }
         std::list<Gate>& getGates() { return mGates; }
@@ -98,7 +96,6 @@ namespace ARSCREW
         // Entidades do mundo
         std::list<Platform> mPlatforms;
         std::list<SolidPlatform> mSolidPlatforms;
-        std::list<Ramp> mRamps;
         std::list<Crate> mCrates;
         std::list<Door> mDoors;
         std::list<Decoration> mDecorations;

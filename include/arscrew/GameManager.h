@@ -70,6 +70,11 @@ namespace ARSCREW
         bool mBossDefeated;
         Uint32 mActivationTime;
         
+        // Sistema de transição para créditos
+        bool mBossDefeatedTransition;
+        Uint32 mBossDefeatedTime;
+        float mCreditsFadeAlpha;
+        
         // Sistema de transições
         bool isTransitioning;
         Uint32 transitionStartTime;
@@ -88,6 +93,8 @@ namespace ARSCREW
         // Constantes de transição
         const Uint32 TRANSITION_DELAY = 500;
         const Uint32 HALF_TRANSITION = TRANSITION_DELAY / 2;
+        const Uint32 BOSS_DEFEATED_DELAY = 3000; // 3 segundos antes de ir para créditos
+        const float CREDITS_FADE_SPEED = 255.0f / 2000.0f; // Fade em 2 segundos
         
         // Sistema de parallax
         std::array<SDL_Texture*, 5> mParallaxLayers;
@@ -103,6 +110,7 @@ namespace ARSCREW
         void handleTransition();
         void completeTransition(const Vector& currentVelocity);
         void updateGameState();
+        void updateBossDefeatedTransition();
         void checkPlayerActivation();
         void updatePlayer();
         void checkLevelTransitions();
@@ -117,6 +125,7 @@ namespace ARSCREW
         
         // Métodos de renderização
         void renderTransitionEffect();
+        void renderCreditsFadeEffect();
         void prepareRender();
         void renderBackground();
         void renderParallaxLayer(int layerIndex, const Vector& cameraPos);

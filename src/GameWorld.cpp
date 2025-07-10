@@ -78,7 +78,6 @@ namespace ARSCREW
     {
         mPlatforms.clear();
         mSolidPlatforms.clear();
-        mRamps.clear();
         mCrates.clear();
         mDoors.clear();
         mDecorations.clear();
@@ -96,12 +95,12 @@ namespace ARSCREW
         for (auto& crate : mCrates)
         {
             crate.update(deltaTime);
-            CollisionEngine::HandleCollisions(crate, mPlatforms, mSolidPlatforms, mRamps);
+            CollisionEngine::HandleCollisions(crate, mPlatforms, mSolidPlatforms);
         }
         
         mChicken.update(deltaTime);
         mChicken.followPlayer(mPlayer, deltaTime);
-        CollisionEngine::HandleCollisions(mChicken, mPlatforms, mSolidPlatforms, mRamps);
+        CollisionEngine::HandleCollisions(mChicken, mPlatforms, mSolidPlatforms);
         // Atualizar parafusos (para o sistema de respawn)
         for (auto& screw : mScrews)
         {
@@ -125,7 +124,7 @@ namespace ARSCREW
             if (!enemy.isDestroyed())
             {
                 enemy.updateWithPlayer(mPlayer, deltaTime);
-                CollisionEngine::HandleCollisions(enemy, mPlatforms, mSolidPlatforms, mRamps);
+                CollisionEngine::HandleCollisions(enemy, mPlatforms, mSolidPlatforms);
             }
         }
         
@@ -133,7 +132,7 @@ namespace ARSCREW
         if (mPunktauro && !mPunktauro->isDead())
         {
             mPunktauro->updateWithPlayer(mPlayer, deltaTime);
-            CollisionEngine::HandleCollisions(*mPunktauro, mPlatforms, mSolidPlatforms, mRamps);
+            CollisionEngine::HandleCollisions(*mPunktauro, mPlatforms, mSolidPlatforms);
         }
         
         // Lidar com colisões
@@ -433,7 +432,6 @@ namespace ARSCREW
         renderObjects(mCrates, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
         renderObjects(mDoors, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
         renderObjects(mGates, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
-        renderObjects(mRamps, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
 
         for (auto& screw : mScrews)
         {
@@ -488,8 +486,7 @@ namespace ARSCREW
             {18, 1}, // Plataforma vazada
             {5, 2},{9, 2},{16, 2},{31, 2},{78, 2}, {23, 2},   // Plataforma Sólida
             {64, 2},{15, 2},{41, 2}, {87, 2}, {15, 2}, {13, 2},
-            {65, 3}, // Caixote
-            {89, 4} // Rampa
+            {65, 3} // Caixote
         };
         
         XMLElement* layer = map->FirstChildElement("layer");
@@ -554,9 +551,6 @@ namespace ARSCREW
                 break;
             case 3: // Caixote
                 mCrates.emplace_back(Vector(mTilePosition), mRenderer);
-                break;
-            case 4: // Rampa
-                mRamps.emplace_back(Vector(mTilePosition), Vector(tileSize, tileSize), mPlatformsTexture, tileId, RampType::BOTTOM_LEFT);
                 break;
         }
     }

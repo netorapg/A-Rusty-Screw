@@ -19,6 +19,9 @@ namespace ARSCREW
         , mPlayerActivated(false)
         , mBossDefeated(false)
         , mActivationTime(0)
+        , mBossDefeatedTransition(false)
+        , mBossDefeatedTime(0)
+        , mCreditsFadeAlpha(0.0f)
         , isTransitioning(false)
         , transitionStartTime(0)
         , increasing(true)
@@ -241,9 +244,17 @@ namespace ARSCREW
         // Verificar se o Punktauro foi derrotado (apenas uma vez)
         if (!mBossDefeated && mWorld.getPunktauro() && mWorld.getPunktauro()->isDead())
         {
-            std::cout << "=== BOSS DERROTADO! TRANSICIONANDO PARA CRÉDITOS ===" << std::endl;
+            std::cout << "=== BOSS DERROTADO! INICIANDO TRANSIÇÃO PARA CRÉDITOS ===" << std::endl;
             mBossDefeated = true;
-            switchToCredits();
+            mBossDefeatedTransition = true;
+            mBossDefeatedTime = SDL_GetTicks();
+            mCreditsFadeAlpha = 0.0f;
+        }
+        
+        // Verificar transição para créditos após boss derrotado
+        if (mBossDefeatedTransition)
+        {
+            updateBossDefeatedTransition();
         }
     }
 
@@ -312,8 +323,7 @@ namespace ARSCREW
             CollisionEngine::HandleCollisions(
                 mWorld.getPlayer(),
                 mWorld.getPlatforms(),
-                mWorld.getSolidPlatforms(),
-                mWorld.getRamps()
+                mWorld.getSolidPlatforms()
             );
         }
     }
@@ -458,6 +468,9 @@ namespace ARSCREW
         {
             renderTransitionEffect();
         }
+        
+        // Renderizar efeito de fade dos créditos se ativo
+        renderCreditsFadeEffect();
     }
 
     void GameManager::renderGameOver()
@@ -601,6 +614,9 @@ namespace ARSCREW
         
         // Resetar flag do boss derrotado
         mBossDefeated = false;
+        mBossDefeatedTransition = false;
+        mBossDefeatedTime = 0;
+        mCreditsFadeAlpha = 0.0f;
       
         mCurrentState = GameState::PLAYING;
         mGameOverScreen.reset();
@@ -711,6 +727,9 @@ namespace ARSCREW
         
         // Resetar flag do boss derrotado ao começar novo jogo
         mBossDefeated = false;
+        mBossDefeatedTransition = false;
+        mBossDefeatedTime = 0;
+        mCreditsFadeAlpha = 0.0f;
         
         // Carregar nível inicial se necessário
         if (mCurrentLevel.empty()) {
@@ -762,5 +781,39 @@ namespace ARSCREW
         
         // Restaurar escala original
         SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
+    }
+
+    void GameManager::renderCreditsFadeEffect()
+    {
+        if (mBossDefeatedTransition && mCreditsFadeAlpha > 0.0f)
+        {
+            SDL_SetRenderDrawBlendMode(mRenderer, SDL_BLENDMODE_BLEND);
+            SDL_Rect fadeRect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+            SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, static_cast<Uint8>(mCreditsFadeAlpha));
+            SDL_RenderFillRect(mRenderer, &fadeRect);
+        }
+    }
+
+    void GameManager::updateBossDefeatedTransition()
+    {
+        Uint32 currentTime = SDL_GetTicks();
+        Uint32 elapsedTime = currentTime - mBossDefeatedTime;
+        
+        if (elapsedTime >= BOSS_DEFEATED_DELAY)
+        {
+            // Transição completa, ir para créditos
+            mBossDefeatedTransition = false;
+            switchToCredits();
+        }
+        else
+        {
+            // Calcular o fade baseado no tempo decorrido
+            // Começar o fade depois de 1 segundo
+            if (elapsedTime > 1000)
+            {
+                float fadeTime = (elapsedTime - 1000) / 2000.0f; // Fade em 2 segundos
+                mCreditsFadeAlpha = std::min(255.0f, fadeTime * 255.0f);
+            }
+        }
     }
 }
