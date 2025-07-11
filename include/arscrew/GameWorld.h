@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <array>
 #include <memory>
+#include <functional>
 #include <tinyxml2.h>
 
 #include "Platform.h"
@@ -78,6 +79,16 @@ namespace ARSCREW
         // Controle do sistema de respawn dos parafusos
         void setScrewRespawnEnabled(bool enabled);
         bool isScrewRespawnEnabled() const { return mScrewRespawnEnabled; }
+        
+        // Callbacks para sons
+        void setAttackSoundCallback(std::function<void()> callback) { mAttackSoundCallback = callback; }
+        void setTooltipSoundCallback(std::function<void()> callback) { mTooltipSoundCallback = callback; }
+        void setPlayerHitSoundCallback(std::function<void()> callback) { mPlayerHitSoundCallback = callback; }
+        void setEnemyHitSoundCallback(std::function<void()> callback) { mEnemyHitSoundCallback = callback; }
+        void setEnemyDeathSoundCallback(std::function<void()> callback) { mEnemyDeathSoundCallback = callback; }
+        void setPunktauroAccelerateSoundCallback(std::function<void()> callback) { mPunktauroAccelerateSoundCallback = callback; }
+        void setPunktauroJumpSoundCallback(std::function<void()> callback) { mPunktauroJumpSoundCallback = callback; }
+        void setPunktauroDeathSoundCallback(std::function<void()> callback) { mPunktauroDeathSoundCallback = callback; }
         void setScrewRespawnTime(float time);
         float getScrewRespawnTime() const { return mScrewRespawnTime; }
 
@@ -136,6 +147,20 @@ namespace ARSCREW
         void renderObjects(std::list<T>& objects, SDL_Renderer* renderer, Vector& cameraPos, Vector& viewSize);
         
         void loadTextures();
+        
+        // Callbacks para sons
+        std::function<void()> mAttackSoundCallback;
+        std::function<void()> mTooltipSoundCallback;
+        std::function<void()> mPlayerHitSoundCallback;
+        std::function<void()> mEnemyHitSoundCallback;
+        std::function<void()> mEnemyDeathSoundCallback;
+        std::function<void()> mPunktauroAccelerateSoundCallback;
+        std::function<void()> mPunktauroJumpSoundCallback;
+        std::function<void()> mPunktauroDeathSoundCallback;
+        
+        // Flags para controlar repetição de sons
+        bool mPlayerHitSoundPlayed;
+        bool mPunktauroDeathSoundPlayed;
     };
 }
 

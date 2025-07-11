@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <unordered_map>
 #include <string>
+#include <functional>
 #include "Enemy.h"
 #include "Player.h"
 
@@ -40,6 +41,11 @@ namespace ARSCREW
         float getVisualScale() const { return mVisualScale; }
         void setVisualScale(float scale) { mVisualScale = scale; }
         
+        // Callbacks para sons específicos do Punktauro
+        void setAccelerateSoundCallback(std::function<void()> callback) { mAccelerateSoundCallback = callback; }
+        void setJumpSoundCallback(std::function<void()> callback) { mJumpSoundCallback = callback; }
+        void setDeathSoundCallback(std::function<void()> callback) { mDeathSoundCallback = callback; }
+
     private:
         // Configurações visuais
         float mVisualScale;  // Escala visual do boss (1.0f = tamanho original)
@@ -64,6 +70,16 @@ namespace ARSCREW
         float mMovementTimer;
         bool mIsCharging;
         
+        // Callbacks para sons
+        std::function<void()> mAccelerateSoundCallback;
+        std::function<void()> mJumpSoundCallback;
+        std::function<void()> mDeathSoundCallback;
+        
+        // Flags para evitar repetição de sons
+        bool mDeathSoundPlayed;
+        bool mAccelerateSoundPlayed;
+        bool mJumpSoundPlayed;
+
         // Métodos privados
         void updatePhase();
         void performSpecialAttack(const Player& player, float deltaTime);

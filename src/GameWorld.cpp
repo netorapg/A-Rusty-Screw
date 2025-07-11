@@ -20,6 +20,8 @@ namespace ARSCREW
         , mChicken(Vector(0, 0), renderer)
         , mScrewRespawnEnabled(true)
         , mScrewRespawnTime(3.0f)
+        , mPlayerHitSoundPlayed(false)
+        , mPunktauroDeathSoundPlayed(false)
     {
         loadTextures();
     }
@@ -161,6 +163,10 @@ namespace ARSCREW
         
         if (mInputManager.isActionJustPressed(InputAction::ATTACK)) {
             mPlayer.startAttack();
+            // Tocar som de ataque
+            if (mAttackSoundCallback) {
+                mAttackSoundCallback();
+            }
         }
         
         if (mInputManager.isActionJustPressed(InputAction::DASH)) {
@@ -262,12 +268,29 @@ namespace ARSCREW
                 (playerAttackBox.y < enemyBox.y + enemyBox.h) &&
                 (playerAttackBox.y + playerAttackBox.h > enemyBox.y);
 
-            if (attackOverlap)
+            if (attackOverlap && !enemy.isInvulnerable())
             {
                 int damage = mPlayer.getAttackDamage(); // Usar dano diferenciado baseado no tipo de ataque
                 std::cout << "Enemy hit by player attack! Damage: " << damage << " (Type: " 
                           << (mPlayer.getCurrentAttackType() == AttackType::CUTTING ? "CUTTING" : "PIERCING") << ")" << std::endl;
+                
+                bool wasAlive = !enemy.isDead();
                 enemy.takeDamage(damage);
+                
+                // Tocar som apropriado apenas se o dano foi aplicado e som ainda não foi tocado
+                if (enemy.isDead() && wasAlive && !enemy.hasDeathSoundPlayed()) {
+                    // Inimigo morreu
+                    if (mEnemyDeathSoundCallback) {
+                        mEnemyDeathSoundCallback();
+                        enemy.setDeathSoundPlayed(true);
+                    }
+                } else if (wasAlive && !enemy.hasHitSoundPlayed()) {
+                    // Inimigo atingido mas ainda vivo
+                    if (mEnemyHitSoundCallback) {
+                        mEnemyHitSoundCallback();
+                        enemy.setHitSoundPlayed(true);
+                    }
+                }
                 
                 // Knockback no inimigo
                 Vector enemyVelocity = enemy.getVelocity();
@@ -282,6 +305,7 @@ namespace ARSCREW
         
         // Verificar colisão com hurtbox do player (para receber dano)
         // Só causa dano se o player não estiver invulnerável
+        bool playerHitThisFrame = false;
         if (!mPlayer.isInvulnerable())
         {
             SDL_Rect playerBox = mPlayer.getHurtbox();
@@ -292,11 +316,24 @@ namespace ARSCREW
                 (playerBox.y < enemyBox.y + enemyBox.h) &&
                 (playerBox.y + playerBox.h > enemyBox.y);
 
-            if (hurtOverlap)
+            if (hurtOverlap && !mPlayerHitSoundPlayed)
             {
                 std::cout << "Player hit by enemy!" << std::endl;
+                int oldHealth = mPlayer.getCurrentHealth();
                 mPlayer.takeDamage(enemy.getDamage());
+                
+                // Tocar som apenas se o dano foi realmente aplicado
+                if (mPlayer.getCurrentHealth() < oldHealth && mPlayerHitSoundCallback) {
+                    mPlayerHitSoundCallback();
+                    mPlayerHitSoundPlayed = true;
+                }
+                playerHitThisFrame = true;
             }
+        }
+        
+        // Reset da flag quando não há mais colisão
+        if (!playerHitThisFrame && mPlayer.isInvulnerable()) {
+            mPlayerHitSoundPlayed = false;
         }
     }
 }
@@ -328,7 +365,7 @@ namespace ARSCREW
 
             std::cout << "  Overlap result: " << (attackOverlap ? "YES" : "NO") << std::endl;
 
-            if (attackOverlap)
+            if (attackOverlap && !mPunktauro->isInvulnerable())
             {
                 int damage = mPlayer.getAttackDamage(); // Usar dano diferenciado baseado no tipo de ataque
                 
@@ -340,6 +377,9 @@ namespace ARSCREW
                 }
                 
                 mPunktauro->takeDamage(damage);
+                
+                // O som de morte será tocado automaticamente pelo próprio Punktauro
+                
                 std::cout << "Punktauro hit in the head! Phase: " << static_cast<int>(mPunktauro->getCurrentPhase()) 
                           << " Health: " << mPunktauro->getCurrentHealth() << "/" << mPunktauro->getMaxHealth() << std::endl;
                 
@@ -385,6 +425,11 @@ namespace ARSCREW
             {
                 int bossDamage = mPunktauro->getDamage();
                 mPlayer.takeDamage(bossDamage);
+                
+                // Tocar som de jogador atingido
+                if (mPlayerHitSoundCallback) {
+                    mPlayerHitSoundCallback();
+                }
                 
                 std::cout << "Player hit by Punktauro! Damage: " << bossDamage 
                           << " (Phase " << static_cast<int>(mPunktauro->getCurrentPhase()) << ")" << std::endl;
@@ -612,6 +657,14 @@ namespace ARSCREW
         else if (strcmp(type, "boss_spawn") == 0 || strcmp(type, "punktauro_spawn") == 0)
         {
             mPunktauro = std::make_unique<Punktauro>(Vector(mAttributeSpawn), mRenderer);
+            
+            // Configurar callbacks de som do Punktauro
+            if (mPunktauro) {
+                mPunktauro->setAccelerateSoundCallback(mPunktauroAccelerateSoundCallback);
+                mPunktauro->setJumpSoundCallback(mPunktauroJumpSoundCallback);
+                mPunktauro->setDeathSoundCallback(mPunktauroDeathSoundCallback);
+            }
+            
             std::cout << "PUNKTAURO BOSS spawned at: " << mAttributeSpawn.x << ", " << mAttributeSpawn.y << std::endl;
         }
         else if (strcmp(type, "gate") == 0)
@@ -817,6 +870,11 @@ namespace ARSCREW
             {
                 // Coletar a ponta
                 toolTip.collect();
+                
+                // Tocar som de tooltip
+                if (mTooltipSoundCallback) {
+                    mTooltipSoundCallback();
+                }
                 
                 // Converter tipo de ToolTip para AttackType
                 AttackType attackType;

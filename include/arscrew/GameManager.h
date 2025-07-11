@@ -38,6 +38,14 @@ namespace ARSCREW
         TTF_Font* mSmallFont;
         Mix_Music* mMusic;
         Mix_Chunk* mJumpSound;
+        Mix_Chunk* mAttackSound;
+        Mix_Chunk* mTooltipSound;
+        Mix_Chunk* mPlayerHitSound;
+        Mix_Chunk* mEnemyHitSound;
+        Mix_Chunk* mEnemyDeathSound;
+        Mix_Chunk* mPunktauroAccelerateSound;
+        Mix_Chunk* mPunktauroJumpSound;
+        Mix_Chunk* mPunktauroDeathSound;
         
         GameWorld mWorld;
         HUD mHUD;
@@ -133,6 +141,15 @@ namespace ARSCREW
         void renderHUD();
         void finalizeRender();
         void playJumpSound();
+        void playAttackSound();
+        void playTooltipSound();
+        void playPlayerHitSound();
+        void playEnemyHitSound();
+        void playEnemyDeathSound();
+        void playPunktauroAccelerateSound();
+        void playPunktauroJumpSound();
+        void playPunktauroDeathSound();
+        void cleanupAudioChannels(); // Método para limpar canais
         
         // Métodos auxiliares
         std::string getCurrentLevelPath() const;

@@ -12,6 +12,14 @@ namespace ARSCREW
         , mSmallFont(nullptr)
         , mMusic(nullptr)
         , mJumpSound(nullptr)
+        , mAttackSound(nullptr)
+        , mTooltipSound(nullptr)
+        , mPlayerHitSound(nullptr)
+        , mEnemyHitSound(nullptr)
+        , mEnemyDeathSound(nullptr)
+        , mPunktauroAccelerateSound(nullptr)
+        , mPunktauroJumpSound(nullptr)
+        , mPunktauroDeathSound(nullptr)
         , mWorld(renderer)
         , mHUD(renderer)
         , mQuit(false)
@@ -38,6 +46,16 @@ namespace ARSCREW
         initializeRenderSettings();
         loadParallaxLayers();
         initializeAudioSystem();
+        
+        // Configurar callbacks de som no GameWorld
+        mWorld.setAttackSoundCallback([this]() { playAttackSound(); });
+        mWorld.setTooltipSoundCallback([this]() { playTooltipSound(); });
+        mWorld.setPlayerHitSoundCallback([this]() { playPlayerHitSound(); });
+        mWorld.setEnemyHitSoundCallback([this]() { playEnemyHitSound(); });
+        mWorld.setEnemyDeathSoundCallback([this]() { playEnemyDeathSound(); });
+        mWorld.setPunktauroAccelerateSoundCallback([this]() { playPunktauroAccelerateSound(); });
+        mWorld.setPunktauroJumpSoundCallback([this]() { playPunktauroJumpSound(); });
+        mWorld.setPunktauroDeathSoundCallback([this]() { playPunktauroDeathSound(); });
         
         // Iniciar música de fundo
         if (mMusic)
@@ -66,6 +84,14 @@ namespace ARSCREW
             mMusic = nullptr;
         }
         Mix_FreeChunk(mJumpSound);
+        Mix_FreeChunk(mAttackSound);
+        Mix_FreeChunk(mTooltipSound);
+        Mix_FreeChunk(mPlayerHitSound);
+        Mix_FreeChunk(mEnemyHitSound);
+        Mix_FreeChunk(mEnemyDeathSound);
+        Mix_FreeChunk(mPunktauroAccelerateSound);
+        Mix_FreeChunk(mPunktauroJumpSound);
+        Mix_FreeChunk(mPunktauroDeathSound);
         Mix_CloseAudio();
         
         TTF_CloseFont(mFont);
@@ -90,6 +116,9 @@ namespace ARSCREW
             std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
         }
         
+        // Aumentar o número de canais de áudio disponíveis
+        Mix_AllocateChannels(32); // Aumentar de 8 (padrão) para 32 canais
+        
         // Carregar música de fundo
         mMusic = Mix_LoadMUS("");
         if (!mMusic)
@@ -98,10 +127,66 @@ namespace ARSCREW
         }
         
         // Carregar som de pulo
-        mJumpSound = Mix_LoadWAV("../assets/jump.wav");
+        mJumpSound = Mix_LoadWAV("../assets/jump-sound.wav");
         if (!mJumpSound)
         {
             std::cerr << "Failed to load jump sound: " << Mix_GetError() << std::endl;
+        }
+        
+        // Carregar som de ataque
+        mAttackSound = Mix_LoadWAV("../assets/clank.wav");
+        if (!mAttackSound)
+        {
+            std::cerr << "Failed to load attack sound: " << Mix_GetError() << std::endl;
+        }
+        
+        // Carregar som de tooltip
+        mTooltipSound = Mix_LoadWAV("../assets/found-upgrade.wav");
+        if (!mTooltipSound)
+        {
+            std::cerr << "Failed to load tooltip sound: " << Mix_GetError() << std::endl;
+        }
+        
+        // Carregar som de jogador atingido
+        mPlayerHitSound = Mix_LoadWAV("../assets/hurt-sound.wav");
+        if (!mPlayerHitSound)
+        {
+            std::cerr << "Failed to load player hit sound: " << Mix_GetError() << std::endl;
+        }
+        
+        // Carregar som de inimigo atingido
+        mEnemyHitSound = Mix_LoadWAV("../assets/enemy-hitted.wav");
+        if (!mEnemyHitSound)
+        {
+            std::cerr << "Failed to load enemy hit sound: " << Mix_GetError() << std::endl;
+        }
+        
+        // Carregar som de morte do inimigo
+        mEnemyDeathSound = Mix_LoadWAV("../assets/enemy-dead.wav");
+        if (!mEnemyDeathSound)
+        {
+            std::cerr << "Failed to load enemy death sound: " << Mix_GetError() << std::endl;
+        }
+        
+        // Carregar som de aceleração do Punktauro
+        mPunktauroAccelerateSound = Mix_LoadWAV("../assets/accelerate.wav");
+        if (!mPunktauroAccelerateSound)
+        {
+            std::cerr << "Failed to load Punktauro accelerate sound: " << Mix_GetError() << std::endl;
+        }
+        
+        // Carregar som de pulo do Punktauro
+        mPunktauroJumpSound = Mix_LoadWAV("../assets/boss-jump.wav");
+        if (!mPunktauroJumpSound)
+        {
+            std::cerr << "Failed to load Punktauro jump sound: " << Mix_GetError() << std::endl;
+        }
+        
+        // Carregar som de morte do Punktauro
+        mPunktauroDeathSound = Mix_LoadWAV("../assets/boss-explode.wav");
+        if (!mPunktauroDeathSound)
+        {
+            std::cerr << "Failed to load Punktauro death sound: " << Mix_GetError() << std::endl;
         }
     }
 
@@ -580,20 +665,168 @@ namespace ARSCREW
     {
         if (mJumpSound)
         {
-            std::cout << "Attempting to play jump sound..." << std::endl;
             int channel = Mix_PlayChannel(-1, mJumpSound, 0);
             if (channel == -1)
             {
                 std::cerr << "Failed to play jump sound: " << Mix_GetError() << std::endl;
-            }
-            else
-            {
-                std::cout << "Jump sound playing on channel: " << channel << std::endl;
+                
+                // Tentar limpar canais automaticamente e reproduzir novamente
+                cleanupAudioChannels();
+                channel = Mix_PlayChannel(-1, mJumpSound, 0);
+                if (channel != -1) {
+                    std::cout << "Jump sound played successfully after cleanup" << std::endl;
+                } else {
+                    std::cerr << "Still failed to play jump sound after cleanup" << std::endl;
+                }
             }
         }
         else
         {
             std::cout << "Jump sound not loaded!" << std::endl;
+        }
+    }
+
+    void GameManager::playAttackSound()
+    {
+        if (mAttackSound)
+        {
+            int channel = Mix_PlayChannel(-1, mAttackSound, 0);
+            if (channel == -1)
+            {
+                std::cerr << "Failed to play attack sound: " << Mix_GetError() << std::endl;
+                
+                // Tentar limpar canais automaticamente e reproduzir novamente
+                cleanupAudioChannels();
+                channel = Mix_PlayChannel(-1, mAttackSound, 0);
+                if (channel != -1) {
+                    std::cout << "Attack sound played successfully after cleanup" << std::endl;
+                } else {
+                    std::cerr << "Still failed to play attack sound after cleanup" << std::endl;
+                }
+            }
+        }
+    }
+
+    void GameManager::playTooltipSound()
+    {
+        if (mTooltipSound)
+        {
+            int channel = Mix_PlayChannel(-1, mTooltipSound, 0);
+            if (channel == -1)
+            {
+                std::cerr << "Failed to play tooltip sound: " << Mix_GetError() << std::endl;
+                
+                // Tentar limpar canais automaticamente e reproduzir novamente
+                cleanupAudioChannels();
+                channel = Mix_PlayChannel(-1, mTooltipSound, 0);
+                if (channel != -1) {
+                    std::cout << "Tooltip sound played successfully after cleanup" << std::endl;
+                } else {
+                    std::cerr << "Still failed to play tooltip sound after cleanup" << std::endl;
+                }
+            }
+        }
+    }
+
+    void GameManager::playPlayerHitSound()
+    {
+        if (mPlayerHitSound)
+        {
+            int channel = Mix_PlayChannel(-1, mPlayerHitSound, 0);
+            if (channel == -1)
+            {
+                std::cerr << "Failed to play player hit sound: " << Mix_GetError() << std::endl;
+                cleanupAudioChannels();
+                channel = Mix_PlayChannel(-1, mPlayerHitSound, 0);
+                if (channel != -1) {
+                    std::cout << "Player hit sound played successfully after cleanup" << std::endl;
+                }
+            }
+        }
+    }
+
+    void GameManager::playEnemyHitSound()
+    {
+        if (mEnemyHitSound)
+        {
+            int channel = Mix_PlayChannel(-1, mEnemyHitSound, 0);
+            if (channel == -1)
+            {
+                std::cerr << "Failed to play enemy hit sound: " << Mix_GetError() << std::endl;
+                cleanupAudioChannels();
+                channel = Mix_PlayChannel(-1, mEnemyHitSound, 0);
+                if (channel != -1) {
+                    std::cout << "Enemy hit sound played successfully after cleanup" << std::endl;
+                }
+            }
+        }
+    }
+
+    void GameManager::playEnemyDeathSound()
+    {
+        if (mEnemyDeathSound)
+        {
+            int channel = Mix_PlayChannel(-1, mEnemyDeathSound, 0);
+            if (channel == -1)
+            {
+                std::cerr << "Failed to play enemy death sound: " << Mix_GetError() << std::endl;
+                cleanupAudioChannels();
+                channel = Mix_PlayChannel(-1, mEnemyDeathSound, 0);
+                if (channel != -1) {
+                    std::cout << "Enemy death sound played successfully after cleanup" << std::endl;
+                }
+            }
+        }
+    }
+
+    void GameManager::playPunktauroAccelerateSound()
+    {
+        if (mPunktauroAccelerateSound)
+        {
+            int channel = Mix_PlayChannel(-1, mPunktauroAccelerateSound, 0);
+            if (channel == -1)
+            {
+                std::cerr << "Failed to play Punktauro accelerate sound: " << Mix_GetError() << std::endl;
+                cleanupAudioChannels();
+                channel = Mix_PlayChannel(-1, mPunktauroAccelerateSound, 0);
+                if (channel != -1) {
+                    std::cout << "Punktauro accelerate sound played successfully after cleanup" << std::endl;
+                }
+            }
+        }
+    }
+
+    void GameManager::playPunktauroJumpSound()
+    {
+        if (mPunktauroJumpSound)
+        {
+            int channel = Mix_PlayChannel(-1, mPunktauroJumpSound, 0);
+            if (channel == -1)
+            {
+                std::cerr << "Failed to play Punktauro jump sound: " << Mix_GetError() << std::endl;
+                cleanupAudioChannels();
+                channel = Mix_PlayChannel(-1, mPunktauroJumpSound, 0);
+                if (channel != -1) {
+                    std::cout << "Punktauro jump sound played successfully after cleanup" << std::endl;
+                }
+            }
+        }
+    }
+
+    void GameManager::playPunktauroDeathSound()
+    {
+        if (mPunktauroDeathSound)
+        {
+            int channel = Mix_PlayChannel(-1, mPunktauroDeathSound, 0);
+            if (channel == -1)
+            {
+                std::cerr << "Failed to play Punktauro death sound: " << Mix_GetError() << std::endl;
+                cleanupAudioChannels();
+                channel = Mix_PlayChannel(-1, mPunktauroDeathSound, 0);
+                if (channel != -1) {
+                    std::cout << "Punktauro death sound played successfully after cleanup" << std::endl;
+                }
+            }
         }
     }
 
@@ -813,6 +1046,32 @@ namespace ARSCREW
             {
                 float fadeTime = (elapsedTime - 1000) / 2000.0f; // Fade em 2 segundos
                 mCreditsFadeAlpha = std::min(255.0f, fadeTime * 255.0f);
+            }
+        }
+    }
+
+    void GameManager::cleanupAudioChannels()
+    {
+        // Verificar quantos canais estão sendo usados
+        int totalChannels = Mix_AllocateChannels(-1);
+        int playingChannels = 0;
+        
+        for (int i = 0; i < totalChannels; i++) {
+            if (Mix_Playing(i)) {
+                playingChannels++;
+            }
+        }
+        
+        // Se muitos canais estão sendo usados, parar alguns dos mais antigos
+        if (playingChannels > totalChannels * 0.8f) { // Se mais de 80% dos canais estão em uso
+            std::cout << "Too many audio channels in use (" << playingChannels << "/" << totalChannels 
+                      << "), cleaning up..." << std::endl;
+            
+            // Parar metade dos canais para liberar espaço
+            for (int i = 0; i < totalChannels / 2; i++) {
+                if (Mix_Playing(i)) {
+                    Mix_HaltChannel(i);
+                }
             }
         }
     }

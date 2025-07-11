@@ -81,6 +81,10 @@ namespace ARSCREW
             mInvulnerabilityTimer = INVULNERABILITY_DURATION;
             mIsFlashing = true; // Inicia o efeito de piscar
             mFlashTimer = 0.0f; // Reseta o temporizador de pis
+            
+            // Resetar flags de som para permitir novos sons
+            mHitSoundPlayed = false;
+            mDeathSoundPlayed = false;
 
             std::cout << "Enemy took damage: " << damage 
                       << ", Current Health: " << mCurrentHealth << std::endl;
