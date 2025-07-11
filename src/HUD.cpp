@@ -1,5 +1,6 @@
 #include "../include/arscrew/HUD.h"
 #include <iostream>
+#include <vector>
 
 namespace ARSCREW
 {
@@ -55,6 +56,7 @@ namespace ARSCREW
     
     void HUD::initializeColors()
     {
+        // Cores básicas
         mTextColor = {255, 255, 255, 255};        // Branco
         mBackgroundColor = {0, 0, 0, 180};        // Preto semi-transparente
         mCuttingColor = {0, 255, 0, 255};         // Verde para ataque cortante
@@ -62,29 +64,41 @@ namespace ARSCREW
         mHealthBarColor = {0, 255, 0, 255};       // Verde para barra de vida do jogador
         mHealthBarBackgroundColor = {64, 64, 64, 255}; // Cinza escuro para fundo da barra
         mBossHealthBarColor = {255, 0, 0, 255};   // Vermelho para barra de vida do boss
+        
+        // Cores estilo retrô inspiradas em Super Metroid
+        mRetroOrange = {255, 128, 0, 255};        // Laranja vibrante
+        mRetroBlue = {0, 192, 255, 255};          // Azul ciano
+        mRetroGreen = {0, 255, 128, 255};         // Verde neon
+        mRetroRed = {255, 64, 64, 255};           // Vermelho brilhante
+        mRetroCyan = {0, 255, 255, 255};          // Ciano brilhante
+        mRetroYellow = {255, 255, 0, 255};        // Amarelo
+        mRetroPurple = {192, 0, 255, 255};        // Roxo neon
+        mRetroBackgroundDark = {16, 24, 32, 240}; // Azul escuro semi-transparente
+        mRetroBorderLight = {128, 192, 255, 255}; // Azul claro para bordas
     }
     
     void HUD::initializePositions()
     {
-        // Caixa do tipo de ataque (canto superior esquerdo)
-        mPositions.attackTypeBox = {10, 10, 200, 40};
-        mPositions.attackTypeTextX = 20;
-        mPositions.attackTypeTextY = 20;
+        // Layout mais compacto estilo Super Metroid
+        // Painel principal do jogador (canto superior esquerdo)
+        mPositions.attackTypeBox = {8, 8, 180, 32};
+        mPositions.attackTypeTextX = 16;
+        mPositions.attackTypeTextY = 16;
         
-        // Caixa de instruções (canto superior direito)
-        mPositions.instructionsBox = {SCREEN_WIDTH - 220, 10, 210, 80};
-        mPositions.instructionsTextX = SCREEN_WIDTH - 210;
-        mPositions.instructionsTextY = 15;
+        // Painel de instruções menor (canto superior direito)
+        mPositions.instructionsBox = {SCREEN_WIDTH - 200, 8, 192, 72};
+        mPositions.instructionsTextX = SCREEN_WIDTH - 192;
+        mPositions.instructionsTextY = 12;
         
-        // Caixa de vida do jogador (parte superior central)
-        mPositions.playerHealthBox = {SCREEN_WIDTH / 2 - 100, 10, 200, 50};
-        mPositions.playerHealthTextX = SCREEN_WIDTH / 2 - 90;
-        mPositions.playerHealthTextY = 15;
+        // Painel de vida do jogador (abaixo do tipo de ataque)
+        mPositions.playerHealthBox = {8, 48, 256, 48};
+        mPositions.playerHealthTextX = 16;
+        mPositions.playerHealthTextY = 56;
         
-        // Caixa de vida do boss (parte inferior central)
-        mPositions.bossHealthBox = {SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT - 80, 300, 60};
-        mPositions.bossHealthTextX = SCREEN_WIDTH / 2 - 140;
-        mPositions.bossHealthTextY = SCREEN_HEIGHT - 75;
+        // Painel do boss (parte inferior, mais largo)
+        mPositions.bossHealthBox = {SCREEN_WIDTH / 2 - 300, SCREEN_HEIGHT - 72, 600, 64};
+        mPositions.bossHealthTextX = SCREEN_WIDTH / 2 - 292;
+        mPositions.bossHealthTextY = SCREEN_HEIGHT - 66;
     }
     
     void HUD::createTextTextures()
@@ -115,8 +129,8 @@ namespace ARSCREW
     {
         if (!font) return nullptr;
         
-        // Para texto com múltiplas linhas, vamos usar TTF_RenderText_Blended
-        SDL_Surface* textSurface = TTF_RenderText_Blended_Wrapped(font, text.c_str(), color, 300);
+        // Usar TTF_RenderText_Blended para evitar quebra de linha automática
+        SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), color);
         if (!textSurface)
         {
             std::cerr << "Unable to render text surface: " << TTF_GetError() << std::endl;
@@ -169,152 +183,110 @@ namespace ARSCREW
     
     void HUD::renderAttackType(SDL_Renderer* renderer, AttackType currentAttack)
     {
-        // Renderizar fundo
-        renderBackground(renderer, mPositions.attackTypeBox, mBackgroundColor);
+        // Renderizar fundo estilo retrô
+        renderRetroBackground(renderer, mPositions.attackTypeBox, mRetroBackgroundDark, mRetroBorderLight);
         
-        // Escolher textura baseada no tipo de ataque
-        SDL_Texture* textTexture = nullptr;
+        // Escolher cor e texto baseado no tipo de ataque
+        SDL_Color attackColor;
+        std::string attackText;
+        
         if (currentAttack == AttackType::CUTTING)
         {
-            textTexture = mCuttingTexture;
+            attackColor = mRetroGreen;
+            attackText = "CUTTING TOOL";
         }
         else if (currentAttack == AttackType::PIERCING)
         {
-            textTexture = mPiercingTexture;
+            attackColor = mRetroBlue;
+            attackText = "PIERCING TOOL";
+        }
+        else
+        {
+            attackColor = mTextColor;
+            attackText = "NO TOOL";
         }
         
-        // Renderizar texto
-        if (textTexture)
-        {
-            int textWidth, textHeight;
-            SDL_QueryTexture(textTexture, nullptr, nullptr, &textWidth, &textHeight);
-            
-            SDL_Rect textRect = {
-                mPositions.attackTypeTextX,
-                mPositions.attackTypeTextY,
-                textWidth,
-                textHeight
-            };
-            
-            SDL_RenderCopy(renderer, textTexture, nullptr, &textRect);
-        }
+        // Renderizar texto com estilo retrô
+        renderRetroText(renderer, attackText, mPositions.attackTypeTextX, mPositions.attackTypeTextY, attackColor, false);
     }
     
     void HUD::renderInstructions(SDL_Renderer* renderer)
     {
-        // Renderizar fundo
-        renderBackground(renderer, mPositions.instructionsBox, mBackgroundColor);
+        // Renderizar fundo estilo retrô
+        renderRetroBackground(renderer, mPositions.instructionsBox, mRetroBackgroundDark, mRetroBorderLight);
         
-        // Renderizar texto de instruções
-        if (mInstructionsTexture)
+        // Instruções com layout mais compacto
+        std::vector<std::string> instructions = {
+            "Q - SWITCH TOOL",
+            "J - ATTACK",
+            "E - DASH",
+            "CTRL - DEBUG"
+        };
+        
+        int lineHeight = 12;
+        for (size_t i = 0; i < instructions.size(); i++)
         {
-            int textWidth, textHeight;
-            SDL_QueryTexture(mInstructionsTexture, nullptr, nullptr, &textWidth, &textHeight);
-            
-            SDL_Rect textRect = {
-                mPositions.instructionsTextX,
-                mPositions.instructionsTextY,
-                textWidth,
-                textHeight
-            };
-            
-            SDL_RenderCopy(renderer, mInstructionsTexture, nullptr, &textRect);
+            renderRetroText(renderer, instructions[i], 
+                           mPositions.instructionsTextX, 
+                           mPositions.instructionsTextY + i * lineHeight, 
+                           mRetroCyan, false);
         }
     }
     
     void HUD::renderPlayerHealth(SDL_Renderer* renderer, const Player& player)
     {
-        // Renderizar fundo
-        renderBackground(renderer, mPositions.playerHealthBox, mBackgroundColor);
+        // Renderizar fundo estilo retrô
+        renderRetroBackground(renderer, mPositions.playerHealthBox, mRetroBackgroundDark, mRetroBorderLight);
         
-        // Texto de vida do jogador
-        std::string healthText = "Player HP: " + std::to_string(player.getCurrentHealth()) + "/" + std::to_string(player.getMaxHealth());
-        SDL_Texture* healthTexture = createTextTexture(healthText, mFont, mTextColor);
-        
-        if (healthTexture)
-        {
-            int textWidth, textHeight;
-            SDL_QueryTexture(healthTexture, nullptr, nullptr, &textWidth, &textHeight);
-            
-            SDL_Rect textRect = {
-                mPositions.playerHealthTextX,
-                mPositions.playerHealthTextY,
-                textWidth,
-                textHeight
-            };
-            
-            SDL_RenderCopy(renderer, healthTexture, nullptr, &textRect);
-            SDL_DestroyTexture(healthTexture);
-        }
-        
-        // Barra de vida
-        SDL_Rect healthBarRect = {
-            mPositions.playerHealthBox.x + 10,
-            mPositions.playerHealthBox.y + 30,
-            mPositions.playerHealthBox.w - 20,
-            15
+        // Barra de energia segmentada (sem texto)
+        SDL_Rect energyBarRect = {
+            mPositions.playerHealthBox.x + 8,
+            mPositions.playerHealthBox.y + 12,
+            mPositions.playerHealthBox.w - 16,
+            24
         };
         
-        renderHealthBar(renderer, healthBarRect, player.getCurrentHealth(), player.getMaxHealth(), mHealthBarColor);
+        renderSegmentedHealthBar(renderer, energyBarRect, player.getCurrentHealth(), player.getMaxHealth(), mRetroGreen);
     }
     
     void HUD::renderBossHealth(SDL_Renderer* renderer, const Punktauro* boss)
     {
         if (!boss || boss->isDead()) return;
         
-        // Renderizar fundo
-        renderBackground(renderer, mPositions.bossHealthBox, mBackgroundColor);
+        // Renderizar fundo estilo retrô com cor mais intensa para o boss
+        SDL_Color bossBgColor = {32, 16, 16, 240}; // Vermelho escuro
+        renderRetroBackground(renderer, mPositions.bossHealthBox, bossBgColor, mRetroRed);
         
-        // Texto de vida do boss com nome e fase
-        std::string bossText = "PUNKTAURO (Phase " + std::to_string(static_cast<int>(boss->getCurrentPhase())) + ")";
-        std::string healthText = std::to_string(boss->getCurrentHealth()) + "/" + std::to_string(boss->getMaxHealth()) + " HP";
+        // Nome do boss estilo retrô (apenas o nome)
+        std::string bossName = "PUNKTAURO, O SADICO ROBO CANIBAL.";
         
-        SDL_Texture* bossNameTexture = createTextTexture(bossText, mFont, mTextColor);
-        SDL_Texture* healthTexture = createTextTexture(healthText, mSmallFont, mTextColor);
+        // Renderizar nome do boss mais à esquerda para caber o texto longo
+        renderRetroText(renderer, bossName, 
+                       mPositions.bossHealthBox.x + 12, 
+                       mPositions.bossHealthTextY, mRetroRed, true);
         
-        // Renderizar nome do boss
-        if (bossNameTexture)
-        {
-            int textWidth, textHeight;
-            SDL_QueryTexture(bossNameTexture, nullptr, nullptr, &textWidth, &textHeight);
-            
-            SDL_Rect textRect = {
-                mPositions.bossHealthTextX,
-                mPositions.bossHealthTextY,
-                textWidth,
-                textHeight
-            };
-            
-            SDL_RenderCopy(renderer, bossNameTexture, nullptr, &textRect);
-            SDL_DestroyTexture(bossNameTexture);
-        }
-        
-        // Renderizar vida numérica
-        if (healthTexture)
-        {
-            int textWidth, textHeight;
-            SDL_QueryTexture(healthTexture, nullptr, nullptr, &textWidth, &textHeight);
-            
-            SDL_Rect textRect = {
-                mPositions.bossHealthBox.x + mPositions.bossHealthBox.w - textWidth - 10,
-                mPositions.bossHealthTextY,
-                textWidth,
-                textHeight
-            };
-            
-            SDL_RenderCopy(renderer, healthTexture, nullptr, &textRect);
-            SDL_DestroyTexture(healthTexture);
-        }
-        
-        // Barra de vida do boss (maior)
-        SDL_Rect healthBarRect = {
-            mPositions.bossHealthBox.x + 10,
-            mPositions.bossHealthBox.y + 35,
-            mPositions.bossHealthBox.w - 20,
-            20
+        // Barra de vida do boss (mais larga e segmentada)
+        SDL_Rect bossHealthBarRect = {
+            mPositions.bossHealthBox.x + 8,
+            mPositions.bossHealthBox.y + 32,
+            mPositions.bossHealthBox.w - 16,
+            24
         };
         
-        renderHealthBar(renderer, healthBarRect, boss->getCurrentHealth(), boss->getMaxHealth(), mBossHealthBarColor);
+        renderSegmentedHealthBar(renderer, bossHealthBarRect, boss->getCurrentHealth(), boss->getMaxHealth(), mRetroPurple);
+        
+        // Efeito adicional: pulsação quando vida baixa
+        float healthPercentage = static_cast<float>(boss->getCurrentHealth()) / static_cast<float>(boss->getMaxHealth());
+        if (healthPercentage < 0.25f)
+        {
+            // Efeito de alerta piscando
+            Uint32 time = SDL_GetTicks();
+            if ((time / 250) % 2 == 0) // Pisca a cada 250ms
+            {
+                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 64);
+                SDL_RenderFillRect(renderer, &mPositions.bossHealthBox);
+            }
+        }
     }
     
     void HUD::renderHealthBar(SDL_Renderer* renderer, const SDL_Rect& barRect, int currentHealth, int maxHealth, SDL_Color barColor)
@@ -361,5 +333,114 @@ namespace ARSCREW
         // Adicionar borda
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
         SDL_RenderDrawRect(renderer, &rect);
+    }
+    
+    void HUD::renderRetroBackground(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color bgColor, SDL_Color borderColor)
+    {
+        // Fundo principal com gradiente simulado
+        SDL_SetRenderDrawColor(renderer, bgColor.r, bgColor.g, bgColor.b, bgColor.a);
+        SDL_RenderFillRect(renderer, &rect);
+        
+        // Bordas duplas estilo retrô
+        SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.g, borderColor.b, borderColor.a);
+        
+        // Borda externa
+        SDL_RenderDrawRect(renderer, &rect);
+        
+        // Borda interna (2 pixels para dentro)
+        SDL_Rect innerRect = {rect.x + 2, rect.y + 2, rect.w - 4, rect.h - 4};
+        SDL_SetRenderDrawColor(renderer, borderColor.r / 2, borderColor.g / 2, borderColor.b / 2, borderColor.a);
+        SDL_RenderDrawRect(renderer, &innerRect);
+        
+        // Linha de destaque no topo
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
+        SDL_RenderDrawLine(renderer, rect.x + 1, rect.y + 1, rect.x + rect.w - 2, rect.y + 1);
+        
+        // Adicionar scan lines
+        renderScanLines(renderer, rect);
+    }
+
+    void HUD::renderSegmentedHealthBar(SDL_Renderer* renderer, const SDL_Rect& barRect, int currentHealth, int maxHealth, SDL_Color barColor)
+    {
+        const int segmentCount = 20; // Número de segmentos
+        const int segmentWidth = (barRect.w - 4) / segmentCount;
+        const int segmentSpacing = 1;
+        
+        // Fundo da barra
+        SDL_SetRenderDrawColor(renderer, 32, 32, 32, 255);
+        SDL_RenderFillRect(renderer, &barRect);
+        
+        // Calcular quantos segmentos devem estar preenchidos
+        float healthPercentage = static_cast<float>(currentHealth) / static_cast<float>(maxHealth);
+        int filledSegments = static_cast<int>(healthPercentage * segmentCount);
+        
+        // Renderizar cada segmento
+        for (int i = 0; i < segmentCount; i++)
+        {
+            SDL_Rect segmentRect = {
+                barRect.x + 2 + i * (segmentWidth + segmentSpacing),
+                barRect.y + 2,
+                segmentWidth,
+                barRect.h - 4
+            };
+            
+            if (i < filledSegments)
+            {
+                // Segmento preenchido - cor varia baseada na vida
+                SDL_Color segmentColor = barColor;
+                if (healthPercentage < 0.25f) {
+                    segmentColor = mRetroRed;
+                } else if (healthPercentage < 0.5f) {
+                    segmentColor = mRetroYellow;
+                } else {
+                    segmentColor = mRetroGreen;
+                }
+                
+                SDL_SetRenderDrawColor(renderer, segmentColor.r, segmentColor.g, segmentColor.b, segmentColor.a);
+                SDL_RenderFillRect(renderer, &segmentRect);
+                
+                // Destaque no topo do segmento
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
+                SDL_RenderDrawLine(renderer, segmentRect.x, segmentRect.y, segmentRect.x + segmentRect.w - 1, segmentRect.y);
+            }
+            else
+            {
+                // Segmento vazio - apenas contorno
+                SDL_SetRenderDrawColor(renderer, 64, 64, 64, 255);
+                SDL_RenderDrawRect(renderer, &segmentRect);
+            }
+        }
+        
+        // Borda da barra completa
+        SDL_SetRenderDrawColor(renderer, mRetroBorderLight.r, mRetroBorderLight.g, mRetroBorderLight.b, mRetroBorderLight.a);
+        SDL_RenderDrawRect(renderer, &barRect);
+    }
+
+    void HUD::renderScanLines(SDL_Renderer* renderer, const SDL_Rect& rect)
+    {
+        // Efeito de scan lines para dar sensação retrô
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 64);
+        for (int y = rect.y; y < rect.y + rect.h; y += 3)
+        {
+            SDL_RenderDrawLine(renderer, rect.x, y, rect.x + rect.w, y);
+        }
+    }
+
+    void HUD::renderRetroText(SDL_Renderer* renderer, const std::string& text, int x, int y, SDL_Color color, bool isLarge)
+    {
+        TTF_Font* font = isLarge ? mFont : mSmallFont;
+        if (!font) return;
+        
+        // Criar textura temporária para o texto
+        SDL_Texture* textTexture = createTextTexture(text, font, color);
+        if (!textTexture) return;
+        
+        int textWidth, textHeight;
+        SDL_QueryTexture(textTexture, nullptr, nullptr, &textWidth, &textHeight);
+        
+        SDL_Rect textRect = {x, y, textWidth, textHeight};
+        SDL_RenderCopy(renderer, textTexture, nullptr, &textRect);
+        
+        SDL_DestroyTexture(textTexture);
     }
 }

@@ -20,7 +20,7 @@ namespace ARSCREW
         , mDamage(10)          
         , mAttackDuration(0.0f)
         , mAttackCooldown(0.0f)
-        , mShowDebugRects(true)
+        , mShowDebugRects(false)
     {
         // Carrega a textura do inimigo (você pode usar a mesma do player por enquanto)
         mSpriteSheetTexture = IMG_LoadTexture(renderer, "../assets/enemy_sprite.png");
@@ -81,6 +81,10 @@ namespace ARSCREW
             mInvulnerabilityTimer = INVULNERABILITY_DURATION;
             mIsFlashing = true; // Inicia o efeito de piscar
             mFlashTimer = 0.0f; // Reseta o temporizador de pis
+            
+            // Resetar flags de som para permitir novos sons
+            mHitSoundPlayed = false;
+            mDeathSoundPlayed = false;
 
             std::cout << "Enemy took damage: " << damage 
                       << ", Current Health: " << mCurrentHealth << std::endl;

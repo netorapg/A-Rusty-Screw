@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <cmath>
 
 namespace ARSCREW
 {
@@ -11,13 +12,16 @@ namespace ARSCREW
         : mRenderer(renderer)
         , mPlatformsTexture(nullptr)
         , mScrewsTexture(nullptr)
+        , mToolTipsTexture(nullptr)
         , mapWidth(0)
         , mapHeight(0)
         , mPlayer(Vector(0, 0), renderer)
         , mCamera(SCREEN_WIDTH / 3.5f, SCREEN_HEIGHT / 3.5f)
         , mChicken(Vector(0, 0), renderer)
         , mScrewRespawnEnabled(true)
-        , mScrewRespawnTime(10.0f)
+        , mScrewRespawnTime(3.0f)
+        , mPlayerHitSoundPlayed(false)
+        , mPunktauroDeathSoundPlayed(false)
     {
         loadTextures();
     }
@@ -26,6 +30,7 @@ namespace ARSCREW
     {
         if (mPlatformsTexture) SDL_DestroyTexture(mPlatformsTexture);
         if (mScrewsTexture) SDL_DestroyTexture(mScrewsTexture);
+        if (mToolTipsTexture) SDL_DestroyTexture(mToolTipsTexture);
     }
 
     void GameWorld::loadTextures()
@@ -41,6 +46,12 @@ namespace ARSCREW
         if (!mScrewsTexture)
         {
             std::cerr << "Failed to load screws texture: " << IMG_GetError() << std::endl;
+        }
+        
+        mToolTipsTexture = IMG_LoadTexture(mRenderer, "../assets/phillips.png");
+        if (!mToolTipsTexture)
+        {
+            std::cerr << "Failed to load tooltips texture: " << IMG_GetError() << std::endl;
         }
     }
 
@@ -69,10 +80,11 @@ namespace ARSCREW
     {
         mPlatforms.clear();
         mSolidPlatforms.clear();
-        mRamps.clear();
         mCrates.clear();
         mDoors.clear();
         mDecorations.clear();
+        mGates.clear();
+        mToolTips.clear();
         mScrews.clear();
         mEnemies.clear();
         mPunktauro.reset(); // Limpar o boss Punktauro
@@ -85,16 +97,28 @@ namespace ARSCREW
         for (auto& crate : mCrates)
         {
             crate.update(deltaTime);
-            CollisionEngine::HandleCollisions(crate, mPlatforms, mSolidPlatforms, mRamps);
+            CollisionEngine::HandleCollisions(crate, mPlatforms, mSolidPlatforms);
         }
         
         mChicken.update(deltaTime);
         mChicken.followPlayer(mPlayer, deltaTime);
-        CollisionEngine::HandleCollisions(mChicken, mPlatforms, mSolidPlatforms, mRamps);
+        CollisionEngine::HandleCollisions(mChicken, mPlatforms, mSolidPlatforms);
         // Atualizar parafusos (para o sistema de respawn)
         for (auto& screw : mScrews)
         {
             screw.update(deltaTime);
+        }
+        
+        // Atualizar portões
+        for (auto& gate : mGates)
+        {
+            gate.update(deltaTime);
+        }
+        
+        // Atualizar pontas (tool tips)
+        for (auto& toolTip : mToolTips)
+        {
+            toolTip.update(deltaTime);
         }
         // Atualizar inimigos
         for (auto& enemy : mEnemies)
@@ -102,7 +126,7 @@ namespace ARSCREW
             if (!enemy.isDestroyed())
             {
                 enemy.updateWithPlayer(mPlayer, deltaTime);
-                CollisionEngine::HandleCollisions(enemy, mPlatforms, mSolidPlatforms, mRamps);
+                CollisionEngine::HandleCollisions(enemy, mPlatforms, mSolidPlatforms);
             }
         }
         
@@ -110,8 +134,12 @@ namespace ARSCREW
         if (mPunktauro && !mPunktauro->isDead())
         {
             mPunktauro->updateWithPlayer(mPlayer, deltaTime);
-            CollisionEngine::HandleCollisions(*mPunktauro, mPlatforms, mSolidPlatforms, mRamps);
+            CollisionEngine::HandleCollisions(*mPunktauro, mPlatforms, mSolidPlatforms);
         }
+        
+        // Lidar com colisões
+        handleGateCollisions();
+        handleToolTipCollisions();
         
         // Opcional: Remover inimigos destruídos após um tempo
         mEnemies.remove_if([](const Enemy& enemy) { 
@@ -135,6 +163,10 @@ namespace ARSCREW
         
         if (mInputManager.isActionJustPressed(InputAction::ATTACK)) {
             mPlayer.startAttack();
+            // Tocar som de ataque
+            if (mAttackSoundCallback) {
+                mAttackSoundCallback();
+            }
         }
         
         if (mInputManager.isActionJustPressed(InputAction::DASH)) {
@@ -236,10 +268,29 @@ namespace ARSCREW
                 (playerAttackBox.y < enemyBox.y + enemyBox.h) &&
                 (playerAttackBox.y + playerAttackBox.h > enemyBox.y);
 
-            if (attackOverlap)
+            if (attackOverlap && !enemy.isInvulnerable())
             {
-                std::cout << "Enemy hit by player attack!" << std::endl;
-                enemy.takeDamage(25); // Player causa 25 de dano
+                int damage = mPlayer.getAttackDamage(); // Usar dano diferenciado baseado no tipo de ataque
+                std::cout << "Enemy hit by player attack! Damage: " << damage << " (Type: " 
+                          << (mPlayer.getCurrentAttackType() == AttackType::CUTTING ? "CUTTING" : "PIERCING") << ")" << std::endl;
+                
+                bool wasAlive = !enemy.isDead();
+                enemy.takeDamage(damage);
+                
+                // Tocar som apropriado apenas se o dano foi aplicado e som ainda não foi tocado
+                if (enemy.isDead() && wasAlive && !enemy.hasDeathSoundPlayed()) {
+                    // Inimigo morreu
+                    if (mEnemyDeathSoundCallback) {
+                        mEnemyDeathSoundCallback();
+                        enemy.setDeathSoundPlayed(true);
+                    }
+                } else if (wasAlive && !enemy.hasHitSoundPlayed()) {
+                    // Inimigo atingido mas ainda vivo
+                    if (mEnemyHitSoundCallback) {
+                        mEnemyHitSoundCallback();
+                        enemy.setHitSoundPlayed(true);
+                    }
+                }
                 
                 // Knockback no inimigo
                 Vector enemyVelocity = enemy.getVelocity();
@@ -254,6 +305,7 @@ namespace ARSCREW
         
         // Verificar colisão com hurtbox do player (para receber dano)
         // Só causa dano se o player não estiver invulnerável
+        bool playerHitThisFrame = false;
         if (!mPlayer.isInvulnerable())
         {
             SDL_Rect playerBox = mPlayer.getHurtbox();
@@ -264,11 +316,24 @@ namespace ARSCREW
                 (playerBox.y < enemyBox.y + enemyBox.h) &&
                 (playerBox.y + playerBox.h > enemyBox.y);
 
-            if (hurtOverlap)
+            if (hurtOverlap && !mPlayerHitSoundPlayed)
             {
                 std::cout << "Player hit by enemy!" << std::endl;
+                int oldHealth = mPlayer.getCurrentHealth();
                 mPlayer.takeDamage(enemy.getDamage());
+                
+                // Tocar som apenas se o dano foi realmente aplicado
+                if (mPlayer.getCurrentHealth() < oldHealth && mPlayerHitSoundCallback) {
+                    mPlayerHitSoundCallback();
+                    mPlayerHitSoundPlayed = true;
+                }
+                playerHitThisFrame = true;
             }
+        }
+        
+        // Reset da flag quando não há mais colisão
+        if (!playerHitThisFrame && mPlayer.isInvulnerable()) {
+            mPlayerHitSoundPlayed = false;
         }
     }
 }
@@ -300,19 +365,21 @@ namespace ARSCREW
 
             std::cout << "  Overlap result: " << (attackOverlap ? "YES" : "NO") << std::endl;
 
-            if (attackOverlap)
+            if (attackOverlap && !mPunktauro->isInvulnerable())
             {
-                int damage = 25; // Dano base do player
+                int damage = mPlayer.getAttackDamage(); // Usar dano diferenciado baseado no tipo de ataque
                 
-                // Dano extra baseado no tipo de ataque
+                // Mensagem de feedback baseada no tipo de ataque
                 if (mPlayer.getCurrentAttackType() == AttackType::PIERCING) {
-                    damage += 10; // Ataque perfurante causa mais dano no boss
-                    std::cout << "CRITICAL HIT! Piercing attack against Punktauro's head!" << std::endl;
+                    std::cout << "CRITICAL HIT! Piercing attack against Punktauro's head! Damage: " << damage << std::endl;
                 } else {
-                    std::cout << "HEADSHOT! Attack hit Punktauro's head!" << std::endl;
+                    std::cout << "HEADSHOT! Cutting attack hit Punktauro's head! Damage: " << damage << std::endl;
                 }
                 
                 mPunktauro->takeDamage(damage);
+                
+                // O som de morte será tocado automaticamente pelo próprio Punktauro
+                
                 std::cout << "Punktauro hit in the head! Phase: " << static_cast<int>(mPunktauro->getCurrentPhase()) 
                           << " Health: " << mPunktauro->getCurrentHealth() << "/" << mPunktauro->getMaxHealth() << std::endl;
                 
@@ -359,6 +426,11 @@ namespace ARSCREW
                 int bossDamage = mPunktauro->getDamage();
                 mPlayer.takeDamage(bossDamage);
                 
+                // Tocar som de jogador atingido
+                if (mPlayerHitSoundCallback) {
+                    mPlayerHitSoundCallback();
+                }
+                
                 std::cout << "Player hit by Punktauro! Damage: " << bossDamage 
                           << " (Phase " << static_cast<int>(mPunktauro->getCurrentPhase()) << ")" << std::endl;
                 
@@ -404,13 +476,21 @@ namespace ARSCREW
         renderObjects(mSolidPlatforms, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
         renderObjects(mCrates, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
         renderObjects(mDoors, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
-        renderObjects(mRamps, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
+        renderObjects(mGates, renderer, snappedCameraPos, const_cast<Vector&>(viewSize));
 
         for (auto& screw : mScrews)
         {
             if (!screw.isDestroyed() && screw.isVisible(cameraPos, viewSize))
             {
                 screw.render(renderer, snappedCameraPos);
+            }
+        }
+
+        for (auto& toolTip : mToolTips)
+        {
+            if (!toolTip.isCollected() && toolTip.isVisible(cameraPos, viewSize))
+            {
+                toolTip.render(renderer, snappedCameraPos);
             }
         }
 
@@ -451,8 +531,7 @@ namespace ARSCREW
             {18, 1}, // Plataforma vazada
             {5, 2},{9, 2},{16, 2},{31, 2},{78, 2}, {23, 2},   // Plataforma Sólida
             {64, 2},{15, 2},{41, 2}, {87, 2}, {15, 2}, {13, 2},
-            {65, 3}, // Caixote
-            {89, 4} // Rampa
+            {65, 3} // Caixote
         };
         
         XMLElement* layer = map->FirstChildElement("layer");
@@ -518,9 +597,6 @@ namespace ARSCREW
             case 3: // Caixote
                 mCrates.emplace_back(Vector(mTilePosition), mRenderer);
                 break;
-            case 4: // Rampa
-                mRamps.emplace_back(Vector(mTilePosition), Vector(tileSize, tileSize), mPlatformsTexture, tileId, RampType::BOTTOM_LEFT);
-                break;
         }
     }
 
@@ -581,7 +657,29 @@ namespace ARSCREW
         else if (strcmp(type, "boss_spawn") == 0 || strcmp(type, "punktauro_spawn") == 0)
         {
             mPunktauro = std::make_unique<Punktauro>(Vector(mAttributeSpawn), mRenderer);
+            
+            // Configurar callbacks de som do Punktauro
+            if (mPunktauro) {
+                mPunktauro->setAccelerateSoundCallback(mPunktauroAccelerateSoundCallback);
+                mPunktauro->setJumpSoundCallback(mPunktauroJumpSoundCallback);
+                mPunktauro->setDeathSoundCallback(mPunktauroDeathSoundCallback);
+            }
+            
             std::cout << "PUNKTAURO BOSS spawned at: " << mAttributeSpawn.x << ", " << mAttributeSpawn.y << std::endl;
+        }
+        else if (strcmp(type, "gate") == 0)
+        {
+            processGateObject(obj, mAttributeSpawn, tileSize);
+        }
+        else if (strcmp(type, "tooltip_flathead") == 0)
+        {
+            mToolTips.emplace_back(Vector(mAttributeSpawn), ToolTipType::FLATHEAD, mToolTipsTexture, mRenderer);
+            std::cout << "FLATHEAD tool tip spawned at: " << mAttributeSpawn.x << ", " << mAttributeSpawn.y << std::endl;
+        }
+        else if (strcmp(type, "tooltip_phillips") == 0)
+        {
+            mToolTips.emplace_back(Vector(mAttributeSpawn), ToolTipType::PHILLIPS, mToolTipsTexture, mRenderer);
+            std::cout << "PHILLIPS tool tip spawned at: " << mAttributeSpawn.x << ", " << mAttributeSpawn.y << std::endl;
         }
     }
 
@@ -613,5 +711,212 @@ namespace ARSCREW
         }
         
         mDoors.emplace_back(Vector(mAttributeSpawn), Vector(tileSize, tileSize), target, mRenderer, mPlatformsTexturePath, Vector(mSpawnPosition));
+    }
+
+    void GameWorld::processGateObject(XMLElement* obj, Vector& AttributeSpawn, int tileSize)
+    {
+        // Obter as dimensões do portão
+        float width = obj->FloatAttribute("width");
+        float height = obj->FloatAttribute("height");
+        
+        if (width == 0) width = tileSize;
+        if (height == 0) height = tileSize * 2; // Padrão: 2 tiles de altura
+        
+        Vector gateSize(width, height);
+        
+        // Processar propriedades do portão
+        Vector targetScrewPos(0, 0);
+        bool hasTargetScrew = false;
+        
+        XMLElement* properties = obj->FirstChildElement("properties");
+        if (properties)
+        {
+            XMLElement* prop = properties->FirstChildElement("property");
+            while (prop)
+            {
+                const char* name = prop->Attribute("name");
+                if (!name) 
+                {
+                    prop = prop->NextSiblingElement("property");
+                    continue;
+                }
+                
+                if (strcmp(name, "target_screw_x") == 0)
+                {
+                    targetScrewPos.x = prop->FloatAttribute("value");
+                    hasTargetScrew = true;
+                }
+                else if (strcmp(name, "target_screw_y") == 0)
+                {
+                    targetScrewPos.y = prop->FloatAttribute("value");
+                }
+                
+                prop = prop->NextSiblingElement("property");
+            }
+        }
+        
+        // Criar o portão
+        mGates.emplace_back(Vector(mAttributeSpawn), gateSize, mPlatformsTexture, mRenderer);
+        
+        // Configurar callback de som para o gate
+        mGates.back().setOpenSoundCallback(mGateSoundCallback);
+        
+        std::cout << "Gate created at: " << mAttributeSpawn.x << ", " << mAttributeSpawn.y 
+                  << " with size: " << width << "x" << height << std::endl;
+        
+        // Se temos coordenadas do parafuso alvo, tentar encontrá-lo
+        if (hasTargetScrew)
+        {
+            Screw* targetScrew = findScrewByPosition(targetScrewPos, 20.0f); // 20 pixels de tolerância
+            if (targetScrew)
+            {
+                mGates.back().setTargetScrew(targetScrew);
+                std::cout << "Gate linked to screw at: " << targetScrewPos.x << ", " << targetScrewPos.y << std::endl;
+            }
+            else
+            {
+                std::cout << "Warning: Could not find target screw at: " << targetScrewPos.x << ", " << targetScrewPos.y << std::endl;
+            }
+        }
+        else
+        {
+            std::cout << "Warning: Gate created without target screw specified!" << std::endl;
+        }
+    }
+
+    void GameWorld::handleGateCollisions()
+    {
+        // Verificar colisões do player com portões fechados
+        SDL_Rect playerBox = mPlayer.getHurtbox();
+        
+        for (auto& gate : mGates)
+        {
+            if (gate.blockCollision()) // Só bloqueia se não estiver aberto
+            {
+                SDL_Rect gateBox = gate.getBoundingBox();
+                
+                // Verificar sobreposição
+                bool overlap =
+                    (playerBox.x < gateBox.x + gateBox.w) &&
+                    (playerBox.x + playerBox.w > gateBox.x) &&
+                    (playerBox.y < gateBox.y + gateBox.h) &&
+                    (playerBox.y + playerBox.h > gateBox.y);
+
+                if (overlap)
+                {
+                    // Tratar o portão como uma plataforma sólida para empurrar o player
+                    Vector playerPos = mPlayer.getPosition();
+                    Vector gatePos = gate.getPosition();
+                    Vector gateSize = gate.getSize();
+                    
+                    // Calcular qual lado está mais próximo para empurrar o player
+                    float overlapLeft = (playerBox.x + playerBox.w) - gateBox.x;
+                    float overlapRight = (gateBox.x + gateBox.w) - playerBox.x;
+                    float overlapTop = (playerBox.y + playerBox.h) - gateBox.y;
+                    float overlapBottom = (gateBox.y + gateBox.h) - playerBox.y;
+                    
+                    // Encontrar o menor overlap para resolver a colisão
+                    float minOverlap = std::min({overlapLeft, overlapRight, overlapTop, overlapBottom});
+                    
+                    if (minOverlap == overlapLeft && overlapLeft > 0)
+                    {
+                        // Empurrar player para a esquerda
+                        playerPos.x = gatePos.x - mPlayer.getSize().x;
+                    }
+                    else if (minOverlap == overlapRight && overlapRight > 0)
+                    {
+                        // Empurrar player para a direita
+                        playerPos.x = gatePos.x + gateSize.x;
+                    }
+                    else if (minOverlap == overlapTop && overlapTop > 0)
+                    {
+                        // Empurrar player para cima
+                        playerPos.y = gatePos.y - mPlayer.getSize().y;
+                        Vector velocity = mPlayer.getVelocity();
+                        if (velocity.y > 0) velocity.y = 0; // Parar queda
+                        mPlayer.setVelocity(velocity);
+                        mPlayer.setOnGround(true);
+                    }
+                    else if (minOverlap == overlapBottom && overlapBottom > 0)
+                    {
+                        // Empurrar player para baixo
+                        playerPos.y = gatePos.y + gateSize.y;
+                        Vector velocity = mPlayer.getVelocity();
+                        if (velocity.y < 0) velocity.y = 0; // Parar salto
+                        mPlayer.setVelocity(velocity);
+                    }
+                    
+                    mPlayer.setPosition(playerPos);
+                }
+            }
+        }
+    }
+
+    void GameWorld::handleToolTipCollisions()
+    {
+        SDL_Rect playerBox = mPlayer.getHurtbox();
+        
+        for (auto& toolTip : mToolTips)
+        {
+            if (toolTip.isCollected()) continue; // Pular se já foi coletada
+            
+            SDL_Rect toolTipBox = toolTip.getBoundingBox();
+            
+            // Verificar colisão entre player e tool tip
+            bool overlap =
+                (playerBox.x < toolTipBox.x + toolTipBox.w) &&
+                (playerBox.x + playerBox.w > toolTipBox.x) &&
+                (playerBox.y < toolTipBox.y + toolTipBox.h) &&
+                (playerBox.y + playerBox.h > toolTipBox.y);
+
+            if (overlap)
+            {
+                // Coletar a ponta
+                toolTip.collect();
+                
+                // Tocar som de tooltip
+                if (mTooltipSoundCallback) {
+                    mTooltipSoundCallback();
+                }
+                
+                // Converter tipo de ToolTip para AttackType
+                AttackType attackType;
+                if (toolTip.getType() == ToolTipType::FLATHEAD) {
+                    attackType = AttackType::CUTTING;
+                } else {
+                    attackType = AttackType::PIERCING;
+                }
+                
+                // Adicionar ao inventário do player
+                mPlayer.collectToolTip(attackType);
+                
+                std::cout << "Player collected " 
+                          << (toolTip.getType() == ToolTipType::FLATHEAD ? "FLATHEAD" : "PHILLIPS") 
+                          << " tool tip!" << std::endl;
+            }
+        }
+    }
+
+    Screw* GameWorld::findScrewByPosition(const Vector& position, float tolerance)
+    {
+        for (auto& screw : mScrews)
+        {
+            Vector screwPos = screw.getPosition();
+            float distance = std::sqrt(std::pow(screwPos.x - position.x, 2) + 
+                                     std::pow(screwPos.y - position.y, 2));
+            
+            if (distance <= tolerance)
+            {
+                return &screw;
+            }
+        }
+        return nullptr;
+    }
+
+    Screw* GameWorld::findScrewById(int id)
+    {
+        // Por enquanto, este método retorna nullptr
+        // Pode ser implementado quando adicionarmos IDs aos parafusos
+        return nullptr;
     }
 }

@@ -6,6 +6,7 @@
  <tileset firstgid="1" name="fulltile" tilewidth="32" tileheight="32" tilecount="225" columns="15">
   <image source="../assets/fulltile.png" width="490" height="503"/>
  </tileset>
+ <tileset firstgid="226" source="../../fulltile.tsx"/>
  <layer id="3" name="decorations" width="30" height="10">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,

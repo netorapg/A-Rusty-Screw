@@ -17,38 +17,13 @@ namespace ARSCREW
         );
     }
 
-    bool CollisionEngine::CheckRampCollision(const Ramp& ramp, const Vector& point)
-    {
-        const Vector rampPos = ramp.getPosition();
-        const Vector rampSize = ramp.getSize();
-        Vector relative;
-        relative.x = point.x - rampPos.x;
-        relative.y = point.y - rampPos.y;
 
-        switch(ramp.getType()) {
-            case RampType::BOTTOM_LEFT:
-            return (relative.x >= 0) && (relative.y >= 0) &&
-                    ((relative.y / rampSize.y) <= (1 - relative.x / rampSize.x));
-            case RampType::BOTTOM_RIGHT:
-            return (relative.x <= rampSize.x) && (relative.y >= 0) &&
-                    ((relative.y / rampSize.y) <= (relative.x / rampSize.x));
-            case RampType::TOP_LEFT:
-            return (relative.x >= 0) && (relative.y <= rampSize.y) &&
-                    ((relative.y / rampSize.y) >= (1 - relative.x / rampSize.x));
-            case RampType::TOP_RIGHT:
-            return (relative.x <= rampSize.x) && (relative.y <= rampSize.y) &&
-                    ((relative.y / rampSize.y) >= (relative.x / rampSize.x));
-            default:
-            return false;
-        }
-    }
     
     void CollisionEngine::HandleCollisions
     (
         DynamicObject &dynamicObject,
         const std::list<Platform> &platforms,
-        const std::list<SolidPlatform> &solidPlatforms,
-        const std::list<Ramp> &ramps
+        const std::list<SolidPlatform> &solidPlatforms
     )
     {
         Vector position = dynamicObject.getPosition();
@@ -78,8 +53,7 @@ namespace ARSCREW
             velocity
         );
         
-        bool hasRampCollision = handleRampCollisions(dynamicObject, ramps, position, velocity);
-        updateGroundState(dynamicObject, hasPlatformCollision || hasRampCollision);
+        updateGroundState(dynamicObject, hasPlatformCollision);
         dynamicObject.setPosition(position);
         dynamicObject.setVelocity(velocity);
     }
@@ -222,76 +196,7 @@ namespace ARSCREW
         return collisionOccurred;
     }
 
-bool CollisionEngine::handleRampCollisions(
-    DynamicObject& dynamicObject,
-    const std::list<Ramp>& ramps,
-    Vector& position,
-    Vector& velocity)
-{
-    bool collisionOccurred = false;
-    const Vector size = dynamicObject.getSize();
-    const float feetOffset = 2.0f;
 
-    for (const auto& ramp : ramps) {
-        if (!CheckCollision(dynamicObject, ramp)) continue;
-
-        const Vector rampPos = ramp.getPosition();
-        const Vector rampSize = ramp.getSize();
-
-        Vector checkPoints[] = {
-            Vector(position.x + size.x * 0.25f, position.y + size.y - feetOffset),
-            Vector(position.x + size.x * 0.5f, position.y + size.y - feetOffset),
-            Vector(position.x + size.x * 0.75f, position.y + size.y - feetOffset)
-        };
-
-        for (const auto& point : checkPoints) {
-            if (point.x < rampPos.x || point.x > rampPos.x + rampSize.x) continue;
-
-            float surfaceY = ramp.getSurfaceY(point.x);
-            if (point.y < surfaceY) continue;
-
-            collisionOccurred = true;
-            position.y = surfaceY - size.y + feetOffset;
-            dynamicObject.setOnGround(true);
-
-            // Calcula a direção tangente à rampa (perpendicular à normal)
-            Vector tangent;
-            switch(ramp.getType()) {
-                case RampType::BOTTOM_LEFT:
-                    tangent = Vector(rampSize.x, rampSize.y);
-                    break;
-                case RampType::BOTTOM_RIGHT:
-                    tangent = Vector(rampSize.x, -rampSize.y);
-                    break;
-                case RampType::TOP_LEFT:
-                    tangent = Vector(rampSize.x, -rampSize.y);
-                    break;
-                case RampType::TOP_RIGHT:
-                    tangent = Vector(rampSize.x, rampSize.y);
-                    break;
-            }
-
-            // Normaliza a tangente
-            tangent = CollisionEngine::normalize(tangent);
-
-            // Mantém a magnitude original da velocidade
-            float speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
-            
-            // Aplica a velocidade na direção da tangente
-            velocity.x = tangent.x * speed;
-            velocity.y = tangent.y * speed;
-
-            // Se estiver parado, zera a velocidade vertical
-            if (std::abs(velocity.x) < 0.1f) {
-                velocity.y = 0;
-            }
-
-            break;
-        }
-    }
-
-    return collisionOccurred;
-}
 
 
     void CollisionEngine::updateGroundState
@@ -302,7 +207,6 @@ bool CollisionEngine::handleRampCollisions(
     {
         if (!hasPlatformCollision && dynamicObject.isOnGround()) 
         {
-           // dynamicObject.setIsCollidingWithWall(true);
             dynamicObject.setOnGround(false);
             dynamicObject.setFalling(true);
         }

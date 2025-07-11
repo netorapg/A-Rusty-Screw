@@ -7,14 +7,16 @@
 #include <unordered_map>
 #include <array>
 #include <memory>
+#include <functional>
 #include <tinyxml2.h>
 
 #include "Platform.h"
 #include "SolidPlatform.h"
-#include "Ramp.h"
 #include "Crate.h"
 #include "Door.h"
 #include "Decoration.h"
+#include "Gate.h"
+#include "ToolTip.h"
 #include "Player.h"
 #include "Camera.h"
 #include "Screw.h"
@@ -50,9 +52,10 @@ namespace ARSCREW
         InputManager& getInputManager() { return mInputManager; }
         std::list<Platform>& getPlatforms() { return mPlatforms; }
         std::list<SolidPlatform>& getSolidPlatforms() { return mSolidPlatforms; }
-        std::list<Ramp>& getRamps() { return mRamps; }
         std::list<Crate>& getCrates() { return mCrates; }
         std::list<Door>& getDoors() { return mDoors; }
+        std::list<Gate>& getGates() { return mGates; }
+        std::list<ToolTip>& getToolTips() { return mToolTips; }
         std::list<Screw>& getScrews() { return mScrews; }
         std::list<Enemy>& getEnemies() { return mEnemies; }
         
@@ -66,10 +69,27 @@ namespace ARSCREW
         void handleScrewCollisions();
         void handleEnemyCollisions();
         void handlePunktauroCollisions();
+        void handleGateCollisions();
+        void handleToolTipCollisions();
+        
+        // Métodos auxiliares para encontrar parafusos
+        Screw* findScrewByPosition(const Vector& position, float tolerance = 10.0f);
+        Screw* findScrewById(int id); // Para quando implementarmos IDs
         
         // Controle do sistema de respawn dos parafusos
         void setScrewRespawnEnabled(bool enabled);
         bool isScrewRespawnEnabled() const { return mScrewRespawnEnabled; }
+        
+        // Callbacks para sons
+        void setAttackSoundCallback(std::function<void()> callback) { mAttackSoundCallback = callback; }
+        void setTooltipSoundCallback(std::function<void()> callback) { mTooltipSoundCallback = callback; }
+        void setPlayerHitSoundCallback(std::function<void()> callback) { mPlayerHitSoundCallback = callback; }
+        void setEnemyHitSoundCallback(std::function<void()> callback) { mEnemyHitSoundCallback = callback; }
+        void setEnemyDeathSoundCallback(std::function<void()> callback) { mEnemyDeathSoundCallback = callback; }
+        void setPunktauroAccelerateSoundCallback(std::function<void()> callback) { mPunktauroAccelerateSoundCallback = callback; }
+        void setPunktauroJumpSoundCallback(std::function<void()> callback) { mPunktauroJumpSoundCallback = callback; }
+        void setPunktauroDeathSoundCallback(std::function<void()> callback) { mPunktauroDeathSoundCallback = callback; }
+        void setGateSoundCallback(std::function<void()> callback) { mGateSoundCallback = callback; }
         void setScrewRespawnTime(float time);
         float getScrewRespawnTime() const { return mScrewRespawnTime; }
 
@@ -77,6 +97,7 @@ namespace ARSCREW
         SDL_Renderer* mRenderer;
         SDL_Texture* mPlatformsTexture;
         SDL_Texture* mScrewsTexture;
+        SDL_Texture* mToolTipsTexture;
         std::string mPlatformsTexturePath;
 
         InputManager mInputManager;
@@ -87,10 +108,11 @@ namespace ARSCREW
         // Entidades do mundo
         std::list<Platform> mPlatforms;
         std::list<SolidPlatform> mSolidPlatforms;
-        std::list<Ramp> mRamps;
         std::list<Crate> mCrates;
         std::list<Door> mDoors;
         std::list<Decoration> mDecorations;
+        std::list<Gate> mGates;
+        std::list<ToolTip> mToolTips;
         std::list<Screw> mScrews;
         std::list<Enemy> mEnemies;
         
@@ -118,6 +140,7 @@ namespace ARSCREW
         void processLayers(XMLElement* layer, int tileSize, const std::unordered_map<int, int>& tileTypeMap);
         void processBlockTile(int tileId, Vector& tilePosition, int tileSize, const std::unordered_map<int, int>& tileTypeMap);
         void processDoorObject(XMLElement* obj, Vector& AttributeSpawn, int tileSize);
+        void processGateObject(XMLElement* obj, Vector& AttributeSpawn, int tileSize);
         
         // Métodos de renderização
         void renderGameObjects(SDL_Renderer* renderer, const Vector& cameraPos, const Vector& viewSize);
@@ -125,6 +148,21 @@ namespace ARSCREW
         void renderObjects(std::list<T>& objects, SDL_Renderer* renderer, Vector& cameraPos, Vector& viewSize);
         
         void loadTextures();
+        
+        // Callbacks para sons
+        std::function<void()> mAttackSoundCallback;
+        std::function<void()> mTooltipSoundCallback;
+        std::function<void()> mPlayerHitSoundCallback;
+        std::function<void()> mEnemyHitSoundCallback;
+        std::function<void()> mEnemyDeathSoundCallback;
+        std::function<void()> mPunktauroAccelerateSoundCallback;
+        std::function<void()> mPunktauroJumpSoundCallback;
+        std::function<void()> mPunktauroDeathSoundCallback;
+        std::function<void()> mGateSoundCallback;
+        
+        // Flags para controlar repetição de sons
+        bool mPlayerHitSoundPlayed;
+        bool mPunktauroDeathSoundPlayed;
     };
 }
 

@@ -11,7 +11,7 @@ O objetivo do jogo é navegar por diferentes níveis, superando obstáculos, der
   * **Movimentação de Personagem:** O jogador pode se mover para a esquerda e para a direita, pular e realizar pulos na parede.
   * **Sistema de Combate:** O jogador pode alternar entre dois tipos de ataque (cortante e perfurante) para destruir obstáculos e derrotar inimigos.
   * **Inimigos:** O jogo possui inimigos que podem causar dano ao jogador e serem derrotados.
-  * **Física e Colisões:** O jogo implementa um sistema de física simples com gravidade e detecção de colisão com plataformas, plataformas sólidas, rampas e caixotes.
+  * **Física e Colisões:** O jogo implementa um sistema de física simples com gravidade e detecção de colisão com plataformas, plataformas sólidas e caixotes.
   * **Níveis:** Os níveis são carregados a partir de arquivos TMX, permitindo um design de nível flexível.
   * **Câmera:** A câmera segue o jogador suavemente, com margens para uma melhor experiência de visualização.
   * **HUD (Heads-Up Display):** Exibe informações importantes para o jogador, como o tipo de ataque selecionado e os controles do jogo.
@@ -88,5 +88,5 @@ A classe `Player` implementa a l�gica do personagem principal, incluindo:
 A classe `CollisionEngine` é uma classe que lida com toda a lógica de colisão entre os objetos do jogo, incluindo:
 
   * Colisão entre objetos dinâmicos e estáticos.
-  * Colisões com diferentes tipos de plataformas e rampas.
+  * Colisões com diferentes tipos de plataformas.
   * Interações específicas do jogador, como colisão com portas e caixotes.

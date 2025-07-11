@@ -12,6 +12,9 @@
 #include "HUD.h"
 #include "Globals.h"
 #include "GameOverScreen.h"
+#include "StartMenu.h"
+#include "PauseMenu.h"
+#include "CreditsScreen.h"
 #include "GameState.h"
 
 namespace ARSCREW
@@ -35,23 +38,51 @@ namespace ARSCREW
         TTF_Font* mSmallFont;
         Mix_Music* mMusic;
         Mix_Chunk* mJumpSound;
+        Mix_Chunk* mAttackSound;
+        Mix_Chunk* mTooltipSound;
+        Mix_Chunk* mPlayerHitSound;
+        Mix_Chunk* mEnemyHitSound;
+        Mix_Chunk* mEnemyDeathSound;
+        Mix_Chunk* mPunktauroAccelerateSound;
+        Mix_Chunk* mPunktauroJumpSound;
+        Mix_Chunk* mPunktauroDeathSound;
+        Mix_Chunk* mGateSound;
         
         GameWorld mWorld;
         HUD mHUD;
         GameState mCurrentState;
         GameOverScreen mGameOverScreen;
+        StartMenu mStartMenu;
+        PauseMenu mPauseMenu;
+        CreditsScreen mCreditsScreen;
 
         void updatePlaying(float deltaTime);
         void updateGameOver(float deltaTime);
+        void updateMenu(float deltaTime);
+        void updatePaused(float deltaTime);
+        void updateCredits(float deltaTime);
         void renderPlaying();
         void renderGameOver();
+        void renderMenu();
+        void renderPaused();
+        void renderCredits();
         void switchToGameOver();
+        void switchToPlaying();
+        void switchToPaused();
+        void switchToMenu();
+        void switchToCredits();
         void restartGame();
         
         bool mQuit;
         bool mIsRunning;
         bool mPlayerActivated;
+        bool mBossDefeated;
         Uint32 mActivationTime;
+        
+        // Sistema de transição para créditos
+        bool mBossDefeatedTransition;
+        Uint32 mBossDefeatedTime;
+        float mCreditsFadeAlpha;
         
         // Sistema de transições
         bool isTransitioning;
@@ -71,6 +102,8 @@ namespace ARSCREW
         // Constantes de transição
         const Uint32 TRANSITION_DELAY = 500;
         const Uint32 HALF_TRANSITION = TRANSITION_DELAY / 2;
+        const Uint32 BOSS_DEFEATED_DELAY = 3000; // 3 segundos antes de ir para créditos
+        const float CREDITS_FADE_SPEED = 255.0f / 2000.0f; // Fade em 2 segundos
         
         // Sistema de parallax
         std::array<SDL_Texture*, 5> mParallaxLayers;
@@ -86,6 +119,7 @@ namespace ARSCREW
         void handleTransition();
         void completeTransition(const Vector& currentVelocity);
         void updateGameState();
+        void updateBossDefeatedTransition();
         void checkPlayerActivation();
         void updatePlayer();
         void checkLevelTransitions();
@@ -100,6 +134,7 @@ namespace ARSCREW
         
         // Métodos de renderização
         void renderTransitionEffect();
+        void renderCreditsFadeEffect();
         void prepareRender();
         void renderBackground();
         void renderParallaxLayer(int layerIndex, const Vector& cameraPos);
@@ -107,6 +142,16 @@ namespace ARSCREW
         void renderHUD();
         void finalizeRender();
         void playJumpSound();
+        void playAttackSound();
+        void playTooltipSound();
+        void playPlayerHitSound();
+        void playEnemyHitSound();
+        void playEnemyDeathSound();
+        void playPunktauroAccelerateSound();
+        void playPunktauroJumpSound();
+        void playPunktauroDeathSound();
+        void playGateSound();
+        void cleanupAudioChannels(); // Método para limpar canais
         
         // Métodos auxiliares
         std::string getCurrentLevelPath() const;

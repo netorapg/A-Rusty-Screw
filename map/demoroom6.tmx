@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="20" height="10" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="14">
+ <tileset firstgid="1" source="../assets/fulltile.tsx"/>
+ <layer id="3" name="decorations" width="20" height="10">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,0,
+0,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,0,
+0,41,41,41,41,41,41,41,41,41,41,41,91,41,41,41,41,41,41,0,
+0,91,41,41,41,41,91,91,91,41,41,41,41,41,41,41,41,41,41,0,
+0,31,32,32,32,32,32,32,32,32,32,32,33,91,11,91,11,11,11,0,
+0,40,82,82,82,82,82,82,99,98,0,0,42,2,2,2,2,0,0,0,
+46,40,82,82,82,82,82,82,82,97,83,98,42,0,46,46,0,26,26,26,
+46,49,50,50,50,50,50,50,50,50,50,50,51,0,46,46,0,26,26,26,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,46,46,0,26,26,26
+</data>
+ </layer>
+ <objectgroup id="2" name="spawns">
+  <object id="1" type="door" x="14.8079" y="255.915">
+   <properties>
+    <property name="spawn_x" type="float" value="27"/>
+    <property name="spawn_y" type="float" value="56"/>
+    <property name="target" value="../map/demoroom2.tmx"/>
+   </properties>
+  </object>
+  <object id="3" type="door" x="479.917" y="304.917">
+   <properties>
+    <property name="spawn_x" type="float" value="18"/>
+    <property name="spawn_y" type="float" value="3"/>
+    <property name="target" value="../map/bossarena.tmx"/>
+   </properties>
+  </object>
+  <object id="5" type="screw_flathead" x="38.75" y="135.75"/>
+  <object id="6" type="screw_flathead" x="198.909" y="134.5"/>
+  <object id="7" type="screw_flathead" x="230.818" y="133.909"/>
+  <object id="8" type="screw_flathead" x="262.727" y="134.091"/>
+  <object id="9" type="screw_flathead" x="391" y="102.125"/>
+  <object id="10" type="screw_flathead" x="422.818" y="166.182"/>
+  <object id="11" type="screw_flathead" x="486.818" y="166"/>
+  <object id="12" type="door" x="458.75" y="304.75">
+   <properties>
+    <property name="spawn_x" type="float" value="18"/>
+    <property name="spawn_y" type="float" value="3"/>
+    <property name="target" value="../map/bossarena.tmx"/>
+   </properties>
+  </object>
+  <object id="13" type="door" x="501.25" y="304.75">
+   <properties>
+    <property name="spawn_x" type="float" value="18"/>
+    <property name="spawn_y" type="float" value="3"/>
+    <property name="target" value="../map/bossarena.tmx"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <layer id="1" name="blocks" width="20" height="10">
+  <data encoding="csv">
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,
+0,0,0,0,0,0,0,0,0,0,0,0,0,5,18,18,5,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,5,0,0,0,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,5,0,0,0
+</data>
+ </layer>
+</map>

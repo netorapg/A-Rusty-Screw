@@ -45,6 +45,9 @@ namespace ARSCREW
         mOriginalPosition = position;
         mMovementTimer = 0.0f;
         mIsCharging = false;
+        mDeathSoundPlayed = false; // Inicializar flag de som de morte
+        mAccelerateSoundPlayed = false; // Inicializar flag de som de aceleração
+        mJumpSoundPlayed = false; // Inicializar flag de som de pulo
         
         // Tamanho maior para o boss
         mSize = Vector(70, 70);
@@ -74,6 +77,11 @@ namespace ARSCREW
         
         // Atualizar fase baseado na vida
         updatePhase();
+        
+        // Resetar flag de som de pulo quando volta ao chão
+        if (isOnGround() && mJumpSoundPlayed) {
+            mJumpSoundPlayed = false;
+        }
         
         // Atualizar timers
         mSpecialAttackTimer -= deltaTime;
@@ -246,6 +254,13 @@ namespace ARSCREW
             mCurrentHealth = 0;
             mCurrentState = PunktauroState::DEFEATED;
             mIsDestroyed = true;
+            
+            // Tocar som de morte do Punktauro apenas uma vez
+            if (!mDeathSoundPlayed && mDeathSoundCallback) {
+                mDeathSoundCallback();
+                mDeathSoundPlayed = true; // Marcar que já tocou o som
+            }
+            
             std::cout << "Punktauro foi derrotado!" << std::endl;
         }
     }
@@ -363,6 +378,14 @@ namespace ARSCREW
             if (static_cast<int>(mMovementTimer) % 4 == 0 && mMovementTimer - static_cast<int>(mMovementTimer) < deltaTime)
             {
                 mIsCharging = true;
+                
+                // Tocar som de aceleração apenas uma vez por charge
+                if (!mAccelerateSoundPlayed && mAccelerateSoundCallback) {
+                    mAccelerateSoundCallback();
+                    mAccelerateSoundPlayed = true;
+                }
+                
+                std::cout << "Punktauro iniciou charge attack!" << std::endl;
             }
             
             if (mIsCharging)
@@ -384,6 +407,7 @@ namespace ARSCREW
                 else
                 {
                     mIsCharging = false;
+                    mAccelerateSoundPlayed = false; // Reset da flag quando o charge termina
                     mVelocity.x = 0;
                     mVelocity.y = 0;
                 }
@@ -476,6 +500,32 @@ namespace ARSCREW
             
             Vector velocity = getVelocity();
             velocity.x = direction.x * mFollowSpeed;
+            
+            // Pular ocasionalmente quando seguindo o jogador (especialmente nas fases 2 e 3)
+            static float jumpTimer = 0.0f;
+            jumpTimer += deltaTime;
+            
+            bool shouldJump = false;
+            if (mCurrentState == PunktauroState::PHASE_2 && jumpTimer > 3.0f) {
+                shouldJump = true;
+                jumpTimer = 0.0f;
+            } else if (mCurrentState == PunktauroState::PHASE_3 && jumpTimer > 2.0f) {
+                shouldJump = true;
+                jumpTimer = 0.0f;
+            }
+            
+            if (shouldJump && velocity.y >= 0) { // Só pula se não estiver já pulando
+                velocity.y = -250.0f; // Força do pulo
+                
+                // Tocar som de pulo do Punktauro apenas uma vez por pulo
+                if (!mJumpSoundPlayed && mJumpSoundCallback) {
+                    mJumpSoundCallback();
+                    mJumpSoundPlayed = true;
+                }
+                
+                std::cout << "Punktauro pulou!" << std::endl;
+            }
+            
             setVelocity(velocity);
         }
     }

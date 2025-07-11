@@ -48,6 +48,10 @@ namespace ARSCREW
         float mInvulnerabilityTimer = 0.0f;
         const float INVULNERABILITY_DURATION = 1.0f; // 1 segundo
         bool mIsFlashing = false;
+        
+        // Flags para controlar sons
+        bool mHitSoundPlayed = false;
+        bool mDeathSoundPlayed = false;
         float mFlashTimer = 0.0f;
         const float FLASH_INTERVAL = 0.1f;
         
@@ -94,6 +98,12 @@ namespace ARSCREW
         int getMaxHealth() const { return mMaxHealth; }
         bool isDead() const { return mCurrentHealth <= 0; }
         bool isInvulnerable() const { return mInvulnerabilityTimer > 0.0f; }
+        
+        // Métodos para controlar sons
+        bool hasHitSoundPlayed() const { return mHitSoundPlayed; }
+        bool hasDeathSoundPlayed() const { return mDeathSoundPlayed; }
+        void setHitSoundPlayed(bool played) { mHitSoundPlayed = played; }
+        void setDeathSoundPlayed(bool played) { mDeathSoundPlayed = played; }
         
         // Adicionar métodos que faltam
         void destroy() { mIsDestroyed = true; }

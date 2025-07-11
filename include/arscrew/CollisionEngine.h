@@ -9,7 +9,6 @@
 #include "Platform.h"
 #include "Player.h"
 #include "SolidPlatform.h"
-#include "Ramp.h"
 
 namespace ARSCREW
 {
@@ -17,7 +16,6 @@ namespace ARSCREW
   {
     public:
     static  bool CheckCollision(const Object& staticObj, const Object& dynamicObj);
-    static  bool CheckRampCollision(const Ramp& ramp, const Vector& point);
 
    static Vector normalize(const Vector& v) {
         float length = std::sqrt(v.x * v.x + v.y * v.y);
@@ -31,8 +29,7 @@ namespace ARSCREW
       (
         DynamicObject& dynamicObject,
         const std::list<Platform>& platforms,
-        const std::list<SolidPlatform>& solidPlatforms,
-        const std::list<Ramp>& ramps
+        const std::list<SolidPlatform>& solidPlatforms
       );
 
     static  bool HandlePlayerCollisions
@@ -59,14 +56,6 @@ namespace ARSCREW
         DynamicObject& dynamicObject, 
         const std::list<Platform>& platforms,
         Vector& position, 
-        Vector& velocity
-      );
-
-      static bool handleRampCollisions
-      (
-        DynamicObject& dynamicObject,
-        const std::list<Ramp>& ramps,
-        Vector& position,
         Vector& velocity
       );
 

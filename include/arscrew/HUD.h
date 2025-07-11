@@ -39,6 +39,17 @@ namespace ARSCREW
         SDL_Color mHealthBarBackgroundColor;
         SDL_Color mBossHealthBarColor;
         
+        // Cores estilo retrô
+        SDL_Color mRetroOrange;
+        SDL_Color mRetroBlue;
+        SDL_Color mRetroGreen;
+        SDL_Color mRetroRed;
+        SDL_Color mRetroCyan;
+        SDL_Color mRetroYellow;
+        SDL_Color mRetroPurple;
+        SDL_Color mRetroBackgroundDark;
+        SDL_Color mRetroBorderLight;
+        
         // Posições dos elementos da HUD
         struct HUDPositions
         {
@@ -71,6 +82,12 @@ namespace ARSCREW
         void renderBossHealth(SDL_Renderer* renderer, const Punktauro* boss);
         void renderBackground(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color, Uint8 alpha = 180);
         void renderHealthBar(SDL_Renderer* renderer, const SDL_Rect& barRect, int currentHealth, int maxHealth, SDL_Color barColor);
+        
+        // Métodos de renderização estilo retrô
+        void renderRetroBackground(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color bgColor, SDL_Color borderColor);
+        void renderSegmentedHealthBar(SDL_Renderer* renderer, const SDL_Rect& barRect, int currentHealth, int maxHealth, SDL_Color barColor);
+        void renderScanLines(SDL_Renderer* renderer, const SDL_Rect& rect);
+        void renderRetroText(SDL_Renderer* renderer, const std::string& text, int x, int y, SDL_Color color, bool isLarge = false);
         
         // Utilitário para criar textura de texto
         SDL_Texture* createTextTexture(const std::string& text, TTF_Font* font, SDL_Color color);
