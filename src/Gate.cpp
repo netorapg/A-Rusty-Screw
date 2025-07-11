@@ -109,6 +109,11 @@ namespace ARSCREW
         
         mState = GateState::OPENING;
         std::cout << "Gate starting to open..." << std::endl;
+        
+        // Tocar som de abertura do gate
+        if (mOpenSoundCallback) {
+            mOpenSoundCallback();
+        }
     }
 
     void Gate::startClosing()

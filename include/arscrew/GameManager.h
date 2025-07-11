@@ -46,6 +46,7 @@ namespace ARSCREW
         Mix_Chunk* mPunktauroAccelerateSound;
         Mix_Chunk* mPunktauroJumpSound;
         Mix_Chunk* mPunktauroDeathSound;
+        Mix_Chunk* mGateSound;
         
         GameWorld mWorld;
         HUD mHUD;
@@ -149,6 +150,7 @@ namespace ARSCREW
         void playPunktauroAccelerateSound();
         void playPunktauroJumpSound();
         void playPunktauroDeathSound();
+        void playGateSound();
         void cleanupAudioChannels(); // Método para limpar canais
         
         // Métodos auxiliares

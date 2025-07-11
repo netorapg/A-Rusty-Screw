@@ -89,6 +89,7 @@ namespace ARSCREW
         void setPunktauroAccelerateSoundCallback(std::function<void()> callback) { mPunktauroAccelerateSoundCallback = callback; }
         void setPunktauroJumpSoundCallback(std::function<void()> callback) { mPunktauroJumpSoundCallback = callback; }
         void setPunktauroDeathSoundCallback(std::function<void()> callback) { mPunktauroDeathSoundCallback = callback; }
+        void setGateSoundCallback(std::function<void()> callback) { mGateSoundCallback = callback; }
         void setScrewRespawnTime(float time);
         float getScrewRespawnTime() const { return mScrewRespawnTime; }
 
@@ -157,6 +158,7 @@ namespace ARSCREW
         std::function<void()> mPunktauroAccelerateSoundCallback;
         std::function<void()> mPunktauroJumpSoundCallback;
         std::function<void()> mPunktauroDeathSoundCallback;
+        std::function<void()> mGateSoundCallback;
         
         // Flags para controlar repetição de sons
         bool mPlayerHitSoundPlayed;

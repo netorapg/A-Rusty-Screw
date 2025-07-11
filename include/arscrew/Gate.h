@@ -6,6 +6,7 @@
 #include "Screw.h"
 #include <SDL2/SDL.h>
 #include <memory>
+#include <functional>
 
 namespace ARSCREW
 {
@@ -57,6 +58,9 @@ namespace ARSCREW
         // Manual open/close (para debug ou eventos especiais)
         void forceOpen() { mState = GateState::OPENING; }
         void forceClose() { mState = GateState::CLOSING; }
+        
+        // Callback para som
+        void setOpenSoundCallback(std::function<void()> callback) { mOpenSoundCallback = callback; }
 
     private:
         Screw* mTargetScrew;          // Ponteiro para o parafuso que controla este portão
@@ -70,6 +74,9 @@ namespace ARSCREW
         float mMaxOffset;             // Offset máximo (altura total do portão)
         
         bool mScrewWasDestroyed;      // Flag para rastrear se o parafuso foi destruído
+        
+        // Callback para som de abertura
+        std::function<void()> mOpenSoundCallback;
 
         void startOpening();
         void startClosing();

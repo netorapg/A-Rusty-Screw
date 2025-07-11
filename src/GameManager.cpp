@@ -20,6 +20,7 @@ namespace ARSCREW
         , mPunktauroAccelerateSound(nullptr)
         , mPunktauroJumpSound(nullptr)
         , mPunktauroDeathSound(nullptr)
+        , mGateSound(nullptr)
         , mWorld(renderer)
         , mHUD(renderer)
         , mQuit(false)
@@ -56,6 +57,7 @@ namespace ARSCREW
         mWorld.setPunktauroAccelerateSoundCallback([this]() { playPunktauroAccelerateSound(); });
         mWorld.setPunktauroJumpSoundCallback([this]() { playPunktauroJumpSound(); });
         mWorld.setPunktauroDeathSoundCallback([this]() { playPunktauroDeathSound(); });
+        mWorld.setGateSoundCallback([this]() { playGateSound(); });
         
         // Iniciar música de fundo
         if (mMusic)
@@ -92,6 +94,7 @@ namespace ARSCREW
         Mix_FreeChunk(mPunktauroAccelerateSound);
         Mix_FreeChunk(mPunktauroJumpSound);
         Mix_FreeChunk(mPunktauroDeathSound);
+        Mix_FreeChunk(mGateSound);
         Mix_CloseAudio();
         
         TTF_CloseFont(mFont);
@@ -120,7 +123,7 @@ namespace ARSCREW
         Mix_AllocateChannels(32); // Aumentar de 8 (padrão) para 32 canais
         
         // Carregar música de fundo
-        mMusic = Mix_LoadMUS("");
+        mMusic = Mix_LoadMUS("../assets/backgroundsong.mp3");
         if (!mMusic)
         {
             std::cerr << "Failed to load background music: " << Mix_GetError() << std::endl;
@@ -187,6 +190,13 @@ namespace ARSCREW
         if (!mPunktauroDeathSound)
         {
             std::cerr << "Failed to load Punktauro death sound: " << Mix_GetError() << std::endl;
+        }
+        
+        // Carregar som do gate
+        mGateSound = Mix_LoadWAV("../assets/gate-sound.wav");
+        if (!mGateSound)
+        {
+            std::cerr << "Failed to load gate sound: " << Mix_GetError() << std::endl;
         }
     }
 
@@ -825,6 +835,23 @@ namespace ARSCREW
                 channel = Mix_PlayChannel(-1, mPunktauroDeathSound, 0);
                 if (channel != -1) {
                     std::cout << "Punktauro death sound played successfully after cleanup" << std::endl;
+                }
+            }
+        }
+    }
+
+    void GameManager::playGateSound()
+    {
+        if (mGateSound)
+        {
+            int channel = Mix_PlayChannel(-1, mGateSound, 0);
+            if (channel == -1)
+            {
+                std::cerr << "Failed to play gate sound: " << Mix_GetError() << std::endl;
+                cleanupAudioChannels();
+                channel = Mix_PlayChannel(-1, mGateSound, 0);
+                if (channel != -1) {
+                    std::cout << "Gate sound played successfully after cleanup" << std::endl;
                 }
             }
         }

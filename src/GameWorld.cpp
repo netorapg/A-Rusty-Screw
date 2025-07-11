@@ -758,6 +758,9 @@ namespace ARSCREW
         // Criar o portão
         mGates.emplace_back(Vector(mAttributeSpawn), gateSize, mPlatformsTexture, mRenderer);
         
+        // Configurar callback de som para o gate
+        mGates.back().setOpenSoundCallback(mGateSoundCallback);
+        
         std::cout << "Gate created at: " << mAttributeSpawn.x << ", " << mAttributeSpawn.y 
                   << " with size: " << width << "x" << height << std::endl;
         
