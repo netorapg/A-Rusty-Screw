@@ -177,8 +177,28 @@ namespace ARSCREW
         // Renderizar vida do jogador
         renderPlayerHealth(renderer, player);
 
-        std::string scoreText = "SCORE: " + std::to_string(static_cast<float>(mScore));
-        renderRetroText(renderer, scoreText, SCREEN_WIDTH - 980, 20, mRetroGreen, true);
+        // Score: visual retrô, sem casas decimais, destaque e sombra, com fundo
+        char scoreBuffer[32];
+        snprintf(scoreBuffer, sizeof(scoreBuffer), "SCORE: %d", static_cast<int>(std::round(mScore)));
+        std::string scoreText = scoreBuffer;
+
+        int scoreX = SCREEN_WIDTH - 1000;
+        int scoreY = 15;
+
+        // Medir tamanho do texto para ajustar o retângulo
+        int textW = 0, textH = 0;
+        if (mFont) {
+            TTF_SizeText(mFont, scoreText.c_str(), &textW, &textH);
+        } else {
+            textW = 160; textH = 32; // fallback
+        }
+        SDL_Rect scoreRect = {scoreX - 16, scoreY - 8, textW + 32, textH + 16};
+        renderRetroBackground(renderer, scoreRect, mRetroBackgroundDark, mRetroBorderLight);
+
+        // Sombra mais sutil para melhor legibilidade
+        SDL_Color shadowColor = {16, 32, 48, 180}; // sombra escura e translúcida
+        renderRetroText(renderer, scoreText, scoreX + 1, scoreY + 1, shadowColor, true); // sombra sutil
+        renderRetroText(renderer, scoreText, scoreX, scoreY, mRetroGreen, true); // texto principal
         
         // Renderizar vida do boss se existir e não estiver morto
         if (boss && !boss->isDead())

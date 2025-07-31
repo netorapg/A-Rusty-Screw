@@ -43,7 +43,7 @@
     <property name="target" value="../map/demoroom1.tmx"/>
    </properties>
   </object>
-  <object id="2" type="player_spawn" x="101.333" y="425.333"/>
+  <object id="2" type="player_spawn" x="96.6663" y="529.333"/>
   <object id="3" type="door" x="1135" y="688">
    <properties>
     <property name="spawn_x" type="float" value="3"/>
