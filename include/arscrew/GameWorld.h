@@ -59,6 +59,8 @@ namespace ARSCREW
         std::list<Screw>& getScrews() { return mScrews; }
         std::list<Enemy>& getEnemies() { return mEnemies; }
         
+        void setEnemyKilledCallback(const std::function<void()>& callback) { mEnemyKilledCallback = callback; }
+
         // Getter para o boss Punktauro
         Punktauro* getPunktauro() { return mPunktauro.get(); }
         bool hasPunktauro() const { return mPunktauro != nullptr; }
@@ -163,6 +165,9 @@ namespace ARSCREW
         // Flags para controlar repetição de sons
         bool mPlayerHitSoundPlayed;
         bool mPunktauroDeathSoundPlayed;
+
+        std::function<void()> mEnemyKilledCallback;
+
     };
 }
 

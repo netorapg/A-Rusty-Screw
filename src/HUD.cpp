@@ -153,6 +153,12 @@ namespace ARSCREW
         // Aqui podemos adicionar animações ou atualizações futuras da HUD
     }
     
+
+    void HUD::setScore(float score)
+    {
+        mScore = score;
+    }
+
     void HUD::render(SDL_Renderer* renderer, const Player& player, const Punktauro* boss)
     {
         if (!mVisible) return;
@@ -170,6 +176,9 @@ namespace ARSCREW
         
         // Renderizar vida do jogador
         renderPlayerHealth(renderer, player);
+
+        std::string scoreText = "SCORE: " + std::to_string(static_cast<float>(mScore));
+        renderRetroText(renderer, scoreText, SCREEN_WIDTH - 980, 20, mRetroGreen, true);
         
         // Renderizar vida do boss se existir e não estiver morto
         if (boss && !boss->isDead())

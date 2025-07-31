@@ -42,35 +42,36 @@ namespace ARSCREW
         , mStartMenu(renderer)
         , mPauseMenu(renderer)
         , mCreditsScreen(renderer)
+{
+    resetScore(); // Corrige score "quebrado" ao iniciar
+    std::cout << "GameManager constructor called" << std::endl;
+    initializeRenderSettings();
+    loadParallaxLayers();
+    initializeAudioSystem();
+    // Configurar callbacks de som no GameWorld
+    mWorld.setAttackSoundCallback([this]() { playAttackSound(); });
+    mWorld.setTooltipSoundCallback([this]() { playTooltipSound(); });
+    mWorld.setPlayerHitSoundCallback([this]() { playPlayerHitSound(); });
+    mWorld.setEnemyHitSoundCallback([this]() { playEnemyHitSound(); });
+    mWorld.setEnemyDeathSoundCallback([this]() { 
+        playEnemyDeathSound();
+        addEnemyKill(); // Atualiza score ao matar inimigo
+    });
+    mWorld.setPunktauroAccelerateSoundCallback([this]() { playPunktauroAccelerateSound(); });
+    mWorld.setPunktauroJumpSoundCallback([this]() { playPunktauroJumpSound(); });
+    mWorld.setPunktauroDeathSoundCallback([this]() { playPunktauroDeathSound(); });
+    mWorld.setGateSoundCallback([this]() { playGateSound(); });
+    // Iniciar música de fundo
+    if (mMusic)
     {
-        std::cout << "GameManager constructor called" << std::endl;
-        initializeRenderSettings();
-        loadParallaxLayers();
-        initializeAudioSystem();
-        
-        // Configurar callbacks de som no GameWorld
-        mWorld.setAttackSoundCallback([this]() { playAttackSound(); });
-        mWorld.setTooltipSoundCallback([this]() { playTooltipSound(); });
-        mWorld.setPlayerHitSoundCallback([this]() { playPlayerHitSound(); });
-        mWorld.setEnemyHitSoundCallback([this]() { playEnemyHitSound(); });
-        mWorld.setEnemyDeathSoundCallback([this]() { playEnemyDeathSound(); });
-        mWorld.setPunktauroAccelerateSoundCallback([this]() { playPunktauroAccelerateSound(); });
-        mWorld.setPunktauroJumpSoundCallback([this]() { playPunktauroJumpSound(); });
-        mWorld.setPunktauroDeathSoundCallback([this]() { playPunktauroDeathSound(); });
-        mWorld.setGateSoundCallback([this]() { playGateSound(); });
-        
-        // Iniciar música de fundo
-        if (mMusic)
-        {
-            Mix_PlayMusic(mMusic, -1); // -1 = loop infinito
-            Mix_VolumeMusic(64); // Volume 50% (0-128)
-        }
-        
-        // Não carregar nível aqui - será carregado quando o player escolher "START GAME"
-        // O jogo começa no menu
-        mCurrentLevel = "";
-        mPlayerActivated = false;
+        Mix_PlayMusic(mMusic, -1); // -1 = loop infinito
+        Mix_VolumeMusic(64); // Volume 50% (0-128)
     }
+    // Não carregar nível aqui - será carregado quando o player escolher "START GAME"
+    // O jogo começa no menu
+    mCurrentLevel = "";
+    mPlayerActivated = false;
+}
 
     GameManager::~GameManager()
     {
@@ -306,12 +307,15 @@ namespace ARSCREW
                 break;
             case GameState::PLAYING:
                 updatePlaying(deltaTime);
+                updateGameTime(deltaTime);
+                updateAirTime(deltaTime, !mWorld.getPlayer().isOnGround());
                 break;
             case GameState::PAUSED:
                 updatePaused(deltaTime);
                 break;
             case GameState::GAME_OVER:
                 updateGameOver(deltaTime);
+                addGameOver();
                 break;
             case GameState::CREDITS:
                 updateCredits(deltaTime);
@@ -378,6 +382,7 @@ namespace ARSCREW
         mWorld.handleScrewCollisions();
         mWorld.handleEnemyCollisions();
         mWorld.handlePunktauroCollisions();
+
     }
 
     void GameManager::checkPlayerActivation()
@@ -587,6 +592,9 @@ namespace ARSCREW
     void GameManager::renderHUD()
     {
         SDL_RenderSetScale(mRenderer, 1.0f, 1.0f);
+        // Score parcial: só inimigos mortos e tempo no ar
+        float partialScore = mEnemiesKilled * 100 + mBestAirTime * 50;
+        mHUD.setScore(partialScore);
         mHUD.render(mRenderer, mWorld.getPlayer(), mWorld.getPunktauro());
         SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
     }
@@ -868,16 +876,19 @@ namespace ARSCREW
     {
         // Recarregar o nível atual
         mWorld.loadLevelFromTMX(mCurrentLevel);
-        
+
         // Restaurar a vida do player ao máximo
         mWorld.getPlayer().resetHealth();
-        
+
+        // Resetar score ao reiniciar
+        resetScore();
+
         // Resetar flag do boss derrotado
         mBossDefeated = false;
         mBossDefeatedTransition = false;
         mBossDefeatedTime = 0;
         mCreditsFadeAlpha = 0.0f;
-      
+
         mCurrentState = GameState::PLAYING;
         mGameOverScreen.reset();
     }
@@ -1029,6 +1040,58 @@ namespace ARSCREW
                 mQuit = true;
             }
         }
+    }
+
+    void GameManager::addEnemyKill() {
+        mEnemiesKilled++;
+    }
+
+  
+    void GameManager::addGameOver() {
+        mGameOverCount++;
+    }
+
+  
+    void GameManager::addDamageTaken(float dmg) {
+        mTotalDamageTaken += dmg;
+    }
+
+
+    void GameManager::updateAirTime(float deltaTime, bool inAir) {
+        if (inAir) {
+            mCurrentAirTime += deltaTime;
+            if (mCurrentAirTime > mBestAirTime)
+                mBestAirTime = mCurrentAirTime;
+        } else {
+            mCurrentAirTime = 0.0f;
+        }
+    }
+
+  
+    void GameManager::updateGameTime(float deltaTime) {
+        mGameTime += deltaTime;
+    }
+
+
+    float GameManager::calculateFinalScore() const {
+        float score = 0;
+        score += mEnemiesKilled * 100;                
+        score += mBestAirTime * 50;                    
+        score += std::max(0.0f, 5000.0f - mGameTime);
+        score -= mGameOverCount * 200;
+        score -= mTotalDamageTaken;
+        return std::max(0.0f, score);
+    }
+
+    // Chame ao iniciar/reiniciar o jogo
+    void GameManager::resetScore() {
+        mScore = 0;
+        mEnemiesKilled = 0;
+        mGameOverCount = 0;
+        mTotalDamageTaken = 0;
+        mBestAirTime = 0.0f;
+        mCurrentAirTime = 0.0f;
+        mGameTime = 0.0f;
     }
 
     void GameManager::renderCredits()

@@ -284,6 +284,7 @@ namespace ARSCREW
                         mEnemyDeathSoundCallback();
                         enemy.setDeathSoundPlayed(true);
                     }
+                    if (mEnemyKilledCallback) mEnemyKilledCallback(); // Chamar callback de inimigo morto
                 } else if (wasAlive && !enemy.hasHitSoundPlayed()) {
                     // Inimigo atingido mas ainda vivo
                     if (mEnemyHitSoundCallback) {

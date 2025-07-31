@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
     }
 
     SDL_Window* window = SDL_CreateWindow(
-        "Bettle Rider",
+        "A Rusty Screw",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         ARSCREW::SCREEN_WIDTH,

@@ -22,6 +22,8 @@ namespace ARSCREW
         // Configurações visuais
         void setVisible(bool visible) { mVisible = visible; }
         bool isVisible() const { return mVisible; }
+
+        void setScore(float score);
         
     private:
         SDL_Renderer* mRenderer;
@@ -29,7 +31,9 @@ namespace ARSCREW
         TTF_Font* mSmallFont;
         
         bool mVisible;
-        
+
+        float mScore;
+
         // Cores para diferentes elementos
         SDL_Color mTextColor;
         SDL_Color mBackgroundColor;
