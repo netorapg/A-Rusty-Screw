@@ -5,8 +5,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <list>
 #include <string>
-#include "../../my-lib-master/include/my-lib/math-vector.h"
-
+#include "vector2.h"
 
 namespace ARSCREW
 {
