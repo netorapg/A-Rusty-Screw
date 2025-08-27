@@ -1,0 +1,273 @@
+@startuml A_Rusty_Screw_Vertical_Diagram
+
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 10
+skinparam package {
+    BackgroundColor #EEE
+    BorderColor #A6A6A6
+    FontSize 11
+}
+skinparam direction top to bottom layout
+skinparam linetype ortho
+
+title A Rusty Screw - Diagrama Vertical
+
+' ===================================
+'      DEFINIÇÃO DAS CLASSES
+' ===================================
+
+package "Engine" {
+    class GameManager {
+        +manageGameState()
+    }
+    
+    class GameWorld {
+        +updateWorld()
+    }
+    
+    class CollisionEngine {
+        +checkCollisions()
+    }
+}
+
+package "Data Types (Enums)" {
+    enum GameState {
+        MENU
+        PLAYING
+        PAUSED
+        GAME_OVER
+    }
+    
+    enum AttackType {
+        MELEE
+        RANGED
+    }
+    
+    enum ScrewType {
+        RUSTY
+        SHINY
+    }
+    
+    enum ToolTipType {
+        HINT
+        TUTORIAL
+    }
+    
+    enum EnemyState {
+        IDLE
+        PATROLLING
+        ATTACKING
+    }
+    
+    enum PunktauroState {
+        NORMAL
+        ENRAGED
+    }
+    
+    enum GateState {
+        LOCKED
+        UNLOCKED
+    }
+    
+    enum InputAction {
+        MOVE
+        JUMP
+        ATTACK
+    }
+}
+
+package "Base Objects" {
+    abstract class Object {
+        +position
+        +update()
+    }
+    
+    abstract class StaticObject {
+        +isCollidable
+    }
+    
+    abstract class DynamicObject {
+        +velocity
+    }
+}
+
+package "Static Objects" {
+    class Platform {
+        +platformType
+    }
+    
+    class SolidPlatform {
+        +isBreakable
+    }
+    
+    class Door {
+        +isLocked
+    }
+    
+    class Decoration {
+        +animationType
+    }
+    
+    class Gate {
+        +gateState
+    }
+    
+    class ToolTip {
+        +toolTipType
+    }
+    
+    class Screw {
+        +screwType
+    }
+}
+
+package "Dynamic Objects" {
+    class Player {
+        +health
+        +attack()
+    }
+    
+    class Enemy {
+        +enemyState
+    }
+    
+    class Punktauro {
+        +specialAbility()
+    }
+    
+    class Chicken {
+        +peck()
+    }
+    
+    class Crate {
+        +break()
+    }
+}
+
+package "Graphics" {
+    class Sprite {
+        +texture
+    }
+    
+    class Animation {
+        +frames[]
+        +play()
+    }
+    
+    class AnimationFrame {
+        +duration
+    }
+}
+
+package "Utilities" {
+    class Camera {
+        +followTarget()
+    }
+    
+    class InputManager {
+        +getInput()
+    }
+}
+
+package "UI (Interface)" {
+    class HUD {
+        +updateHealth()
+    }
+    
+    class StartMenu {
+        +showOptions()
+    }
+    
+    class PauseMenu {
+        +showPauseOptions()
+    }
+    
+    class GameOverScreen {
+        +showScore()
+    }
+    
+    class CreditsScreen {
+        +showCredits()
+    }
+}
+
+' ===================================
+'      DEFINIÇÃO DAS RELAÇÕES
+' ===================================
+
+' --- Herança (Inheritance) ---
+Object ||--|| StaticObject
+Object ||--|| DynamicObject
+
+StaticObject ||--|| Platform
+StaticObject ||--|| SolidPlatform
+StaticObject ||--|| Door
+StaticObject ||--|| Decoration
+StaticObject ||--|| Gate
+StaticObject ||--|| ToolTip
+StaticObject ||--|| Screw
+
+DynamicObject ||--|| Player
+DynamicObject ||--|| Enemy
+DynamicObject ||--|| Chicken
+DynamicObject ||--|| Crate
+Enemy ||--|| Punktauro
+
+' --- Composição Principal ---
+GameManager ||--|| GameWorld
+GameManager ||--|| HUD
+GameManager ||--|| GameOverScreen
+GameManager ||--|| StartMenu
+GameManager ||--|| PauseMenu
+GameManager ||--|| CreditsScreen
+
+' --- Agregação GameWorld ---
+GameWorld ||--|| Player
+GameWorld ||--|| Camera
+GameWorld ||--|| Chicken
+GameWorld ||--|| InputManager
+
+' --- Múltiplos objetos no mundo ---
+GameWorld ||--o{ Platform
+GameWorld ||--o{ SolidPlatform
+GameWorld ||--o{ Crate
+GameWorld ||--o{ Door
+GameWorld ||--o{ Decoration
+GameWorld ||--o{ Gate
+GameWorld ||--o{ ToolTip
+GameWorld ||--o{ Screw
+GameWorld ||--o{ Enemy
+GameWorld ||--o{ Punktauro
+
+' --- Composição de Animação ---
+Animation ||--o{ AnimationFrame
+
+' --- Dependências ---
+AnimationFrame --> Sprite
+GameManager --> GameState
+Player --> AttackType
+Screw --> ScrewType
+ToolTip --> ToolTipType
+Enemy --> EnemyState
+Punktauro --> PunktauroState
+Gate --> GateState
+InputManager --> InputAction
+
+' --- Dependências de Animação ---
+Player ..> Animation
+Enemy ..> Animation
+Chicken ..> Animation
+Platform ..> Animation
+SolidPlatform ..> Animation
+Door ..> Animation
+Decoration ..> Animation
+
+' --- Relações de Observação ---
+Gate ..> Screw : "observes"
+HUD ..> Player : "observes"
+HUD ..> Punktauro : "observes"
+GameWorld ..> CollisionEngine : "uses"
+CollisionEngine ..> Object : "operates on"
+
+@enduml

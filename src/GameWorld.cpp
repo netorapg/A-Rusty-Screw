@@ -276,7 +276,10 @@ namespace ARSCREW
                 
                 bool wasAlive = !enemy.isDead();
                 enemy.takeDamage(damage);
-                
+
+                mCamera.shake(5.0f, 0.2f);
+
+
                 // Tocar som apropriado apenas se o dano foi aplicado e som ainda não foi tocado
                 if (enemy.isDead() && wasAlive && !enemy.hasDeathSoundPlayed()) {
                     // Inimigo morreu
@@ -295,10 +298,18 @@ namespace ARSCREW
                 
                 // Knockback no inimigo
                 Vector enemyVelocity = enemy.getVelocity();
-                int playerDirection = mPlayer.getFacingDirection();
-                enemyVelocity.x = playerDirection * 200.0f; // Empurrar na direção do ataque
-                enemyVelocity.y = -100.0f; // Pequeno pulo para cima
+                
+                // Calcular direção do knockback baseado na posição relativa
+                Vector playerPos = mPlayer.getPosition();
+                Vector enemyPos = enemy.getPosition();
+                float knockbackDirection = (enemyPos.x > playerPos.x) ? 1.0f : -1.0f; // Para direita se inimigo está à direita
+                
+                enemyVelocity.x = knockbackDirection * 200.0f; // Empurrar para longe do player
+                enemyVelocity.y = -200.0f; // Pequeno pulo para cima
                 enemy.setVelocity(enemyVelocity);
+                
+                // Aplicar stun para impedir que siga o player imediatamente
+                enemy.applyStun();
                 
                 continue; // Pular verificação de dano ao player se já atacou
             }
@@ -322,6 +333,7 @@ namespace ARSCREW
                 std::cout << "Player hit by enemy!" << std::endl;
                 int oldHealth = mPlayer.getCurrentHealth();
                 mPlayer.takeDamage(enemy.getDamage());
+                mCamera.shake(5.0f, 0.2f);
                 
                 // Tocar som apenas se o dano foi realmente aplicado
                 if (mPlayer.getCurrentHealth() < oldHealth && mPlayerHitSoundCallback) {
@@ -368,9 +380,8 @@ namespace ARSCREW
 
             if (attackOverlap && !mPunktauro->isInvulnerable())
             {
-                int damage = mPlayer.getAttackDamage(); // Usar dano diferenciado baseado no tipo de ataque
+                int damage = mPlayer.getAttackDamage();
                 
-                // Mensagem de feedback baseada no tipo de ataque
                 if (mPlayer.getCurrentAttackType() == AttackType::PIERCING) {
                     std::cout << "CRITICAL HIT! Piercing attack against Punktauro's head! Damage: " << damage << std::endl;
                 } else {
@@ -378,6 +389,11 @@ namespace ARSCREW
                 }
                 
                 mPunktauro->takeDamage(damage);
+                
+                // DEBUG: Verificar se o shake está sendo chamado
+                std::cout << "DEBUG: Calling camera shake for Punktauro hit!" << std::endl;
+                mCamera.shake(5.0f, 0.2f);
+                std::cout << "DEBUG: Camera shake called successfully!" << std::endl;
                 
                 // O som de morte será tocado automaticamente pelo próprio Punktauro
                 
@@ -395,8 +411,8 @@ namespace ARSCREW
                 // Knockback no boss (menor que inimigos normais por ser mais pesado)
                 Vector bossVelocity = mPunktauro->getVelocity();
                 int playerDirection = mPlayer.getFacingDirection();
-                bossVelocity.x = playerDirection * 100.0f; // Knockback menor para o boss
-                bossVelocity.y = -50.0f; // Pequeno pulo
+                //bossVelocity.x = playerDirection * 100.0f; // Knockback menor para o boss
+                //bossVelocity.y = -50.0f; // Pequeno pulo
                 mPunktauro->setVelocity(bossVelocity);
                 
                 // Verificar se o boss foi derrotado
@@ -426,7 +442,7 @@ namespace ARSCREW
             {
                 int bossDamage = mPunktauro->getDamage();
                 mPlayer.takeDamage(bossDamage);
-                
+                mCamera.shake(5.0f, 0.2f);
                 // Tocar som de jogador atingido
                 if (mPlayerHitSoundCallback) {
                     mPlayerHitSoundCallback();

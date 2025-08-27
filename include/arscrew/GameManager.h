@@ -142,7 +142,7 @@ namespace ARSCREW
         void updatePlayer();
         void checkLevelTransitions();
         void startTransition(const std::string& level, const Vector& spawn);
-        void updateCamera();
+        void updateCamera(float deltaTime);
         void updateCrates();
         
         // Métodos auxiliares de câmera

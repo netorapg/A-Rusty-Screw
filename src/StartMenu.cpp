@@ -13,7 +13,7 @@ namespace ARSCREW
         , mInstructionTexture(nullptr)
         , mSelectedOption(StartMenuOption::START_GAME)
         , mOptionConfirmed(false)
-        , mFadeAlpha(255.0f) // Começa visível
+        , mFadeAlpha(255.0f)
         , mFadeSpeed(300.0f)
         , mBlinkTimer(0.0f)
         , mShowSelection(true)
@@ -48,7 +48,7 @@ namespace ARSCREW
 
         for (const char* fontPath : fontPaths)
         {
-            mTitleFont = TTF_OpenFont(fontPath, 64); // Fonte maior para o título
+            mTitleFont = TTF_OpenFont(fontPath, 64);
             if (mTitleFont) {
                 std::cout << "StartMenu: Loaded title font from " << fontPath << std::endl;
                 break;
@@ -59,7 +59,7 @@ namespace ARSCREW
 
         for (const char* fontPath : fontPaths)
         {
-            mOptionFont = TTF_OpenFont(fontPath, 32); // Fonte maior para as opções
+            mOptionFont = TTF_OpenFont(fontPath, 32);
             if (mOptionFont) {
                 std::cout << "StartMenu: Loaded option font from " << fontPath << std::endl;
                 break;
@@ -274,6 +274,6 @@ namespace ARSCREW
 
     void StartMenu::startFadeIn()
     {
-        mFadeAlpha = 255.0f; // Já começa visível
+        mFadeAlpha = 255.0f; 
     }
 }

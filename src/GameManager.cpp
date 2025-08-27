@@ -329,7 +329,7 @@ namespace ARSCREW
         if (!isTransitioning)
         {
             updateGameState();
-            updateCamera();
+            updateCamera(deltaTime);
             mWorld.updateWorld(deltaTime);
             mHUD.update(deltaTime);
         }
@@ -478,8 +478,11 @@ namespace ARSCREW
         isTransitioning = false;
     }
 
-    void GameManager::updateCamera()
+    void GameManager::updateCamera(float deltaTime)
     {
+        // Atualizar a câmera (incluindo shake)
+        mWorld.getCamera().update(deltaTime);
+
         Vector playerCenter = getPlayerCenter();
         Vector desiredPosition = calculateCameraPosition(playerCenter);
 
@@ -493,6 +496,12 @@ namespace ARSCREW
             currentPos.x + (desiredPosition.x - currentPos.x) * mCameraSmoothSpeed * deltaTime,
             currentPos.y + (desiredPosition.y - currentPos.y) * mCameraSmoothSpeed * deltaTime
         );
+
+        // Aplicar o offset do shake
+        Vector shakeOffset = mWorld.getCamera().getShakeOffset();
+        newPosition.x += shakeOffset.x;
+        newPosition.y += shakeOffset.y;
+
         mWorld.getCamera().setPosition(newPosition);
     }
 
@@ -531,7 +540,6 @@ namespace ARSCREW
 
     void GameManager::render()
     {
-        // Não limpar nem apresentar aqui - o main.cpp é responsável por isso
         
         switch (mCurrentState)
         {

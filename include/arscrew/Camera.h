@@ -15,9 +15,15 @@ namespace ARSCREW
             void setPosition(const Vector& position);
             Vector getPosition() const;
             Vector getSize() const;
+            void shake(float intensity, float duration);
+            void update(float deltaTime);
+            Vector getShakeOffset() const;
         private:
             Vector mPosition;
             Vector mSize;
+            float mShakeIntensity;
+            float mShakeDuration;
+            float mShakeTimer;
     };
 }
 #endif
