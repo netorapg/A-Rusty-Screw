@@ -923,6 +923,10 @@ namespace ARSCREW
             {
                 switchToPlaying();
             }
+            if (mStartMenu.getSelectedOption() == StartMenuOption::CREDITS)
+            {
+                switchToCredits();
+            }
             else // QUIT
             {
                 mQuit = true;

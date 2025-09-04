@@ -97,12 +97,21 @@ namespace ARSCREW
             240, 50
         };
 
+        // Opção Credits
+        mPositions.creditRect = {
+            SCREEN_WIDTH / 2 - 200,
+            SCREEN_HEIGHT / 2 + 160,
+            400, 50
+        };
+        
         // Instruções
         mPositions.instructionRect = {
             SCREEN_WIDTH / 2 - 200,
-            SCREEN_HEIGHT / 2 + 160,
+            SCREEN_HEIGHT / 2 + 240,
             400, 40
         };
+
+
     }
 
     void StartMenu::createTextures()
@@ -117,6 +126,7 @@ namespace ARSCREW
         mTitleTexture = createTextTexture("A RUSTY SCREW", mTitleFont, {255, 255, 255, 255}); // Branco
         mStartTexture = createTextTexture("START GAME", mOptionFont, {255, 255, 255, 255}); // Branco puro
         mQuitTexture = createTextTexture("QUIT", mOptionFont, {255, 255, 255, 255}); // Branco puro
+        mCreditTexture = createTextTexture("CREDITS", mOptionFont, {255, 255, 255, 255}); // Branco puro
         mInstructionTexture = createTextTexture("Use W/S to select, ENTER to confirm", 
                                                mOptionFont, {220, 220, 220, 255}); // Cinza claro
         
@@ -196,6 +206,9 @@ namespace ARSCREW
         renderOption(renderer, mQuitTexture, mPositions.quitRect, 
                     mSelectedOption == StartMenuOption::QUIT);
 
+        renderOption(renderer, mCreditTexture, mPositions.creditRect, 
+                    mSelectedOption == StartMenuOption::CREDITS);
+
         // Renderizar instruções
         if (mInstructionTexture)
         {
@@ -247,14 +260,24 @@ namespace ARSCREW
             {
                 case SDLK_w:
                 case SDLK_UP:
-                    mSelectedOption = StartMenuOption::START_GAME;
+                    if (mSelectedOption == StartMenuOption::START_GAME)
+                        mSelectedOption = StartMenuOption::CREDITS;
+                    else if (mSelectedOption == StartMenuOption::QUIT)
+                        mSelectedOption = StartMenuOption::START_GAME;
+                    else if (mSelectedOption == StartMenuOption::CREDITS)
+                        mSelectedOption = StartMenuOption::QUIT;
                     break;
-                
+
                 case SDLK_s:
                 case SDLK_DOWN:
-                    mSelectedOption = StartMenuOption::QUIT;
+                    if (mSelectedOption == StartMenuOption::START_GAME)
+                        mSelectedOption = StartMenuOption::QUIT;
+                    else if (mSelectedOption == StartMenuOption::QUIT)
+                        mSelectedOption = StartMenuOption::CREDITS;
+                    else if (mSelectedOption == StartMenuOption::CREDITS)
+                        mSelectedOption = StartMenuOption::START_GAME;
                     break;
-                
+
                 case SDLK_RETURN:
                 case SDLK_SPACE:
                     mOptionConfirmed = true;
