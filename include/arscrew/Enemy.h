@@ -55,6 +55,10 @@ namespace ARSCREW
         float mFlashTimer = 0.0f;
         const float FLASH_INTERVAL = 0.1f;
         
+        // Sistema de stun
+        float mStunTimer = 0.0f;
+        const float STUN_DURATION = 0.5f; // 0.5 segundos de stun
+        
         // Hitboxes
         SDL_Rect mAttackHitbox;
         SDL_Rect mHurtbox;
@@ -104,6 +108,10 @@ namespace ARSCREW
         bool hasDeathSoundPlayed() const { return mDeathSoundPlayed; }
         void setHitSoundPlayed(bool played) { mHitSoundPlayed = played; }
         void setDeathSoundPlayed(bool played) { mDeathSoundPlayed = played; }
+        
+        // Métodos de stun
+        void applyStun() { mStunTimer = STUN_DURATION; mCurrentState = EnemyState::STUNNED; }
+        bool isStunned() const { return mStunTimer > 0.0f; }
         
         // Adicionar métodos que faltam
         void destroy() { mIsDestroyed = true; }

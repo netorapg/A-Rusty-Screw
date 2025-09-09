@@ -207,7 +207,13 @@ namespace ARSCREW
                 break;
 
             case EnemyState::STUNNED:
-                // Implementar lógica de stun se necessário
+                // Reduzir timer de stun
+                mStunTimer -= deltaTime;
+                if (mStunTimer <= 0.0f)
+                {
+                    mStunTimer = 0.0f;
+                    mCurrentState = EnemyState::IDLE; // Voltar para idle quando stun acabar
+                }
                 break;
         }
     }

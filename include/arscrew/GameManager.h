@@ -30,6 +30,8 @@ namespace ARSCREW
         void render();
         void resetGame();
         bool isRunning();
+
+
         
     private:
         SDL_Window* mWindow;
@@ -92,6 +94,22 @@ namespace ARSCREW
         Vector targetSpawn;
         bool increasing;
         int alpha;
+
+        float mScore;
+        int mEnemiesKilled;
+        int mGameOverCount;
+        float mTotalDamageTaken;
+        float mBestAirTime;
+        float mCurrentAirTime;
+        float mGameTime;
+
+        void addEnemyKill();
+        void addGameOver();
+        void addDamageTaken(float dmg);
+        void updateAirTime(float deltaTime, bool inAir);
+        void updateGameTime(float deltaTime);
+        float calculateFinalScore() const;
+        void resetScore();
         
         // Configurações de renderização
         const float PLAYER_ZOOM_FACTOR = 3.0f;
@@ -124,7 +142,7 @@ namespace ARSCREW
         void updatePlayer();
         void checkLevelTransitions();
         void startTransition(const std::string& level, const Vector& spawn);
-        void updateCamera();
+        void updateCamera(float deltaTime);
         void updateCrates();
         
         // Métodos auxiliares de câmera
@@ -152,6 +170,7 @@ namespace ARSCREW
         void playPunktauroDeathSound();
         void playGateSound();
         void cleanupAudioChannels(); // Método para limpar canais
+
         
         // Métodos auxiliares
         std::string getCurrentLevelPath() const;
