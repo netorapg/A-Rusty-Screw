@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="80" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="50">
+ <tileset firstgid="1" source="../assets/fulltile.tsx"/>
+ <tileset firstgid="226" source="../../../Imagens/fulltile.tsx"/>
+ <layer id="3" name="decorations" width="80" height="20">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,46,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,271,
+46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,
+46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,
+46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,
+46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,
+46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,
+46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,
+46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,
+46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,
+46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,
+46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46,46
+</data>
+ </layer>
+ <objectgroup id="2" name="spawns">
+  <object id="3" type="player_spawn" x="74.2115" y="258.478"/>
+  <object id="4" type="door" x="2542.21" y="290.478">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge3.tmx"/>
+   </properties>
+  </object>
+  <object id="5" type="screw_flathead" x="192.333" y="255.167"/>
+  <object id="6" type="screw_flathead" x="353" y="255"/>
+  <object id="7" type="screw_flathead" x="512" y="256.25"/>
+  <object id="8" type="screw_flathead" x="672.333" y="256.333"/>
+  <object id="9" type="screw_flathead" x="832.667" y="256"/>
+  <object id="10" type="screw_flathead" x="991.5" y="256.5"/>
+  <object id="11" type="screw_flathead" x="1152" y="256"/>
+  <object id="12" type="screw_flathead" x="1312" y="256.5"/>
+  <object id="13" type="screw_flathead" x="1471.5" y="254.5"/>
+  <object id="14" type="screw_flathead" x="1631.5" y="256.5"/>
+  <object id="15" type="screw_flathead" x="1791.33" y="256.667"/>
+  <object id="16" type="screw_flathead" x="1952" y="255.333"/>
+  <object id="17" type="screw_flathead" x="2113.33" y="256"/>
+  <object id="18" type="screw_flathead" x="2272" y="254"/>
+  <object id="19" type="screw_flathead" x="2434" y="255.333"/>
+  <object id="20" type="door" x="174" y="352.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="21" type="door" x="204.5" y="352.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="22" type="door" x="335" y="350">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="23" type="door" x="365.5" y="350">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="24" type="door" x="495.5" y="351.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="25" type="door" x="526" y="351.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="26" type="door" x="657.5" y="353">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="27" type="door" x="688" y="353">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="28" type="door" x="814" y="351.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="29" type="door" x="844.5" y="351.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="30" type="door" x="974.5" y="350.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="31" type="door" x="1007" y="350">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="32" type="door" x="1137.5" y="345.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="33" type="door" x="1168" y="345.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="34" type="door" x="1296" y="350">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="35" type="door" x="1326.5" y="350">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="36" type="door" x="1455.5" y="350.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="37" type="door" x="1486" y="350.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="38" type="door" x="1619" y="351">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="39" type="door" x="1649.5" y="351">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="40" type="door" x="1777.5" y="350.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="41" type="door" x="1808" y="350.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="42" type="door" x="1937.5" y="353.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="43" type="door" x="1968" y="353.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="44" type="door" x="2097" y="351.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="45" type="door" x="2127.5" y="351.5">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="46" type="door" x="2258" y="352">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="47" type="door" x="2288.5" y="352">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="48" type="door" x="2419.5" y="352">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+  <object id="49" type="door" x="2450" y="352">
+   <properties>
+    <property name="spawn_x" type="float" value="2"/>
+    <property name="spawn_y" type="float" value="8"/>
+    <property name="target" value="../map/challenge2.tmx"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <layer id="1" name="blocks" width="80" height="20">
+  <data encoding="csv">
+13,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,15,
+13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,
+13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,
+13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,
+13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,
+13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,
+13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,
+13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,
+13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+78,78,78,78,78,0,0,78,78,78,0,0,78,78,78,0,0,78,78,78,0,0,78,78,78,0,0,78,78,78,0,0,78,78,78,0,0,78,78,78,0,0,78,78,78,0,0,78,78,78,0,0,78,78,78,0,0,78,78,78,0,0,78,78,78,0,0,78,78,78,0,0,78,78,78,0,0,78,78,78,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>

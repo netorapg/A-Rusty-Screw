@@ -109,6 +109,11 @@ namespace ARSCREW
             mActionStates[InputAction::MOVE_LEFT] = true;
         else if (leftStickX > 0.5f)
             mActionStates[InputAction::MOVE_RIGHT] = true;
+
+        // Adicione este trecho para CROUCH com analógico
+        float leftStickY = getLeftStickY();
+        if (leftStickY > 0.5f)
+            mActionStates[InputAction::CROUCH] = true;
     }
 
     bool InputManager::isActionPressed(InputAction action)

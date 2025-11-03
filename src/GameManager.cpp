@@ -1016,7 +1016,7 @@ namespace ARSCREW
         
         // Carregar nível inicial se necessário
         if (mCurrentLevel.empty()) {
-            mCurrentLevel = "../map/demoroom1.tmx";
+            mCurrentLevel = "../map/challenge6.tmx";
             mWorld.loadLevelFromTMX(mCurrentLevel);
             mPlayerActivated = false;
             mActivationTime = SDL_GetTicks() + 500;
