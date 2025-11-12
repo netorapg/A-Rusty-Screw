@@ -4,7 +4,7 @@
 
 struct ScoreEntry {
     std::string initials;
-    int score;
+    float score;
 };
 
 class HighScoresManager {
@@ -12,8 +12,9 @@ public:
     HighScoresManager(const std::string& filename, size_t maxEntries = 10);
     void load();
     void save();
-    void addScore(const std::string& initials, int score);
+    void addScore(const std::string& initials, float score);
     const std::vector<ScoreEntry>& getScores() const;
+    bool isHighScore(float score) const;
 private:
     std::string filename;
     size_t maxEntries;

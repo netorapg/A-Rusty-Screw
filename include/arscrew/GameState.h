@@ -9,7 +9,9 @@ namespace ARSCREW
         PLAYING,
         GAME_OVER,
         PAUSED,
-        CREDITS
+        CREDITS,
+        SCORE_ENTRY,
+        HIGH_SCORES
     };
 }
 

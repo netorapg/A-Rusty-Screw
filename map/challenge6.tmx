@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="20" height="80" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="57">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="20" height="80" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="58">
  <tileset firstgid="1" source="../assets/fulltile.tsx"/>
  <layer id="3" name="decorations" width="20" height="80">
   <data encoding="csv">
@@ -133,6 +133,7 @@
   <object id="54" type="screw_flathead" x="236" y="400"/>
   <object id="55" type="screw_flathead" x="48" y="396"/>
   <object id="56" type="screw_flathead" x="430" y="400"/>
+  <object id="57" type="tooltip_phillips" x="574" y="2496"/>
  </objectgroup>
  <layer id="1" name="blocks" width="20" height="80">
   <data encoding="csv">
@@ -149,7 +150,7 @@
 13,0,0,18,18,0,0,0,0,0,0,0,0,0,0,0,18,18,0,15,
 13,0,0,0,0,18,0,0,0,0,0,0,0,0,0,18,0,0,0,15,
 13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,
-13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,
+13,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,78,15,
 13,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,15,
 13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,
 13,0,0,0,0,0,18,0,0,0,0,0,18,0,0,0,0,0,0,15,

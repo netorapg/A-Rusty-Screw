@@ -30,8 +30,8 @@
   <object id="3" type="player_spawn" x="74.2115" y="258.478"/>
   <object id="4" type="door" x="2543.96" y="287.978">
    <properties>
-    <property name="spawn_x" type="float" value="2"/>
-    <property name="spawn_y" type="float" value="8"/>
+    <property name="spawn_x" type="float" value="1"/>
+    <property name="spawn_y" type="float" value="78"/>
     <property name="target" value="../map/challenge6.tmx"/>
    </properties>
   </object>

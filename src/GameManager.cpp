@@ -42,6 +42,7 @@ namespace ARSCREW
         , mStartMenu(renderer)
         , mPauseMenu(renderer)
         , mCreditsScreen(renderer)
+        , mHighScoresManager("highscores.txt", 10)
 {
     resetScore(); // Corrige score "quebrado" ao iniciar
     std::cout << "GameManager constructor called" << std::endl;
@@ -67,6 +68,9 @@ namespace ARSCREW
         Mix_PlayMusic(mMusic, -1); // -1 = loop infinito
         Mix_VolumeMusic(64); // Volume 50% (0-128)
     }
+    // Carregar highscores
+    mHighScoresManager.load();
+    
     // Não carregar nível aqui - será carregado quando o player escolher "START GAME"
     // O jogo começa no menu
     mCurrentLevel = "";
@@ -294,6 +298,18 @@ namespace ARSCREW
                     // Processar apenas input da tela de créditos
                     mCreditsScreen.handleInput(e);
                     break;
+                    
+                case GameState::SCORE_ENTRY:
+                    if (mScoreEntryScreen) {
+                        mScoreEntryScreen->handleEvent(e);
+                    }
+                    break;
+                    
+                case GameState::HIGH_SCORES:
+                    if (mHighScoresScreen) {
+                        mHighScoresScreen->handleEvent(e);
+                    }
+                    break;
             }
         }
     }
@@ -319,6 +335,14 @@ namespace ARSCREW
                 break;
             case GameState::CREDITS:
                 updateCredits(deltaTime);
+                break;
+                
+            case GameState::SCORE_ENTRY:
+                updateScoreEntry(deltaTime);
+                break;
+                
+            case GameState::HIGH_SCORES:
+                updateHighScores(deltaTime);
                 break;
         }
     }
@@ -557,6 +581,14 @@ namespace ARSCREW
                 break;
             case GameState::CREDITS:
                 renderCredits();
+                break;
+                
+            case GameState::SCORE_ENTRY:
+                renderScoreEntry();
+                break;
+                
+            case GameState::HIGH_SCORES:
+                renderHighScores();
                 break;
         }
     }
@@ -875,9 +907,8 @@ namespace ARSCREW
 
     void GameManager::switchToGameOver()
     {
-        mCurrentState = GameState::GAME_OVER;
-        mGameOverScreen.reset();
-        mGameOverScreen.startFadeIn();
+        // Sempre ir direto para entrada de nome, independente do score
+        switchToScoreEntry();
     }
 
     void GameManager::restartGame()
@@ -922,6 +953,10 @@ namespace ARSCREW
             if (mStartMenu.getSelectedOption() == StartMenuOption::START_GAME)
             {
                 switchToPlaying();
+            }
+            else if (mStartMenu.getSelectedOption() == StartMenuOption::HIGH_SCORES)
+            {
+                switchToHighScores();
             }
             else if (mStartMenu.getSelectedOption() == StartMenuOption::CREDITS)
             {
@@ -1016,7 +1051,7 @@ namespace ARSCREW
         
         // Carregar nível inicial se necessário
         if (mCurrentLevel.empty()) {
-            mCurrentLevel = "../map/challenge6.tmx";
+            mCurrentLevel = "../map/challenge2.tmx";
             mWorld.loadLevelFromTMX(mCurrentLevel);
             mPlayerActivated = false;
             mActivationTime = SDL_GetTicks() + 500;
@@ -1043,7 +1078,12 @@ namespace ARSCREW
         
         if (mCreditsScreen.isOptionConfirmed())
         {
-            if (mCreditsScreen.getSelectedOption() == CreditsOption::MAIN_MENU)
+            if (mCreditsScreen.getSelectedOption() == CreditsOption::HIGH_SCORES)
+            {
+                // Sempre ir para entrada de nome após os créditos
+                switchToScoreEntry();
+            }
+            else if (mCreditsScreen.getSelectedOption() == CreditsOption::MAIN_MENU)
             {
                 switchToMenu();
             }
@@ -1176,5 +1216,68 @@ namespace ARSCREW
                 }
             }
         }
+    }
+
+    void GameManager::updateScoreEntry(float deltaTime)
+    {
+        if (mScoreEntryScreen) {
+            mScoreEntryScreen->update();
+            if (mScoreEntryScreen->finished()) {
+                // Salvar a pontuação
+                mHighScoresManager.addScore(mScoreEntryScreen->getInitials(), mScoreEntryScreen->getScore());
+                
+                // Ir para tela de highscores
+                switchToHighScores();
+            }
+        }
+    }
+
+    void GameManager::updateHighScores(float deltaTime)
+    {
+        if (mHighScoresScreen) {
+            mHighScoresScreen->update();
+            if (mHighScoresScreen->finished()) {
+                switchToMenu();
+            }
+        }
+    }
+
+    void GameManager::renderScoreEntry()
+    {
+        // Resetar escala para renderizar a tela de score entry em resolução nativa
+        SDL_RenderSetScale(mRenderer, 1.0f, 1.0f);
+        
+        if (mScoreEntryScreen) {
+            mScoreEntryScreen->render(mRenderer);
+        }
+        
+        // Restaurar escala original
+        SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
+    }
+
+    void GameManager::renderHighScores()
+    {
+        // Resetar escala para renderizar a tela de high scores em resolução nativa
+        SDL_RenderSetScale(mRenderer, 1.0f, 1.0f);
+        
+        if (mHighScoresScreen) {
+            mHighScoresScreen->render(mRenderer);
+        }
+        
+        // Restaurar escala original
+        SDL_RenderSetScale(mRenderer, PLAYER_ZOOM_FACTOR, PLAYER_ZOOM_FACTOR);
+    }
+
+    void GameManager::switchToScoreEntry()
+    {
+        float finalScore = calculateFinalScore();
+        mScoreEntryScreen = std::make_unique<ScoreEntryScreen>(finalScore);
+        mCurrentState = GameState::SCORE_ENTRY;
+    }
+
+    void GameManager::switchToHighScores()
+    {
+        mHighScoresScreen = std::make_unique<HighScoresScreen>(mHighScoresManager);
+        mCurrentState = GameState::HIGH_SCORES;
     }
 }

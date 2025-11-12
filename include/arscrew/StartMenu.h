@@ -12,16 +12,18 @@ namespace ARSCREW
     enum class StartMenuOption
     {
         START_GAME,
-        QUIT,
-        CREDITS
+        HIGH_SCORES,
+        CREDITS,
+        QUIT
     };
 
     struct StartMenuPositions
     {
         SDL_Rect titleRect;
         SDL_Rect startRect;
-        SDL_Rect quitRect;
+        SDL_Rect highScoresRect;
         SDL_Rect creditRect;
+        SDL_Rect quitRect;
         SDL_Rect instructionRect;
     };
 
@@ -58,8 +60,9 @@ namespace ARSCREW
         
         SDL_Texture* mTitleTexture;
         SDL_Texture* mStartTexture;
-        SDL_Texture* mQuitTexture;
+        SDL_Texture* mHighScoresTexture;
         SDL_Texture* mCreditTexture;
+        SDL_Texture* mQuitTexture;
         SDL_Texture* mInstructionTexture;
         
         StartMenuPositions mPositions;

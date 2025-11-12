@@ -11,7 +11,7 @@ namespace ARSCREW
         , mMainMenuTexture(nullptr)
         , mQuitTexture(nullptr)
         , mInstructionTexture(nullptr)
-        , mSelectedOption(CreditsOption::MAIN_MENU)
+        , mSelectedOption(CreditsOption::HIGH_SCORES)
         , mOptionConfirmed(false)
         , mShowOptions(false)
         , mScrollOffset(SCREEN_HEIGHT)
@@ -139,6 +139,7 @@ namespace ARSCREW
     {
         if (!mNormalFont) return;
 
+        mHighScoresTexture = createTextTexture("HIGH SCORES", mNormalFont, {255, 255, 255, 255});
         mMainMenuTexture = createTextTexture("MENU PRINCIPAL", mNormalFont, {255, 255, 255, 255});
         mQuitTexture = createTextTexture("SAIR", mNormalFont, {255, 255, 255, 255});
         mInstructionTexture = createTextTexture("Use W/S para navegar, ENTER para confirmar, SPACE para pular", 
@@ -153,10 +154,12 @@ namespace ARSCREW
         }
         mCreditLines.clear();
 
+        if (mHighScoresTexture) SDL_DestroyTexture(mHighScoresTexture);
         if (mMainMenuTexture) SDL_DestroyTexture(mMainMenuTexture);
         if (mQuitTexture) SDL_DestroyTexture(mQuitTexture);
         if (mInstructionTexture) SDL_DestroyTexture(mInstructionTexture);
 
+        mHighScoresTexture = nullptr;
         mMainMenuTexture = nullptr;
         mQuitTexture = nullptr;
         mInstructionTexture = nullptr;
@@ -276,25 +279,34 @@ namespace ARSCREW
     void CreditsScreen::renderOptions(SDL_Renderer* renderer)
     {
         // Posições das opções
+        SDL_Rect highScoresRect = {
+            SCREEN_WIDTH / 2 - 100,
+            SCREEN_HEIGHT / 2 + 20,
+            200, 40
+        };
+
         SDL_Rect mainMenuRect = {
             SCREEN_WIDTH / 2 - 100,
-            SCREEN_HEIGHT / 2 + 50,
+            SCREEN_HEIGHT / 2 + 80,
             200, 40
         };
 
         SDL_Rect quitRect = {
             SCREEN_WIDTH / 2 - 100,
-            SCREEN_HEIGHT / 2 + 110,
+            SCREEN_HEIGHT / 2 + 140,
             200, 40
         };
 
         SDL_Rect instructionRect = {
             SCREEN_WIDTH / 2 - 200,
-            SCREEN_HEIGHT / 2 + 180,
+            SCREEN_HEIGHT / 2 + 210,
             400, 30
         };
 
         // Renderizar opções
+        renderOption(renderer, mHighScoresTexture, highScoresRect, 
+                    mSelectedOption == CreditsOption::HIGH_SCORES);
+                    
         renderOption(renderer, mMainMenuTexture, mainMenuRect, 
                     mSelectedOption == CreditsOption::MAIN_MENU);
         
@@ -350,8 +362,12 @@ namespace ARSCREW
                 case SDLK_UP:
                     if (mShowOptions)
                     {
-                        mSelectedOption = (mSelectedOption == CreditsOption::MAIN_MENU) ? 
-                                         CreditsOption::QUIT : CreditsOption::MAIN_MENU;
+                        if (mSelectedOption == CreditsOption::HIGH_SCORES)
+                            mSelectedOption = CreditsOption::QUIT;
+                        else if (mSelectedOption == CreditsOption::MAIN_MENU)
+                            mSelectedOption = CreditsOption::HIGH_SCORES;
+                        else if (mSelectedOption == CreditsOption::QUIT)
+                            mSelectedOption = CreditsOption::MAIN_MENU;
                     }
                     break;
                 
@@ -359,8 +375,12 @@ namespace ARSCREW
                 case SDLK_DOWN:
                     if (mShowOptions)
                     {
-                        mSelectedOption = (mSelectedOption == CreditsOption::MAIN_MENU) ? 
-                                         CreditsOption::QUIT : CreditsOption::MAIN_MENU;
+                        if (mSelectedOption == CreditsOption::HIGH_SCORES)
+                            mSelectedOption = CreditsOption::MAIN_MENU;
+                        else if (mSelectedOption == CreditsOption::MAIN_MENU)
+                            mSelectedOption = CreditsOption::QUIT;
+                        else if (mSelectedOption == CreditsOption::QUIT)
+                            mSelectedOption = CreditsOption::HIGH_SCORES;
                     }
                     break;
                 
@@ -376,7 +396,7 @@ namespace ARSCREW
 
     void CreditsScreen::reset()
     {
-        mSelectedOption = CreditsOption::MAIN_MENU;
+        mSelectedOption = CreditsOption::HIGH_SCORES;
         mOptionConfirmed = false;
         mShowOptions = false;
         mScrollOffset = SCREEN_HEIGHT;

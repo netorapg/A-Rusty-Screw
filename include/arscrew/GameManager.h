@@ -7,6 +7,7 @@
 #include <SDL2/SDL_image.h>
 #include <string>
 #include <array>
+#include <memory>
 
 #include "GameWorld.h"
 #include "HUD.h"
@@ -15,6 +16,9 @@
 #include "StartMenu.h"
 #include "PauseMenu.h"
 #include "CreditsScreen.h"
+#include "HighScoresScreen.h"
+#include "ScoreEntryScreen.h"
+#include "HighScoresManager.h"
 #include "GameState.h"
 
 namespace ARSCREW
@@ -57,22 +61,31 @@ namespace ARSCREW
         StartMenu mStartMenu;
         PauseMenu mPauseMenu;
         CreditsScreen mCreditsScreen;
+        HighScoresManager mHighScoresManager;
+        std::unique_ptr<HighScoresScreen> mHighScoresScreen;
+        std::unique_ptr<ScoreEntryScreen> mScoreEntryScreen;
 
         void updatePlaying(float deltaTime);
         void updateGameOver(float deltaTime);
         void updateMenu(float deltaTime);
         void updatePaused(float deltaTime);
         void updateCredits(float deltaTime);
+        void updateScoreEntry(float deltaTime);
+        void updateHighScores(float deltaTime);
         void renderPlaying();
         void renderGameOver();
         void renderMenu();
         void renderPaused();
         void renderCredits();
+        void renderScoreEntry();
+        void renderHighScores();
         void switchToGameOver();
         void switchToPlaying();
         void switchToPaused();
         void switchToMenu();
         void switchToCredits();
+        void switchToScoreEntry();
+        void switchToHighScores();
         void restartGame();
         
         bool mQuit;

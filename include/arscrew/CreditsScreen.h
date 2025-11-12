@@ -11,6 +11,7 @@ namespace ARSCREW
 {
     enum class CreditsOption
     {
+        HIGH_SCORES,
         MAIN_MENU,
         QUIT
     };
@@ -61,6 +62,7 @@ namespace ARSCREW
         TTF_Font* mSmallFont;
         
         std::vector<CreditLine> mCreditLines;
+        SDL_Texture* mHighScoresTexture;
         SDL_Texture* mMainMenuTexture;
         SDL_Texture* mQuitTexture;
         SDL_Texture* mInstructionTexture;

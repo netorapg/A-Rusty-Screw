@@ -86,28 +86,35 @@ namespace ARSCREW
         // Opção Start Game
         mPositions.startRect = {
             SCREEN_WIDTH / 2 - 120,
-            SCREEN_HEIGHT / 2 - 20,
+            SCREEN_HEIGHT / 2 - 40,
+            240, 50
+        };
+
+        // Opção High Scores
+        mPositions.highScoresRect = {
+            SCREEN_WIDTH / 2 - 120,
+            SCREEN_HEIGHT / 2 + 20,
+            240, 50
+        };
+
+        // Opção Credits
+        mPositions.creditRect = {
+            SCREEN_WIDTH / 2 - 120,
+            SCREEN_HEIGHT / 2 + 80,
             240, 50
         };
 
         // Opção Quit
         mPositions.quitRect = {
             SCREEN_WIDTH / 2 - 120,
-            SCREEN_HEIGHT / 2 + 60,
+            SCREEN_HEIGHT / 2 + 140,
             240, 50
-        };
-
-        // Opção Credits
-        mPositions.creditRect = {
-            SCREEN_WIDTH / 2 - 200,
-            SCREEN_HEIGHT / 2 + 160,
-            400, 50
         };
         
         // Instruções
         mPositions.instructionRect = {
             SCREEN_WIDTH / 2 - 200,
-            SCREEN_HEIGHT / 2 + 240,
+            SCREEN_HEIGHT / 2 + 220,
             400, 40
         };
 
@@ -125,13 +132,16 @@ namespace ARSCREW
         
         mTitleTexture = createTextTexture("A RUSTY SCREW", mTitleFont, {255, 255, 255, 255}); // Branco
         mStartTexture = createTextTexture("START GAME", mOptionFont, {255, 255, 255, 255}); // Branco puro
-        mQuitTexture = createTextTexture("QUIT", mOptionFont, {255, 255, 255, 255}); // Branco puro
+        mHighScoresTexture = createTextTexture("HIGH SCORES", mOptionFont, {255, 255, 255, 255}); // Branco puro
         mCreditTexture = createTextTexture("CREDITS", mOptionFont, {255, 255, 255, 255}); // Branco puro
+        mQuitTexture = createTextTexture("QUIT", mOptionFont, {255, 255, 255, 255}); // Branco puro
         mInstructionTexture = createTextTexture("Use W/S to select, ENTER to confirm", 
                                                mOptionFont, {220, 220, 220, 255}); // Cinza claro
         
         std::cout << "StartMenu: Textures created - Title: " << (mTitleTexture ? "OK" : "FAIL") 
                   << ", Start: " << (mStartTexture ? "OK" : "FAIL")
+                  << ", HighScores: " << (mHighScoresTexture ? "OK" : "FAIL")
+                  << ", Credits: " << (mCreditTexture ? "OK" : "FAIL")
                   << ", Quit: " << (mQuitTexture ? "OK" : "FAIL")
                   << ", Instructions: " << (mInstructionTexture ? "OK" : "FAIL") << std::endl;
     }
@@ -140,11 +150,15 @@ namespace ARSCREW
     {
         if (mTitleTexture) SDL_DestroyTexture(mTitleTexture);
         if (mStartTexture) SDL_DestroyTexture(mStartTexture);
+        if (mHighScoresTexture) SDL_DestroyTexture(mHighScoresTexture);
+        if (mCreditTexture) SDL_DestroyTexture(mCreditTexture);
         if (mQuitTexture) SDL_DestroyTexture(mQuitTexture);
         if (mInstructionTexture) SDL_DestroyTexture(mInstructionTexture);
 
         mTitleTexture = nullptr;
         mStartTexture = nullptr;
+        mHighScoresTexture = nullptr;
+        mCreditTexture = nullptr;
         mQuitTexture = nullptr;
         mInstructionTexture = nullptr;
     }
@@ -203,11 +217,14 @@ namespace ARSCREW
         renderOption(renderer, mStartTexture, mPositions.startRect, 
                     mSelectedOption == StartMenuOption::START_GAME);
         
-        renderOption(renderer, mQuitTexture, mPositions.quitRect, 
-                    mSelectedOption == StartMenuOption::QUIT);
+        renderOption(renderer, mHighScoresTexture, mPositions.highScoresRect, 
+                    mSelectedOption == StartMenuOption::HIGH_SCORES);
 
         renderOption(renderer, mCreditTexture, mPositions.creditRect, 
                     mSelectedOption == StartMenuOption::CREDITS);
+        
+        renderOption(renderer, mQuitTexture, mPositions.quitRect, 
+                    mSelectedOption == StartMenuOption::QUIT);
 
         // Renderizar instruções
         if (mInstructionTexture)
@@ -261,20 +278,24 @@ namespace ARSCREW
                 case SDLK_w:
                 case SDLK_UP:
                     if (mSelectedOption == StartMenuOption::START_GAME)
-                        mSelectedOption = StartMenuOption::CREDITS;
-                    else if (mSelectedOption == StartMenuOption::QUIT)
+                        mSelectedOption = StartMenuOption::QUIT;
+                    else if (mSelectedOption == StartMenuOption::HIGH_SCORES)
                         mSelectedOption = StartMenuOption::START_GAME;
                     else if (mSelectedOption == StartMenuOption::CREDITS)
-                        mSelectedOption = StartMenuOption::QUIT;
+                        mSelectedOption = StartMenuOption::HIGH_SCORES;
+                    else if (mSelectedOption == StartMenuOption::QUIT)
+                        mSelectedOption = StartMenuOption::CREDITS;
                     break;
 
                 case SDLK_s:
                 case SDLK_DOWN:
                     if (mSelectedOption == StartMenuOption::START_GAME)
-                        mSelectedOption = StartMenuOption::QUIT;
-                    else if (mSelectedOption == StartMenuOption::QUIT)
+                        mSelectedOption = StartMenuOption::HIGH_SCORES;
+                    else if (mSelectedOption == StartMenuOption::HIGH_SCORES)
                         mSelectedOption = StartMenuOption::CREDITS;
                     else if (mSelectedOption == StartMenuOption::CREDITS)
+                        mSelectedOption = StartMenuOption::QUIT;
+                    else if (mSelectedOption == StartMenuOption::QUIT)
                         mSelectedOption = StartMenuOption::START_GAME;
                     break;
 
