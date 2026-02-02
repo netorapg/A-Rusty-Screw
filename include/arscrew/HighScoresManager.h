@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef ARSCREW_HIGHSCORESMANAGER_H
+#define ARSCREW_HIGHSCORESMANAGER_H
 #include <vector>
 #include <string>
 
@@ -20,3 +21,4 @@ private:
     size_t maxEntries;
     std::vector<ScoreEntry> scores;
 };
+#endif // ARSCREW_HIGHSCORESMANAGER_H

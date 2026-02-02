@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ARSCREW_SCOREENTRYSCREEN_H
+#define ARSCREW_SCOREENTRYSCREEN_H
 #include <string>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -41,3 +42,4 @@ private:
                    SDL_Color color, int x, int y, bool center = false);
     void renderBackground(SDL_Renderer* renderer);
 };
+#endif // ARSCREW_SCOREENTRYSCREEN_H

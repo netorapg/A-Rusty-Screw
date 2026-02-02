@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ARSCREW_HIGHSCORESSCREEN_H
+#define ARSCREW_HIGHSCORESSCREEN_H
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string>
@@ -34,3 +35,4 @@ private:
                    SDL_Color color, int x, int y, bool center = false);
     void renderBackground(SDL_Renderer* renderer);
 };
+#endif // ARSCREW_HIGHSCORESSCREEN_H

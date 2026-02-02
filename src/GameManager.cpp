@@ -1043,6 +1043,9 @@ namespace ARSCREW
         mPauseMenu.hide();
         mStartMenu.reset();
         
+        // Resetar score ao iniciar novo jogo
+        resetScore();
+        
         // Resetar flag do boss derrotado ao começar novo jogo
         mBossDefeated = false;
         mBossDefeatedTransition = false;
